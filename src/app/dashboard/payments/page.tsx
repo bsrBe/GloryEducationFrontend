@@ -10,9 +10,11 @@ import { CreditCard, Plus, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 interface Payment {
   amount: number;
   method: string;
-  reference: string;
+  transactionRef?: string;
+  reference?: string;
   status: string;
-  submittedAt: string;
+  date?: string;
+  submittedAt?: string;
   verifiedAt?: string;
 }
 
@@ -20,7 +22,6 @@ interface AddPaymentForm {
   amount: number;
   method: string;
   reference: string;
-  transactionId: string;
 }
 
 export default function PaymentsPage() {
@@ -31,7 +32,9 @@ export default function PaymentsPage() {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<AddPaymentForm>();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<AddPaymentForm>({
+    defaultValues: { amount: 500, method: 'telebirr' },
+  });
 
   useEffect(() => {
     loadPayments();
@@ -55,7 +58,12 @@ export default function PaymentsPage() {
     if (!user?._id) return;
     setSubmitting(true);
     try {
-      await studentsAPI.addPayment(user._id, data as unknown as Record<string, unknown>);
+      const methodVal = data.method === 'bank' ? 'bank_transfer' : data.method;
+      await studentsAPI.addPayment(user._id, {
+        method: methodVal,
+        amount: Number(data.amount) || 500,
+        transactionRef: data.reference,
+      });
       reset();
       setShowForm(false);
       loadPayments();
@@ -69,12 +77,13 @@ export default function PaymentsPage() {
   };
 
   const totalPaid = payments
-    .filter((p) => p.status === 'verified')
-    .reduce((sum, p) => sum + p.amount, 0);
+    .filter((p) => (p.status || '').toLowerCase() === 'verified')
+    .reduce((sum, p) => sum + (p.amount || 0), 0);
 
   const methodLabel = (m: string) => {
     const map: Record<string, string> = {
       telebirr: '📱 Telebirr',
+      bank_transfer: '🏦 Bank Transfer',
       bank: '🏦 Bank Transfer',
       cash: '💵 Cash',
     };
@@ -103,7 +112,7 @@ export default function PaymentsPage() {
           <p className="text-2xl font-bold text-carbon">500 ETB</p>
         </Card>
         <Card className="text-center">
-          <p className="text-sm text-dim-grey">Paid</p>
+          <p className="text-sm text-dim-grey">Verified Paid</p>
           <p className="text-2xl font-bold text-green">{totalPaid} ETB</p>
         </Card>
         <Card className="text-center">
@@ -133,9 +142,8 @@ export default function PaymentsPage() {
               <Select
                 label="Payment Method"
                 options={[
-                  { value: '', label: 'Select...' },
                   { value: 'telebirr', label: 'Telebirr' },
-                  { value: 'bank', label: 'Bank Transfer' },
+                  { value: 'bank_transfer', label: 'Bank Transfer' },
                   { value: 'cash', label: 'Cash' },
                 ]}
                 {...register('method', { required: 'Required' })}
@@ -143,15 +151,10 @@ export default function PaymentsPage() {
               />
             </div>
             <Input
-              label="Reference Number"
-              placeholder="Transaction reference"
+              label="Transaction / Reference Number"
+              placeholder="e.g. FT260824..."
               {...register('reference', { required: 'Required' })}
               error={errors.reference?.message}
-            />
-            <Input
-              label="Transaction ID (optional)"
-              placeholder="Transaction ID"
-              {...register('transactionId')}
             />
             <div className="flex gap-3">
               <Button type="submit" loading={submitting}>Submit Payment</Button>
@@ -171,23 +174,27 @@ export default function PaymentsPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {payments.map((p, i) => (
-              <div key={i} className="flex items-center justify-between p-3 bg-porcelain rounded-lg">
-                <div>
-                  <p className="font-medium text-carbon">{methodLabel(p.method)}</p>
-                  <p className="text-xs text-dim-grey">Ref: {p.reference}</p>
-                  <p className="text-xs text-dim-grey">
-                    {new Date(p.submittedAt).toLocaleDateString()}
-                  </p>
+            {payments.map((p, i) => {
+              const isVerified = (p.status || '').toLowerCase() === 'verified';
+              const isFailed = (p.status || '').toLowerCase() === 'failed';
+              return (
+                <div key={i} className="flex items-center justify-between p-3 bg-porcelain rounded-lg">
+                  <div>
+                    <p className="font-medium text-carbon">{methodLabel(p.method)}</p>
+                    <p className="text-xs text-dim-grey">Ref: {p.transactionRef || p.reference || '—'}</p>
+                    <p className="text-xs text-dim-grey">
+                      {p.date || p.submittedAt ? new Date(p.date || p.submittedAt!).toLocaleDateString() : 'Recent'}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-carbon">{p.amount} ETB</p>
+                    <Badge variant={isVerified ? 'green' : (isFailed ? 'red' : 'yellow')}>
+                      {isVerified ? '✅ Verified' : (isFailed ? '❌ Failed' : '⏳ Pending')}
+                    </Badge>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-carbon">{p.amount} ETB</p>
-                  <Badge variant={p.status === 'verified' ? 'green' : 'yellow'}>
-                    {p.status === 'verified' ? '✅ Verified' : '⏳ Pending'}
-                  </Badge>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Card>

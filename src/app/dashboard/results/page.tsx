@@ -8,19 +8,13 @@ import { GraduationCap, MapPin, BookOpen, AlertCircle, ExternalLink } from 'luci
 
 interface ResultData {
   decision: string;
-  primaryMatch: {
-    name: string;
-    country: string;
-    programs: string[];
-  };
-  secondaryMatch: {
-    name: string;
-    country: string;
-  };
+  status: string;
+  primaryMatch?: string | null;
+  secondaryMatch?: string | null;
   publishedAt: string;
-  assessedBy: string;
-  totalScore: number;
-  feedback: string;
+  nextStep?: string;
+  disclaimer?: string;
+  totalScore?: number | null;
 }
 
 export default function ResultsPage() {
@@ -30,10 +24,27 @@ export default function ResultsPage() {
 
   useEffect(() => {
     if (!user?._id) return;
-    studentsAPI
-      .getResult(user._id)
-      .then((res) => {
-        setResult(res.data);
+    Promise.all([
+      studentsAPI.getResult(user._id).catch(() => null),
+      studentsAPI.getDashboard().catch(() => null),
+    ])
+      .then(([resResult, resDashboard]) => {
+        const r = resResult?.data;
+        const d = resDashboard?.data;
+
+        if (r?.result?.isPublished || d?.resultPublished) {
+          const rawStatus = r?.result?.status || d?.result?.status || d?.representativeDecision || 'Green';
+          setResult({
+            decision: rawStatus.toLowerCase(),
+            status: rawStatus,
+            primaryMatch: d?.primaryMatch || 'Matched Institution',
+            secondaryMatch: d?.secondaryMatch,
+            publishedAt: r?.result?.publishedAt || new Date().toISOString(),
+            nextStep: r?.result?.nextStep || d?.result?.nextStep || 'Application recommended — start your application now!',
+            disclaimer: r?.result?.disclaimer || d?.result?.disclaimer || 'This is a preliminary eligibility assessment.',
+            totalScore: d?.assessmentScore,
+          });
+        }
         setLoading(false);
       })
       .catch(() => {
@@ -47,40 +58,40 @@ export default function ResultsPage() {
     return (
       <EmptyState
         icon={<GraduationCap />}
-        title="No Results Yet"
-        description="Your results will be published after the assessment and review process. Check back later!"
+        title="Assessment in Progress"
+        description="Your profile is currently undergoing academic screening and university review. Check back soon for your personalized results!"
       />
     );
   }
 
-  const decisionConfig = {
+  const decisionConfig: Record<string, { bg: string; border: string; text: string; label: string; message: string; defaultNextStep: string }> = {
     green: {
       bg: 'bg-green-bg',
       border: 'border-green',
       text: 'text-green-text',
       label: '🟢 ELIGIBLE TO APPLY',
       message: 'Your profile meets the preliminary criteria for this institution.',
-      nextStep: 'Application recommended — start your application now!',
+      defaultNextStep: 'Application recommended — start your application now!',
     },
     yellow: {
       bg: 'bg-gold-light',
       border: 'border-gold',
       text: 'text-yellow-text',
-      label: '🟡 UNDER REVIEW',
-      message: 'Your profile is being reviewed. You may need additional documents.',
-      nextStep: 'Wait for further instructions from the admissions team.',
+      label: '🟡 FURTHER REVIEW REQUIRED',
+      message: 'Your profile has potential. Additional documents or clarification are recommended.',
+      defaultNextStep: 'Attend the Glory Application Clinic for personalized guidance.',
     },
     red: {
       bg: 'bg-red-bg',
       border: 'border-red',
       text: 'text-red-text',
-      label: '🔴 NOT MATCHED',
-      message: 'Unfortunately, your profile does not currently meet the criteria.',
-      nextStep: 'Consider improving your qualifications and reapplying next year.',
+      label: '🔴 NOT CURRENTLY MATCHED',
+      message: 'Your current profile does not match our participating partner requirements.',
+      defaultNextStep: 'Explore alternative pathways, Foundation years, or language score improvements.',
     },
   };
 
-  const config = decisionConfig[result.decision as keyof typeof decisionConfig];
+  const config = decisionConfig[result.decision] || decisionConfig.green;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -103,39 +114,17 @@ export default function ResultsPage() {
           <div className="flex items-center gap-2 mb-1">
             <GraduationCap size={20} className="text-ocean" />
             <h3 className="text-lg font-bold text-carbon">
-              {result.primaryMatch.name}
+              {result.primaryMatch || 'Matched Partner Institution'}
             </h3>
-          </div>
-          <div className="flex items-center gap-4 text-sm text-dim-grey">
-            <span className="flex items-center gap-1">
-              <BookOpen size={14} /> {result.primaryMatch.programs.join(', ')}
-            </span>
-            <span className="flex items-center gap-1">
-              <MapPin size={14} /> {result.primaryMatch.country}
-            </span>
           </div>
         </div>
 
         {result.secondaryMatch && (
           <div className="border-l-4 border-pale-sky pl-4 py-2 mt-4">
-            <p className="text-xs text-dim-grey mb-1">Secondary Match</p>
-            <h4 className="font-semibold text-carbon">{result.secondaryMatch.name}</h4>
-            <p className="text-sm text-dim-grey">{result.secondaryMatch.country}</p>
+            <p className="text-xs text-dim-grey mb-1">Secondary Match (Alternative)</p>
+            <h4 className="font-semibold text-carbon">{result.secondaryMatch}</h4>
           </div>
         )}
-      </Card>
-
-      {/* Score */}
-      <Card>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-dim-grey">Assessment Score</p>
-            <p className="text-3xl font-bold text-ocean">{result.totalScore}/100</p>
-          </div>
-          {result.feedback && (
-            <p className="text-sm text-dim-grey max-w-xs text-right">{result.feedback}</p>
-          )}
-        </div>
       </Card>
 
       {/* Decision */}
@@ -145,7 +134,7 @@ export default function ResultsPage() {
         </h2>
         <p className="text-sm text-carbon text-center mt-2">{config.message}</p>
         <p className="text-sm font-medium text-carbon text-center mt-3">
-          Next Step: {config.nextStep}
+          Next Step: {result.nextStep || config.defaultNextStep}
         </p>
       </div>
 

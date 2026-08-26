@@ -12,13 +12,18 @@ interface Student {
   studentId: string;
   firstName: string;
   lastName: string;
-  gpa: number;
-  programInterest: string;
-  countryPreference: string;
-  englishScore: number;
-  assessment: { totalScore: number };
-  match: { decision: string };
-  representative?: { status: string; comments: string };
+  gpa?: number;
+  intendedProgram?: string;
+  programInterest?: string;
+  preferredCountry?: string;
+  countryPreference?: string;
+  englishTest?: string;
+  englishScore?: number;
+  assessment?: { totalScore: number };
+  matches?: { primary?: { program?: string; reason?: string } };
+  representativeReview?: { decision?: string; comments?: string; isLocked?: boolean };
+  representative?: { status?: string; comments?: string };
+  documents?: Array<{ fileName?: string; cloudinaryUrl?: string }>;
 }
 
 export default function PortalPage() {
@@ -32,7 +37,7 @@ export default function PortalPage() {
     studentsAPI
       .representativeAssigned()
       .then((res) => {
-        setStudents(res.data);
+        setStudents(res.data || []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -45,13 +50,20 @@ export default function PortalPage() {
     setReviewing(studentId);
     try {
       await studentsAPI.review(studentId, {
-        decision: review.status,
+        decision: review.status, // 'Green', 'Yellow', or 'Red'
         comments: review.comments || '',
       });
       setStudents((prev) =>
         prev.map((s) =>
           s._id === studentId
-            ? { ...s, representative: { status: review.status, comments: review.comments || '' } }
+            ? {
+                ...s,
+                representativeReview: {
+                  decision: review.status,
+                  comments: review.comments || '',
+                  isLocked: true,
+                },
+              }
             : s
         )
       );
@@ -86,13 +98,17 @@ export default function PortalPage() {
       <div>
         <h1 className="text-2xl font-bold text-carbon">Review Portal</h1>
         <p className="text-dim-grey text-sm mt-1">
-          Review students matched to your university • {students.length} pending
+          Review students matched to your university • {students.length} assigned
         </p>
       </div>
 
       {students.map((s) => {
-        const reviewed = !!s.representative?.status;
+        const repDecision = s.representativeReview?.decision || s.representative?.status;
+        const reviewed = !!repDecision;
         const currentReview = reviews[s._id] || {};
+        const program = s.intendedProgram || s.programInterest || s.matches?.primary?.program || 'General Program';
+        const country = s.preferredCountry || s.countryPreference || 'International';
+        const docUrl = s.documents?.[0]?.cloudinaryUrl;
 
         return (
           <Card key={s._id} className={reviewed ? 'border-green/30' : ''}>
@@ -110,53 +126,66 @@ export default function PortalPage() {
                   {reviewed && (
                     <Badge
                       variant={
-                        s.representative!.status === 'green'
+                        repDecision.toLowerCase() === 'green'
                           ? 'green'
-                          : s.representative!.status === 'yellow'
+                          : repDecision.toLowerCase() === 'yellow'
                           ? 'yellow'
                           : 'red'
                       }
                     >
-                      <CheckCircle size={10} /> Reviewed
+                      <CheckCircle size={10} /> {repDecision}
                     </Badge>
                   )}
                 </div>
 
-                <div className="flex flex-wrap gap-3 text-sm text-dim-grey mb-4">
-                  <span>GPA: {s.gpa}</span>
+                <div className="flex flex-wrap gap-3 text-sm text-dim-grey mb-3">
+                  <span>GPA: {s.gpa ?? 'N/A'}</span>
                   <span>•</span>
-                  <span>{s.programInterest}</span>
+                  <span>{program}</span>
                   <span>•</span>
-                  <span>{s.countryPreference}</span>
+                  <span>{country}</span>
                   <span>•</span>
-                  <span>Score: {s.assessment?.totalScore}/100</span>
+                  <span>Score: {s.assessment?.totalScore ?? 'Pending'}/100</span>
+                  {docUrl && (
+                    <>
+                      <span>•</span>
+                      <a href={docUrl} target="_blank" rel="noreferrer" className="text-ocean font-medium hover:underline">
+                        View Academic PDF ↗
+                      </a>
+                    </>
+                  )}
                 </div>
 
                 {!reviewed ? (
                   <div className="space-y-3">
                     <div className="flex gap-3">
-                      {(['green', 'yellow', 'red'] as const).map((color) => (
+                      {[
+                        { key: 'Green', label: '🟢 Eligible' },
+                        { key: 'Yellow', label: '🟡 Review' },
+                        { key: 'Red', label: '🔴 No Match' },
+                      ].map(({ key, label }) => (
                         <button
-                          key={color}
-                          onClick={() => updateReview(s._id, 'status', color)}
+                          key={key}
+                          type="button"
+                          onClick={() => updateReview(s._id, 'status', key)}
                           className={clsx(
                             'flex-1 py-3 rounded-lg border-2 font-semibold text-sm transition-all text-center',
-                            currentReview.status === color
-                              ? color === 'green'
+                            currentReview.status === key
+                              ? key === 'Green'
                                 ? 'border-green bg-green-bg text-green-text'
-                                : color === 'yellow'
+                                : key === 'Yellow'
                                 ? 'border-gold bg-gold-light text-yellow-text'
                                 : 'border-red bg-red-bg text-red-text'
                               : 'border-charcoal/20 text-dim-grey hover:border-charcoal/40'
                           )}
                         >
-                          {color === 'green' ? '🟢 Eligible' : color === 'yellow' ? '🟡 Review' : '🔴 No Match'}
+                          {label}
                         </button>
                       ))}
                     </div>
 
                     <Input
-                      placeholder="Comments (optional)"
+                      placeholder="Representative comments (optional)"
                       value={currentReview.comments || ''}
                       onChange={(e) => updateReview(s._id, 'comments', e.target.value)}
                     />
@@ -167,16 +196,18 @@ export default function PortalPage() {
                       onClick={() => handleReview(s._id)}
                       loading={reviewing === s._id}
                     >
-                      Submit Review
+                      Submit Decision
                     </Button>
                   </div>
                 ) : (
                   <div className="bg-porcelain rounded-lg px-4 py-3">
                     <p className="text-sm text-dim-grey">
-                      Your review: <span className="font-medium text-carbon capitalize">{s.representative!.status}</span>
+                      Decision: <span className="font-semibold text-carbon">{repDecision}</span>
                     </p>
-                    {s.representative!.comments && (
-                      <p className="text-sm text-carbon mt-1">{s.representative!.comments}</p>
+                    {(s.representativeReview?.comments || s.representative?.comments) && (
+                      <p className="text-sm text-carbon mt-1">
+                        {s.representativeReview?.comments || s.representative?.comments}
+                      </p>
                     )}
                   </div>
                 )}

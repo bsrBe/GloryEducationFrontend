@@ -7,11 +7,14 @@ import { Card, Button, Badge, LoadingSpinner, ErrorState } from '@/components/ui
 import { Upload, FileText, CheckCircle, XCircle, Clock, Trash2 } from 'lucide-react';
 
 interface Document {
-  name: string;
-  type: string;
-  url: string;
-  uploadedAt: string;
-  status: string;
+  fileName?: string;
+  name?: string;
+  cloudinaryUrl?: string;
+  url?: string;
+  fileSize?: number;
+  uploadedAt?: string;
+  reviewStatus?: string;
+  status?: string;
 }
 
 export default function DocumentsPage() {
@@ -60,14 +63,17 @@ export default function DocumentsPage() {
     }
   };
 
-  const statusBadge = (s: string) => {
-    switch (s) {
+  const statusBadge = (s?: string) => {
+    const status = (s || '').toLowerCase();
+    switch (status) {
+      case 'reviewed':
       case 'approved':
-        return <Badge variant="green"><CheckCircle size={12} /> Approved</Badge>;
+        return <Badge variant="green"><CheckCircle size={12} /> Reviewed</Badge>;
+      case 'needs replacement':
       case 'rejected':
-        return <Badge variant="red"><XCircle size={12} /> Rejected</Badge>;
+        return <Badge variant="red"><XCircle size={12} /> Needs Replacement</Badge>;
       default:
-        return <Badge variant="yellow"><Clock size={12} /> Pending</Badge>;
+        return <Badge variant="yellow"><Clock size={12} /> Uploaded</Badge>;
     }
   };
 
@@ -79,7 +85,7 @@ export default function DocumentsPage() {
       <div>
         <h1 className="text-2xl font-bold text-carbon">Documents</h1>
         <p className="text-dim-grey text-sm mt-1">
-          Upload your academic documents (PDF, JPEG, PNG — max 10MB)
+          Upload your academic documents (combined PDF recommended — max 10MB)
         </p>
       </div>
 
@@ -93,7 +99,7 @@ export default function DocumentsPage() {
           {uploading ? (
             <div>
               <div className="animate-spin h-6 w-6 border-2 border-ocean border-t-transparent rounded-full mx-auto mb-2" />
-              <p className="text-sm text-dim-grey">Uploading...</p>
+              <p className="text-sm text-dim-grey">Uploading to secure storage...</p>
             </div>
           ) : (
             <>
@@ -121,22 +127,37 @@ export default function DocumentsPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {documents.map((doc, i) => (
-              <div key={i} className="flex items-center justify-between p-3 bg-porcelain rounded-lg">
-                <div className="flex items-center gap-3">
-                  <FileText size={20} className="text-ocean" />
-                  <div>
-                    <p className="font-medium text-carbon text-sm">{doc.name}</p>
-                    <p className="text-xs text-dim-grey">
-                      {doc.type} • {new Date(doc.uploadedAt).toLocaleDateString()}
-                    </p>
+            {documents.map((doc, i) => {
+              const fileName = doc.fileName || doc.name || `Document_${i + 1}.pdf`;
+              const fileUrl = doc.cloudinaryUrl || doc.url;
+              return (
+                <div key={i} className="flex items-center justify-between p-3 bg-porcelain rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <FileText size={20} className="text-ocean" />
+                    <div>
+                      <p className="font-medium text-carbon text-sm">{fileName}</p>
+                      <p className="text-xs text-dim-grey">
+                        {doc.fileSize ? `${Math.round(doc.fileSize / 1024)} KB • ` : ''}
+                        {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : 'Uploaded'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {fileUrl && (
+                      <a
+                        href={fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-ocean hover:underline"
+                      >
+                        View File ↗
+                      </a>
+                    )}
+                    {statusBadge(doc.reviewStatus || doc.status)}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  {statusBadge(doc.status)}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Card>

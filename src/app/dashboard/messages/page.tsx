@@ -80,7 +80,12 @@ export default function MessagesPage() {
   const onSend = async (data: ComposeForm) => {
     setSending(true);
     try {
-      await messagesAPI.send(data as unknown as Record<string, unknown>);
+      await messagesAPI.send({
+        recipientId: data.recipientId,
+        recipientModel: data.recipientModel || 'User',
+        subject: data.subject,
+        body: data.content,
+      });
       reset();
       setComposing(false);
       loadMessages();

@@ -14,24 +14,25 @@ import {
 } from 'lucide-react';
 
 interface DashboardData {
-  profile: {
-    completionPercentage: number;
-  };
-  payment: {
+  studentId?: string;
+  name?: string;
+  email?: string;
+  profileComplete?: number;
+  paymentStatus?: string;
+  documentStatus?: string;
+  assessmentStatus?: string;
+  assessmentScore?: number | null;
+  matchStatus?: string;
+  primaryMatch?: string | null;
+  secondaryMatch?: string | null;
+  representativeDecision?: string;
+  resultPublished?: boolean;
+  result?: {
     status: string;
-  };
-  documents: {
-    count: number;
-  };
-  assessment: {
-    totalScore: number | null;
-  };
-  match: {
-    primaryMatch: { name: string } | null;
-  };
-  result: {
-    decision: string;
-  };
+    nextStep: string;
+    disclaimer: string;
+  } | null;
+  applicationStage?: string;
 }
 
 export default function StudentDashboard() {
@@ -56,16 +57,17 @@ export default function StudentDashboard() {
   if (loading) return <LoadingSpinner text="Loading your dashboard..." />;
   if (error) return <ErrorState message={error} />;
 
-  const profileComplete = data?.profile?.completionPercentage || 0;
-  const paymentStatus = data?.payment?.status || 'pending';
-  const docCount = data?.documents?.count || 0;
-  const hasAssessment = !!data?.assessment?.totalScore;
-  const hasMatch = !!data?.match?.primaryMatch;
-  const hasResult = !!data?.result?.decision;
+  const profileComplete = data?.profileComplete ?? 0;
+  const isPaymentVerified = (data?.paymentStatus || '').toLowerCase() === 'verified';
+  const hasDocuments = data?.documentStatus && data.documentStatus !== 'Not Uploaded';
+  const hasAssessment = data?.assessmentStatus === 'Completed' || (data?.assessmentScore != null && data.assessmentScore > 0);
+  const hasMatch = !!data?.primaryMatch;
+  const hasResult = !!data?.resultPublished || !!data?.result?.status;
 
   const progressSteps = [
-    paymentStatus === 'verified',
+    isPaymentVerified,
     profileComplete === 100,
+    hasDocuments,
     hasAssessment,
     hasMatch,
     hasResult,
@@ -74,21 +76,24 @@ export default function StudentDashboard() {
     (progressSteps.filter(Boolean).length / progressSteps.length) * 100
   );
 
-  const decisionVariant = (d: string) => {
-    if (d === 'green') return 'green' as const;
-    if (d === 'yellow') return 'yellow' as const;
+  const decisionVariant = (d?: string) => {
+    const lower = (d || '').toLowerCase();
+    if (lower === 'green') return 'green' as const;
+    if (lower === 'yellow') return 'yellow' as const;
     return 'red' as const;
   };
+
+  const resultDecision = data?.result?.status || data?.representativeDecision;
 
   return (
     <div className="space-y-6">
       {/* Welcome */}
       <div>
         <h1 className="text-2xl font-bold text-carbon">
-          Welcome back, {user?.firstName}! 👋
+          Welcome back, {user?.firstName || data?.name?.split(' ')[0]}! 👋
         </h1>
         <p className="text-dim-grey text-sm mt-1">
-          Student ID: <span className="text-gold font-semibold">{user?.studentId || '—'}</span>
+          Student ID: <span className="text-gold font-semibold">{user?.studentId || data?.studentId || '—'}</span>
         </p>
       </div>
 
@@ -104,37 +109,37 @@ export default function StudentDashboard() {
         <StatusCard
           icon={<CreditCard size={20} />}
           title="Payment"
-          value={paymentStatus === 'verified' ? 'Verified' : 'Pending'}
-          done={paymentStatus === 'verified'}
+          value={isPaymentVerified ? 'Verified' : 'Pending'}
+          done={isPaymentVerified}
           href="/dashboard/payments"
         />
         <StatusCard
           icon={<FileText size={20} />}
           title="Documents"
-          value={`${docCount} uploaded`}
-          done={docCount > 0}
+          value={data?.documentStatus || 'Not Uploaded'}
+          done={!!hasDocuments}
           href="/dashboard/documents"
         />
         <StatusCard
           icon={<BarChart3 size={20} />}
           title="Assessment"
-          value={hasAssessment ? `${data?.assessment?.totalScore}/100` : 'Pending'}
-          done={hasAssessment}
+          value={hasAssessment ? `${data?.assessmentScore || 0}/100` : 'Pending'}
+          done={!!hasAssessment}
           href="/dashboard"
         />
         <StatusCard
           icon={<Target size={20} />}
           title="Match"
-          value={hasMatch ? data?.match?.primaryMatch?.name || 'Matched' : 'Pending'}
-          done={hasMatch}
+          value={data?.primaryMatch || 'Pending'}
+          done={!!hasMatch}
           href="/dashboard"
         />
         <StatusCard
           icon={<ClipboardCheck size={20} />}
           title="Result"
-          value={hasResult ? data?.result?.decision.toUpperCase() : 'Pending'}
-          done={hasResult}
-          variant={hasResult ? decisionVariant(data!.result.decision) : undefined}
+          value={hasResult && resultDecision ? resultDecision.toUpperCase() : 'Pending'}
+          done={!!hasResult}
+          variant={hasResult && resultDecision ? decisionVariant(resultDecision) : undefined}
           href="/dashboard/results"
         />
       </div>

@@ -82,23 +82,38 @@ export default function ApplyPaymentPage() {
       const profile = (draft?.profile || {}) as Record<string, string>;
       const payment = (draft?.payment || {}) as Record<string, string>;
 
-      // Upload profile
-      await studentsAPI.updateProfile(user!._id, {
-        ...profile,
-        gpa: profile.gpa ? parseFloat(profile.gpa) : undefined,
-        englishScore: profile.englishScore ? parseFloat(profile.englishScore) : undefined,
-      });
+      // Upload profile (whitelisted fields only)
+      const cleanProfile: Record<string, unknown> = {};
+      if (profile.firstName) cleanProfile.firstName = profile.firstName;
+      if (profile.lastName) cleanProfile.lastName = profile.lastName;
+      if (profile.phone) cleanProfile.phone = profile.phone;
+      if (profile.educationLevel) cleanProfile.educationLevel = profile.educationLevel;
+      if (profile.institution || profile.school) cleanProfile.school = profile.institution || profile.school;
+      if (profile.gpa) cleanProfile.gpa = parseFloat(profile.gpa);
+      if (profile.graduationYear) cleanProfile.graduationYear = parseInt(profile.graduationYear);
+      if (profile.programInterest || profile.intendedProgram) cleanProfile.intendedProgram = profile.programInterest || profile.intendedProgram;
+      if (profile.countryPreference || profile.preferredCountry) cleanProfile.preferredCountry = profile.countryPreference || profile.preferredCountry;
+      if (profile.englishProficiency || profile.englishTest) cleanProfile.englishTest = profile.englishProficiency || profile.englishTest;
+      if (profile.englishScore) cleanProfile.englishScore = parseFloat(profile.englishScore);
+      if (profile.budget) cleanProfile.budget = Number(profile.budget);
+
+      if (Object.keys(cleanProfile).length > 0) {
+        await studentsAPI.updateProfile(user!._id, cleanProfile);
+      }
 
       // Upload documents from IndexedDB
       await syncToBackend(user!._id);
 
       // Submit payment
-      if (payment.method && payment.reference) {
+      const paymentMethod = (payment.method || selectedMethod || 'telebirr').toLowerCase();
+      const validMethod = ['telebirr', 'bank_transfer', 'cash'].includes(paymentMethod) ? paymentMethod : (paymentMethod === 'bank' ? 'bank_transfer' : 'telebirr');
+      const ref = payment.reference || payment.transactionId || watchAll.reference || watchAll.transactionId;
+
+      if (ref) {
         await studentsAPI.addPayment(user!._id, {
-          method: payment.method,
-          amount: Number(payment.amount) || 500,
-          reference: payment.reference,
-          transactionId: payment.transactionId || '',
+          method: validMethod,
+          amount: Number(payment.amount) || Number(watchAll.amount) || 500,
+          transactionRef: ref,
         });
       }
 

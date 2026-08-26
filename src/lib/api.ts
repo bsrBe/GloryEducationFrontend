@@ -62,15 +62,15 @@ export const usersAPI = {
 
 // --- Students ---
 export const studentsAPI = {
-  list: (params?: Record<string, string>) => api.get('/students', { params }),
+  list: (params?: Record<string, string | number>) => api.get('/students', { params }),
   get: (id: string) => api.get(`/students/${id}`),
   getDashboard: () => api.get('/students/dashboard/my'),
   updateProfile: (id: string, data: Record<string, unknown>) =>
     api.patch(`/students/${id}/profile`, data),
   addPayment: (id: string, data: Record<string, unknown>) =>
     api.post(`/students/${id}/payments`, data),
-  verifyPayment: (id: string, data: Record<string, unknown>) =>
-    api.patch(`/students/${id}/payments/verify`, data),
+  verifyPayment: (id: string, paymentIndex: number, data: Record<string, unknown>) =>
+    api.patch(`/students/${id}/payments/${paymentIndex}/verify`, data),
   uploadDocument: (id: string, formData: FormData) =>
     api.post(`/students/${id}/documents`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -79,15 +79,18 @@ export const studentsAPI = {
     api.patch(`/students/${id}/documents/${docIdx}/review`, data),
   assess: (id: string, data: Record<string, unknown>) =>
     api.post(`/students/${id}/assess`, data),
+  overrideAssess: (id: string, data: { score: number; reason: string }) =>
+    api.post(`/students/${id}/assess/override`, data),
   match: (id: string) => api.post(`/students/${id}/match`),
   approveMatch: (id: string, data: Record<string, unknown>) =>
     api.patch(`/students/${id}/match/approve`, data),
   review: (id: string, data: Record<string, unknown>) =>
     api.post(`/students/${id}/review`, data),
-  publishResult: (id: string) => api.post(`/students/${id}/result/publish`),
+  publishResult: (id: string, data: Record<string, unknown>) =>
+    api.post(`/students/${id}/result/publish`, data),
   getResult: (id: string) => api.get(`/students/${id}/result`),
-  updateApplication: (id: string, data: Record<string, unknown>) =>
-    api.patch(`/students/${id}/application`, data),
+  updateApplication: (id: string, stage: string) =>
+    api.patch(`/students/${id}/application`, { stage }),
   analytics: () => api.get('/students/analytics/dashboard'),
   exportCSV: () => api.get('/students/export/csv', { responseType: 'blob' }),
   bulkEmail: (data: Record<string, unknown>) =>

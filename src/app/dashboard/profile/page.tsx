@@ -11,17 +11,16 @@ interface ProfileForm {
   firstName: string;
   lastName: string;
   phone: string;
-  dateOfBirth: string;
-  gender: string;
   educationLevel: string;
-  institution: string;
+  school: string;
   gpa: string;
-  programInterest: string;
-  countryPreference: string;
-  englishProficiency: string;
+  graduationYear: string;
+  intendedProgram: string;
+  preferredCountry: string;
+  preferredUniversity: string;
+  englishTest: string;
   englishScore: string;
-  financialBudget: string;
-  additionalNotes: string;
+  budget: string;
 }
 
 export default function ProfilePage() {
@@ -42,17 +41,16 @@ export default function ProfilePage() {
           firstName: d.firstName || user?.firstName || '',
           lastName: d.lastName || user?.lastName || '',
           phone: d.phone || user?.phone || '',
-          dateOfBirth: d.dateOfBirth?.split('T')[0] || '',
-          gender: d.gender || '',
           educationLevel: d.educationLevel || '',
-          institution: d.institution || '',
+          school: d.school || d.institution || '',
           gpa: d.gpa?.toString() || '',
-          programInterest: d.programInterest || '',
-          countryPreference: d.countryPreference || '',
-          englishProficiency: d.englishProficiency || '',
+          graduationYear: d.graduationYear?.toString() || '',
+          intendedProgram: d.intendedProgram || d.programInterest || '',
+          preferredCountry: d.preferredCountry || d.countryPreference || '',
+          preferredUniversity: d.preferredUniversity || '',
+          englishTest: d.englishTest || d.englishProficiency || '',
           englishScore: d.englishScore?.toString() || '',
-          financialBudget: d.financialBudget || '',
-          additionalNotes: d.additionalNotes || '',
+          budget: d.budget?.toString() || '',
         });
         setLoading(false);
       })
@@ -67,11 +65,26 @@ export default function ProfilePage() {
     setSaving(true);
     setSuccess(false);
     try {
-      await studentsAPI.updateProfile(user._id, {
-        ...data,
+      const payload: Record<string, unknown> = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+        educationLevel: data.educationLevel || undefined,
+        school: data.school || undefined,
         gpa: data.gpa ? parseFloat(data.gpa) : undefined,
+        graduationYear: data.graduationYear ? parseInt(data.graduationYear) : undefined,
+        intendedProgram: data.intendedProgram || undefined,
+        preferredCountry: data.preferredCountry || undefined,
+        preferredUniversity: data.preferredUniversity || undefined,
+        englishTest: data.englishTest || undefined,
         englishScore: data.englishScore ? parseFloat(data.englishScore) : undefined,
-      });
+        budget: data.budget ? parseFloat(data.budget) : undefined,
+      };
+
+      // Remove undefined values
+      Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k]);
+
+      await studentsAPI.updateProfile(user._id, payload);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err: unknown) {
@@ -92,13 +105,19 @@ export default function ProfilePage() {
       <div>
         <h1 className="text-2xl font-bold text-carbon">My Profile</h1>
         <p className="text-dim-grey text-sm mt-1">
-          Complete your academic profile for assessment
+          Complete your academic profile for admissions assessment and matching
         </p>
       </div>
 
       {success && (
         <div className="bg-green-bg border border-green/30 text-green-text px-4 py-3 rounded-lg text-sm">
           ✅ Profile saved successfully!
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-bg border border-red/30 text-red-text px-4 py-3 rounded-lg text-sm">
+          {error}
         </div>
       )}
 
@@ -109,17 +128,7 @@ export default function ProfilePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="First Name" {...register('firstName', { required: true })} error={errors.firstName?.message} />
             <Input label="Last Name" {...register('lastName', { required: true })} error={errors.lastName?.message} />
-            <Input label="Phone" placeholder="+251..." {...register('phone')} />
-            <Input label="Date of Birth" type="date" {...register('dateOfBirth')} />
-            <Select
-              label="Gender"
-              options={[
-                { value: '', label: 'Select...' },
-                { value: 'male', label: 'Male' },
-                { value: 'female', label: 'Female' },
-              ]}
-              {...register('gender')}
-            />
+            <Input label="Phone" placeholder="+251..." {...register('phone', { required: true })} error={errors.phone?.message} />
           </div>
         </Card>
 
@@ -131,28 +140,30 @@ export default function ProfilePage() {
               label="Education Level"
               options={[
                 { value: '', label: 'Select...' },
-                { value: 'high_school', label: 'High School' },
-                { value: 'diploma', label: 'Diploma' },
-                { value: 'bachelor', label: "Bachelor's Degree" },
-                { value: 'master', label: "Master's Degree" },
+                { value: 'High School', label: 'High School' },
+                { value: 'Diploma', label: 'Diploma' },
+                { value: "Bachelor's Degree", label: "Bachelor's Degree" },
+                { value: "Master's Degree", label: "Master's Degree" },
               ]}
               {...register('educationLevel')}
             />
-            <Input label="Institution" placeholder="e.g. Addis Ababa University" {...register('institution')} />
+            <Input label="Current / Previous Institution" placeholder="e.g. Addis Ababa University" {...register('school')} />
             <Input label="GPA" type="number" step="0.01" min="0" max="4" placeholder="e.g. 3.5" {...register('gpa')} />
-            <Input label="Program of Interest" placeholder="e.g. Computer Science" {...register('programInterest')} />
+            <Input label="Graduation Year" type="number" placeholder="e.g. 2026" {...register('graduationYear')} />
+            <Input label="Program of Interest" placeholder="e.g. Computer Science" {...register('intendedProgram')} />
             <Select
-              label="Country Preference"
+              label="Preferred Destination"
               options={[
                 { value: '', label: 'Select...' },
-                { value: 'usa', label: 'USA' },
-                { value: 'uk', label: 'UK' },
-                { value: 'canada', label: 'Canada' },
-                { value: 'germany', label: 'Germany' },
-                { value: 'australia', label: 'Australia' },
-                { value: 'other', label: 'Other' },
+                { value: 'USA', label: 'USA' },
+                { value: 'Canada', label: 'Canada' },
+                { value: 'UK', label: 'UK' },
+                { value: 'Germany', label: 'Germany' },
+                { value: 'Australia', label: 'Australia' },
+                { value: 'Ireland', label: 'Ireland' },
+                { value: 'Italy', label: 'Italy' },
               ]}
-              {...register('countryPreference')}
+              {...register('preferredCountry')}
             />
           </div>
         </Card>
@@ -165,12 +176,12 @@ export default function ProfilePage() {
               label="Test Type"
               options={[
                 { value: '', label: 'Select...' },
-                { value: 'ielts', label: 'IELTS' },
-                { value: 'toefl', label: 'TOEFL' },
-                { value: 'duolingo', label: 'Duolingo' },
-                { value: 'none', label: 'No test yet' },
+                { value: 'IELTS', label: 'IELTS' },
+                { value: 'TOEFL', label: 'TOEFL' },
+                { value: 'Duolingo', label: 'Duolingo' },
+                { value: 'Medium of Instruction', label: 'English Medium of Instruction' },
               ]}
-              {...register('englishProficiency')}
+              {...register('englishTest')}
             />
             <Input label="Score" type="number" step="0.5" placeholder="e.g. 7.0" {...register('englishScore')} />
           </div>
@@ -178,29 +189,8 @@ export default function ProfilePage() {
 
         {/* Financial */}
         <Card className="mb-6">
-          <h3 className="font-semibold text-carbon mb-4">Financial Information</h3>
-          <Select
-            label="Annual Budget"
-            options={[
-              { value: '', label: 'Select...' },
-              { value: 'under_10k', label: 'Under $10,000' },
-              { value: '10k_20k', label: '$10,000 - $20,000' },
-              { value: '20k_30k', label: '$20,000 - $30,000' },
-              { value: '30k_50k', label: '$30,000 - $50,000' },
-              { value: 'over_50k', label: 'Over $50,000' },
-            ]}
-            {...register('financialBudget')}
-          />
-        </Card>
-
-        {/* Notes */}
-        <Card className="mb-6">
-          <h3 className="font-semibold text-carbon mb-4">Additional Notes</h3>
-          <textarea
-            className="glory-input min-h-[100px] resize-y"
-            placeholder="Any additional information you'd like us to know..."
-            {...register('additionalNotes')}
-          />
+          <h3 className="font-semibold text-carbon mb-4">Financial Budget</h3>
+          <Input label="Annual Tuition Budget ($ USD)" type="number" placeholder="e.g. 25000" {...register('budget')} />
         </Card>
 
         <div className="flex justify-end">
