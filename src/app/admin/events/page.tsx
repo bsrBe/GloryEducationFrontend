@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
 import { eventsAPI } from '@/lib/api';
 import { Card, Button, Input, Select, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
-import { Calendar, Plus, ExternalLink, X } from 'lucide-react';
+import { Calendar, Plus, ExternalLink, X, Video } from 'lucide-react';
 
 interface Session {
   name: string;
@@ -37,7 +38,7 @@ export default function AdminEventsPage() {
   const [date, setDate] = useState('2026-09-15');
   const [startTime, setStartTime] = useState('09:00 AM');
   const [endTime, setEndTime] = useState('12:30 PM');
-  const [mainRoomLink, setMainRoomLink] = useState('https://meet.google.com/glory-main-2026');
+  const [mainRoomLink, setMainRoomLink] = useState('');
 
   // New Session Form State
   const [sessionName, setSessionName] = useState('');
@@ -158,16 +159,12 @@ export default function AdminEventsPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  {evt.mainRoomLink && (
-                    <a
-                      href={evt.mainRoomLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-xs font-semibold text-ocean bg-ocean-light/20 px-3 py-1.5 rounded-lg border border-ocean/30 hover:underline flex items-center gap-1.5"
-                    >
-                      Main Room Link <ExternalLink size={12} />
-                    </a>
-                  )}
+                  <Link
+                    href={`/dashboard/events/${evt._id}/room`}
+                    className="text-xs font-semibold text-ocean bg-ocean-light/20 px-3 py-1.5 rounded-lg border border-ocean/30 hover:underline flex items-center gap-1.5"
+                  >
+                    Launch Plenary (Moderator) <Video size={12} />
+                  </Link>
                   <Button size="sm" variant="secondary" onClick={() => setShowSessionModal(evt._id)}>
                     <Plus size={14} /> Add Breakout Track
                   </Button>
@@ -197,16 +194,12 @@ export default function AdminEventsPage() {
                           <span className="text-[11px] text-dim-grey font-medium">
                             {sess.assignedStudents?.length || 0} Students Assigned
                           </span>
-                          {sess.roomLink && (
-                            <a
-                              href={sess.roomLink}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-xs text-ocean font-semibold hover:underline flex items-center gap-1"
-                            >
-                              Join Room <ExternalLink size={12} />
-                            </a>
-                          )}
+                          <Link
+                            href={`/dashboard/events/${evt._id}/room?sessionIndex=${sIdx}`}
+                            className="text-xs text-ocean font-semibold hover:underline flex items-center gap-1"
+                          >
+                            Enter Track <Video size={12} />
+                          </Link>
                         </div>
                       </div>
                     ))}
@@ -260,11 +253,10 @@ export default function AdminEventsPage() {
                 />
               </div>
               <Input
-                label="Main Webinar Plenary Room Link *"
-                placeholder="https://meet.google.com/..."
+                label="Main Plenary Room Link (Optional - auto-generated if left blank)"
+                placeholder="Auto-generated secure Jitsi plenary room"
                 value={mainRoomLink}
                 onChange={(e) => setMainRoomLink(e.target.value)}
-                required
               />
               <div className="flex justify-end gap-3 pt-3">
                 <Button type="button" variant="secondary" onClick={() => setShowEventModal(false)}>
@@ -319,11 +311,10 @@ export default function AdminEventsPage() {
                 required
               />
               <Input
-                label="Private Meeting URL *"
-                placeholder="https://meet.google.com/..."
+                label="Track Room Link (Optional - auto-generated if left blank)"
+                placeholder="Auto-generated secure Jitsi track"
                 value={sessionRoomLink}
                 onChange={(e) => setSessionRoomLink(e.target.value)}
-                required
               />
               <Input
                 label="Room Capacity"

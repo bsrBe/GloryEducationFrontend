@@ -260,7 +260,7 @@ export default function StudentDashboard() {
 
           <div className="mt-6 pt-4 border-t border-charcoal/10 flex items-center justify-between">
             <span className="text-xs font-semibold text-ocean flex items-center gap-1">
-              Google Meet Link Available on Event Day
+              Live In-Platform Video Room on Event Day
             </span>
             <Link href="/dashboard/events">
               <Button variant="ghost" size="sm" className="text-xs font-bold text-ocean">

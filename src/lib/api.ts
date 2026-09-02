@@ -128,6 +128,8 @@ export const eventsAPI = {
     api.post(`/events/${eventId}/check-in`, data),
   attendance: (eventId: string) =>
     api.get(`/events/${eventId}/attendance`),
+  joinRoom: (eventId: string, sessionIndex?: number) =>
+    api.post(`/events/${eventId}/join`, { sessionIndex }),
 };
 
 // --- Messages ---

@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { eventsAPI } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Button, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
-import { Calendar, Clock, ExternalLink, CheckCircle, MapPin } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, MapPin, Video, Lock } from 'lucide-react';
 
 interface EventSession {
   name: string;
@@ -133,25 +134,28 @@ export default function EventsPage() {
               </Badge>
             </div>
 
-            {/* Main Room */}
-            {evt.mainRoomLink && (
-              <div className="bg-porcelain rounded-lg p-3 mb-4 flex items-center justify-between">
-                <span className="text-sm font-medium text-carbon">📺 Main Room</span>
-                <a
-                  href={evt.mainRoomLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-ocean text-sm flex items-center gap-1 hover:underline"
-                >
-                  Join <ExternalLink size={12} />
-                </a>
+            {/* Main Plenary Hall — In-Platform Jitsi Video */}
+            <div className="bg-gradient-to-r from-ocean/10 to-pale-sky/20 border border-ocean/20 rounded-xl p-4 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-carbon">📺 Main Plenary Hall</span>
+                  <Badge variant="blue" className="text-[10px]">In-Platform Video</Badge>
+                </div>
+                <p className="text-xs text-dim-grey mt-0.5">
+                  Opening keynote, global admissions briefing, and interactive plenary
+                </p>
               </div>
-            )}
+              <Link href={`/dashboard/events/${evt._id}/room`}>
+                <Button size="sm" variant="accent" className="font-bold flex items-center gap-1.5 shadow-sm">
+                  <Video size={14} /> Enter Plenary Room
+                </Button>
+              </Link>
+            </div>
 
             {/* Assigned Sessions */}
             {sessions.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-carbon">Your Sessions:</h3>
+                <h3 className="text-sm font-semibold text-carbon">Your Assigned Breakout Tracks:</h3>
                 {sessions.map((s, i) => (
                   <div
                     key={i}
@@ -176,16 +180,17 @@ export default function EventsPage() {
                         <Badge variant="green"><CheckCircle size={12} /> Checked In</Badge>
                       ) : null}
                     </div>
-                    {(s.session?.roomLink || (s as any).roomLink) && (
-                      <a
-                        href={s.session?.roomLink || (s as any).roomLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-ocean text-sm flex items-center gap-1 hover:underline mt-2"
-                      >
-                        Join Session <ExternalLink size={12} />
-                      </a>
-                    )}
+
+                    <div className="mt-3 pt-2.5 border-t border-charcoal/10 flex items-center justify-between">
+                      <span className="text-[11px] text-dim-grey font-medium flex items-center gap-1">
+                        <Lock size={12} className="text-gold" /> 500 ETB Pass Protected
+                      </span>
+                      <Link href={`/dashboard/events/${evt._id}/room?sessionIndex=${i}`}>
+                        <Button size="sm" variant="outline-ocean" className="text-xs font-bold flex items-center gap-1.5 py-1">
+                          <Video size={13} /> Enter Breakout Track
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 ))}
               </div>
