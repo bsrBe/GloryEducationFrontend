@@ -97,6 +97,28 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null, token: null });
   },
 
+  fetchProfile: async () => {
+    try {
+      const res = await authAPI.getProfile();
+      const raw = res.data;
+      if (raw) {
+        const user: User = {
+          _id: raw._id || raw.id || '',
+          email: raw.email || '',
+          firstName: raw.firstName || '',
+          lastName: raw.lastName || '',
+          role: (raw.role || 'student') as UserRole,
+          phone: raw.phone,
+          studentId: raw.studentId,
+        };
+        localStorage.setItem('user', JSON.stringify(user));
+        set({ user });
+      }
+    } catch {
+      // ignore
+    }
+  },
+
   loadFromStorage: () => {
     if (typeof window === 'undefined') return;
     const token = localStorage.getItem('token');

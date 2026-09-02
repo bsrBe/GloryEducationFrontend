@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { universitiesAPI } from '@/lib/api';
 import { Card, Button, Input, Select, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
-import { Target, Plus, CheckCircle, XCircle, MapPin, BookOpen, Trash2, X } from 'lucide-react';
+import { Target, Plus, MapPin, Trash2, X } from 'lucide-react';
 
 interface Program {
   name: string;
@@ -36,7 +36,7 @@ export default function UniversitiesPage() {
     { name: 'Computer Science', degreeLevel: 'Bachelor', gpaRequirement: 3.0, englishRequirement: 'IELTS 6.5', tuitionInfo: '$30,000/yr' },
   ]);
 
-  const loadUniversities = async () => {
+  const loadUniversities = useCallback(async () => {
     try {
       const res = await universitiesAPI.list();
       setUniversities(res.data || []);
@@ -45,10 +45,24 @@ export default function UniversitiesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadUniversities();
+    let active = true;
+    universitiesAPI
+      .list()
+      .then((res) => {
+        if (active) {
+          setUniversities(res.data || []);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const handleToggle = async (id: string) => {

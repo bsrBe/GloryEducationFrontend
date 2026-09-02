@@ -1,0 +1,609 @@
+{
+  "info": {
+    "name": "Glory International Admissions Fair API",
+    "description": "Complete API collection for Glory Edu backend. Import this into Postman to test all endpoints.\n\n## Setup\n1. Start MongoDB and run `pnpm run seed`\n2. Start the server: `pnpm run start:dev`\n3. Import this collection into Postman\n4. Run the Login requests first to get tokens\n5. Use the {{studentToken}}, {{staffToken}}, {{adminToken}}, {{repToken}} variables\n\n## Test Credentials\n- Admin: admin@gloryedu.com / admin123456\n- Staff: staff@gloryedu.com / staff123456\n- Rep: rep@mit.edu / rep123456\n- Student: almaz@test.com / student123",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "studentToken", "value": "" },
+    { "key": "staffToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "repToken", "value": "" },
+    { "key": "studentId", "value": "" },
+    { "key": "universityId", "value": "" },
+    { "key": "eventId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{staffToken}}", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Register Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.access_token) { pm.collectionVariables.set('studentToken', data.access_token); }",
+                  "if (data.student?.studentId) { pm.collectionVariables.set('studentId', data.student.studentId); }",
+                  "pm.test('Status is 201 or 200', () => { pm.response.to.have.status([200, 201]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newstudent@test.com\",\n  \"password\": \"student123\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"Student\",\n  \"phone\": \"+251999999999\",\n  \"age\": 21,\n  \"educationLevel\": \"Bachelor\",\n  \"school\": \"Addis Ababa University\",\n  \"gpa\": 3.3,\n  \"graduationYear\": 2025,\n  \"intendedProgram\": \"Computer Science\",\n  \"preferredCountry\": \"USA\",\n  \"englishTest\": \"IELTS\",\n  \"englishScore\": 6.5,\n  \"influencerSource\": \"telegram\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login as Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.access_token) { pm.collectionVariables.set('studentToken', data.access_token); }",
+                  "if (data.user?.id) { pm.collectionVariables.set('studentId', data.user.id); }",
+                  "pm.test('Login successful', () => { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/login" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"almaz@test.com\",\n  \"password\": \"student123\"\n}" }
+          }
+        },
+        {
+          "name": "Login as Staff",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.access_token) { pm.collectionVariables.set('staffToken', data.access_token); }",
+                  "pm.test('Login successful', () => { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/login" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"staff@gloryedu.com\",\n  \"password\": \"staff123456\"\n}" }
+          }
+        },
+        {
+          "name": "Login as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.access_token) { pm.collectionVariables.set('adminToken', data.access_token); }",
+                  "pm.test('Login successful', () => { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/login" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@gloryedu.com\",\n  \"password\": \"admin123456\"\n}" }
+          }
+        },
+        {
+          "name": "Login as University Rep",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.access_token) { pm.collectionVariables.set('repToken', data.access_token); }",
+                  "pm.test('Login successful', () => { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/login" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"rep@mit.edu\",\n  \"password\": \"rep123456\"\n}" }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/auth/profile" },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/change-password" },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"student123\",\n  \"newPassword\": \"newpassword123\"\n}" }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/reset-password" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"almaz@test.com\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Users (Admin Only)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}" }] },
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/users" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"newstaff@gloryedu.com\",\n  \"password\": \"staff123456\",\n  \"firstName\": \"New\",\n  \"lastName\": \"Staff\",\n  \"role\": \"glory_staff\"\n}" }
+          }
+        },
+        {
+          "name": "List All Users",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/users" } }
+        },
+        {
+          "name": "Get User by ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/users/{{userId}}" } }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/users/{{userId}}" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Updated Name\"\n}" }
+          }
+        },
+        {
+          "name": "Deactivate User",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/users/{{userId}}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎓 Students",
+      "item": [
+        {
+          "name": "📋 List All Students (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/students?page=1&limit=10&search=", "query": [
+              { "key": "page", "value": "1" },
+              { "key": "limit", "value": "10" },
+              { "key": "search", "value": "", "disabled": true }
+            ]}
+          }
+        },
+        {
+          "name": "Get Student by ID (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}" }
+          }
+        },
+        {
+          "name": "📝 Update Profile (Student)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data._id) { pm.collectionVariables.set('studentMongoId', data._id); }",
+                  "pm.test('Profile updated', () => { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/profile" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"educationLevel\": \"Bachelor\",\n  \"school\": \"Addis Ababa University\",\n  \"gpa\": 3.5,\n  \"graduationYear\": 2025,\n  \"intendedProgram\": \"Computer Science\",\n  \"preferredCountry\": \"USA\",\n  \"englishTest\": \"IELTS\",\n  \"englishScore\": 7.0\n}" }
+          }
+        },
+        {
+          "name": "💰 Add Payment (Student)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/payments" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"method\": \"telebirr\",\n  \"transactionRef\": \"TXN-TEST-001\",\n  \"amount\": 500\n}" }
+          }
+        },
+        {
+          "name": "✅ Verify Payment (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/payments/0/verify" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"Verified\"\n}" }
+          }
+        },
+        {
+          "name": "📄 Upload Document (Student)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/documents" },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] }
+              ]
+            }
+          }
+        },
+        {
+          "name": "📋 Get Payment History (Student)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/payments/history" }
+          }
+        },
+        {
+          "name": "📊 Assess Student (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/assess" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"categoryScores\": {\n    \"academic\": 28,\n    \"english\": 18,\n    \"programFit\": 12,\n    \"academicStatus\": 8,\n    \"documentation\": 8,\n    \"institutionRequirements\": 12\n  },\n  \"totalScore\": 86\n}" }
+          }
+        },
+        {
+          "name": "🔄 Suggest Matches (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/match" }
+          }
+        },
+        {
+          "name": "✅ Approve Match (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/match/approve" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"approved\"\n}" }
+          }
+        },
+        {
+          "name": "🟢 Submit Review - Green (Rep)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{repToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/review" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"decision\": \"Green\",\n  \"comments\": \"Strong profile, eligible to apply\"\n}" }
+          }
+        },
+        {
+          "name": "📢 Publish Result (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/result/publish" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"Green\",\n  \"nextStep\": \"Application recommended\",\n  \"disclaimer\": \"This is a preliminary assessment.\"\n}" }
+          }
+        },
+        {
+          "name": "🎯 Get Student Result (Student)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/result" }
+          }
+        },
+        {
+          "name": "📈 Update Application Stage (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/application" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"stage\": \"Consultation\"\n}" }
+          }
+        },
+        {
+          "name": "📊 My Dashboard (Student)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/students/dashboard/my" }
+          }
+        },
+        {
+          "name": "📄 Get Document URL",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/students/{{studentMongoId}}/documents/0/url" }
+          }
+        },
+        {
+          "name": "👥 Get Assigned Students (Rep)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{repToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/students/representative/assigned" }
+          }
+        },
+        {
+          "name": "📊 Analytics Dashboard (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/students/analytics/dashboard" }
+          }
+        },
+        {
+          "name": "📥 Export Students CSV (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/students/export/csv" }
+          }
+        },
+        {
+          "name": "📧 Bulk Email (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/students/bulk/email" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"templateName\": \"profile_reminder\",\n  \"filter\": \"incomplete_profile\"\n}" }
+          }
+        },
+        {
+          "name": "📝 Bulk Assess (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/students/bulk/assess" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"assessments\": [\n    {\n      \"studentId\": \"GH26-000001\",\n      \"categoryScores\": { \"academic\": 28, \"english\": 18, \"programFit\": 12 },\n      \"totalScore\": 75\n    }\n  ]\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏛️ Universities",
+      "item": [
+        {
+          "name": "List Active Universities (Public)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/universities?active=true" }
+          }
+        },
+        {
+          "name": "List All Universities (Admin)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}" }] },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data[0]?._id) { pm.collectionVariables.set('universityId', data[0]._id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/universities" }
+          }
+        },
+        {
+          "name": "Get University Detail",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/universities/{{universityId}}" }
+          }
+        },
+        {
+          "name": "Create University (Admin)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/universities" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Stanford University\",\n  \"destination\": \"USA\",\n  \"programs\": [\n    { \"name\": \"Computer Science\", \"degreeLevel\": \"Bachelor\", \"gpaRequirement\": 3.8, \"englishRequirement\": \"IELTS 7.5\" }\n  ],\n  \"reviewCapacity\": 30,\n  \"liveSessionAvailable\": true\n}" }
+          }
+        },
+        {
+          "name": "Toggle University Active (Admin)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}" }] },
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/universities/{{universityId}}/toggle" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📅 Events",
+      "item": [
+        {
+          "name": "Create Event (Admin)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}" }] },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data._id) { pm.collectionVariables.set('eventId', data._id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/events" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Glory Fair 2026\",\n  \"description\": \"Main admissions fair event\",\n  \"date\": \"2026-09-15\",\n  \"startTime\": \"14:00\",\n  \"endTime\": \"17:00\",\n  \"mainRoomLink\": \"https://meet.google.com/abc-defg-hij\"\n}" }
+          }
+        },
+        {
+          "name": "List All Events",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/events" } }
+        },
+        {
+          "name": "Get Event Detail",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/events/{{eventId}}" } }
+        },
+        {
+          "name": "Add Session (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}/sessions" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"USA Session - MIT\",\n  \"destination\": \"USA\",\n  \"time\": \"15:00-16:00\",\n  \"roomLink\": \"https://meet.google.com/usa-mit\",\n  \"capacity\": 50\n}" }
+          }
+        },
+        {
+          "name": "Assign Students to Session (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}/sessions/0/assign" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"studentIds\": [\"{{studentMongoId}}\"]\n}" }
+          }
+        },
+        {
+          "name": "My Sessions (Student)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}/my-sessions" }
+          }
+        },
+        {
+          "name": "Check In (Student)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}/check-in" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"attended\": true\n}" }
+          }
+        },
+        {
+          "name": "Check In with Code (Student)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}/check-in" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"GLORY2026\"\n}" }
+          }
+        },
+        {
+          "name": "Attendance Report (Staff)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}/attendance" }
+          }
+        },
+        {
+          "name": "Update Event Status (Admin)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}" }] },
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"published\",\n  \"checkInCode\": \"GLORY2026\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 Messages",
+      "item": [
+        {
+          "name": "Send Message",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{staffToken}}" }] },
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/messages" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"recipientId\": \"{{studentMongoId}}\",\n  \"recipientModel\": \"Student\",\n  \"subject\": \"Welcome to Glory Fair\",\n  \"body\": \"Thank you for registering!\"\n}" }
+          }
+        },
+        {
+          "name": "Get Inbox",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/messages/inbox" }
+          }
+        },
+        {
+          "name": "Get Unread Count",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{studentToken}}" }] },
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/messages/unread" }
+          }
+        }
+      ]
+    }
+  ]
+}

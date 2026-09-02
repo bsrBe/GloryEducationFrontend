@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getDraft, getDocuments } from '@/lib/draftStorage';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Button, Badge } from '@/components/ui';
-import { ArrowLeft, FileText, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, FileText, CheckCircle } from 'lucide-react';
 
 export default function ApplyReviewPage() {
   const router = useRouter();
@@ -137,13 +137,13 @@ export default function ApplyReviewPage() {
       </Card>
 
       {/* Navigation */}
-      <div className="flex justify-between">
+      <div className="flex items-center justify-between">
         <Button variant="secondary" onClick={() => router.push('/apply/payment')}>
           <ArrowLeft size={16} /> Back
         </Button>
-        <p className="text-xs text-dim-grey self-center">
-          Already submitted? Go to <a href="/dashboard" className="text-ocean">Dashboard</a>
-        </p>
+        <Button variant="accent" onClick={() => router.push('/dashboard')}>
+          Go to Student Dashboard <ArrowRight size={16} />
+        </Button>
       </div>
     </div>
   );

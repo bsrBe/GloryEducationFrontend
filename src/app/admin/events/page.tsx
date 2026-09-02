@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { eventsAPI } from '@/lib/api';
 import { Card, Button, Input, Select, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
-import { Calendar, Plus, Users, ExternalLink, Clock, MapPin, CheckCircle, X } from 'lucide-react';
+import { Calendar, Plus, ExternalLink, X } from 'lucide-react';
 
 interface Session {
   name: string;
@@ -46,7 +46,7 @@ export default function AdminEventsPage() {
   const [sessionRoomLink, setSessionRoomLink] = useState('');
   const [sessionCapacity, setSessionCapacity] = useState(50);
 
-  const loadEvents = async () => {
+  const loadEvents = useCallback(async () => {
     try {
       const res = await eventsAPI.list();
       setEvents(res.data || []);
@@ -55,10 +55,24 @@ export default function AdminEventsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadEvents();
+    let active = true;
+    eventsAPI
+      .list()
+      .then((res) => {
+        if (active) {
+          setEvents(res.data || []);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const handleCreateEvent = async (e: React.FormEvent) => {

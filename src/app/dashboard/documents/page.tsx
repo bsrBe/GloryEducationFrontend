@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { studentsAPI } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
-import { Card, Button, Badge, LoadingSpinner, ErrorState } from '@/components/ui';
-import { Upload, FileText, CheckCircle, XCircle, Clock, Trash2 } from 'lucide-react';
+import { Card, Badge, LoadingSpinner, ErrorState } from '@/components/ui';
+import { Upload, FileText, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 interface Document {
   fileName?: string;
@@ -25,11 +25,7 @@ export default function DocumentsPage() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    loadDocuments();
-  }, [user]);
-
-  const loadDocuments = async () => {
+  const loadDocuments = useCallback(async () => {
     if (!user?._id) return;
     try {
       const res = await studentsAPI.get(user._id);
@@ -41,7 +37,32 @@ export default function DocumentsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    let active = true;
+    if (user?._id) {
+      studentsAPI
+        .get(user._id)
+        .then((res) => {
+          if (active) {
+            setDocuments(res.data.documents || []);
+            setLoading(false);
+          }
+        })
+        .catch((err: unknown) => {
+          if (active) {
+            setError(
+              (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load documents'
+            );
+            setLoading(false);
+          }
+        });
+    }
+    return () => {
+      active = false;
+    };
+  }, [user]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

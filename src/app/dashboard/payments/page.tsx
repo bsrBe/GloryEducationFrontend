@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { studentsAPI } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Input, Select, Button, Badge, LoadingSpinner, ErrorState } from '@/components/ui';
-import { CreditCard, Plus, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { CreditCard, Plus, CheckCircle, Clock } from 'lucide-react';
 
 interface Payment {
   amount: number;
@@ -36,11 +36,7 @@ export default function PaymentsPage() {
     defaultValues: { amount: 500, method: 'telebirr' },
   });
 
-  useEffect(() => {
-    loadPayments();
-  }, [user]);
-
-  const loadPayments = async () => {
+  const loadPayments = useCallback(async () => {
     if (!user?._id) return;
     try {
       const res = await studentsAPI.get(user._id);
@@ -52,7 +48,32 @@ export default function PaymentsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    let active = true;
+    if (user?._id) {
+      studentsAPI
+        .get(user._id)
+        .then((res) => {
+          if (active) {
+            setPayments(res.data.payments || []);
+            setLoading(false);
+          }
+        })
+        .catch((err: unknown) => {
+          if (active) {
+            setError(
+              (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load payments'
+            );
+            setLoading(false);
+          }
+        });
+    }
+    return () => {
+      active = false;
+    };
+  }, [user]);
 
   const onSubmit = async (data: AddPaymentForm) => {
     if (!user?._id) return;

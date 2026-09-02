@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveDocument, getDocuments, deleteDocument, saveDraft, getDraft } from '@/lib/draftStorage';
 import { Card, Button, Badge } from '@/components/ui';
@@ -10,29 +10,39 @@ export default function ApplyDocumentsPage() {
   const router = useRouter();
   const [documents, setDocuments] = useState<{ id: string; fileName: string; fileType: string; fileSize: number }[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    loadDocs();
-  }, []);
-
-  const loadDocs = async () => {
+  const loadDocs = useCallback(async () => {
     const docs = await getDocuments();
     setDocuments(docs.map(({ id, fileName, fileType, fileSize }) => ({ id, fileName, fileType, fileSize })));
-  };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    getDocuments().then((docs) => {
+      if (active) {
+        setDocuments(docs.map(({ id, fileName, fileType, fileSize }) => ({ id, fileName, fileType, fileSize })));
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setError(null);
 
     // Validate
     const allowed = ['application/pdf', 'image/jpeg', 'image/png'];
     if (!allowed.includes(file.type)) {
-      alert('Only PDF, JPEG, and PNG files are allowed');
+      setError('Only PDF, JPEG, and PNG files are allowed');
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      alert('File must be under 10MB');
+      setError('File must be under 10MB');
       return;
     }
 
@@ -46,7 +56,7 @@ export default function ApplyDocumentsPage() {
       });
       await loadDocs();
     } catch {
-      alert('Failed to save file');
+      setError('Failed to save file');
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -82,6 +92,12 @@ export default function ApplyDocumentsPage() {
           Upload your academic documents. Files are stored locally until you submit.
         </p>
       </div>
+
+      {error && (
+        <div className="bg-red-bg text-red-text px-4 py-3 rounded-xl text-sm border border-red/30">
+          ⚠️ {error}
+        </div>
+      )}
 
       {/* Upload Area */}
       <Card>

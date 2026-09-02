@@ -25,7 +25,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && typeof window !== 'undefined') {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      window.location.replace('/login');
     }
     return Promise.reject(error);
   }
@@ -136,4 +136,9 @@ export const messagesAPI = {
   inbox: () => api.get('/messages/inbox'),
   unread: () => api.get('/messages/unread'),
   get: (id: string) => api.get(`/messages/${id}`),
+};
+
+// --- Audit Logs (admin/staff) ---
+export const auditAPI = {
+  list: (params?: Record<string, string | number>) => api.get('/audit', { params }),
 };

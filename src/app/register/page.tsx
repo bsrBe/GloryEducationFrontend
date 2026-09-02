@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { useAuthStore } from '@/stores/authStore';
-import { Button, Input, Select, Card } from '@/components/ui';
+import { Button, Input, Select, Card, Logo } from '@/components/ui';
 import { Eye, EyeOff } from 'lucide-react';
 
 interface RegisterForm {
@@ -26,11 +26,8 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<RegisterForm>();
-
-  const password = watch('password');
 
   const onSubmit = async (data: RegisterForm) => {
     try {
@@ -53,10 +50,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-lg">
         {/* Logo */}
         <div className="text-center mb-6 sm:mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <span className="text-2xl sm:text-3xl">🎓</span>
-            <span className="font-display font-bold text-xl sm:text-2xl text-carbon">GLORY</span>
-          </Link>
+          <Logo href="/" size="lg" subtitle="Student Registration" priority />
         </div>
 
         <Card>
@@ -147,7 +141,7 @@ export default function RegisterPage() {
               error={errors.confirmPassword?.message}
               {...register('confirmPassword', {
                 required: 'Please confirm password',
-                validate: (val) => val === password || 'Passwords do not match',
+                validate: (val, formValues) => val === formValues.password || 'Passwords do not match',
               })}
             />
 

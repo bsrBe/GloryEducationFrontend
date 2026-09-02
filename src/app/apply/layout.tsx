@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { Check } from 'lucide-react';
+import { Logo } from '@/components/ui';
 
 const steps = [
   { label: 'Profile', href: '/apply/profile', step: 1 },
@@ -22,10 +23,7 @@ export default function ApplyLayout({ children }: { children: React.ReactNode })
       {/* Header */}
       <header className="bg-white border-b border-charcoal/10 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl sm:text-2xl">🎓</span>
-            <span className="font-display font-bold text-base sm:text-lg text-carbon">GLORY</span>
-          </Link>
+          <Logo href="/" size="sm" subtitle="Applicant Portal" priority />
           <div className="flex items-center gap-3">
             <span className="text-xs sm:text-sm text-dim-grey hidden sm:inline">
               Step {currentStep} of {steps.length}

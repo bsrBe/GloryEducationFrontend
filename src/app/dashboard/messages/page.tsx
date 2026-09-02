@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { messagesAPI } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Button, Input, LoadingSpinner, EmptyState } from '@/components/ui';
-import { Send, Mail, MailOpen, ArrowLeft, MessageSquare } from 'lucide-react';
+import { Send, MailOpen, ArrowLeft, MessageSquare } from 'lucide-react';
 import clsx from 'clsx';
 
 interface Message {
@@ -37,30 +37,55 @@ export default function MessagesPage() {
 
   const { register, handleSubmit, reset } = useForm<ComposeForm>();
 
-  useEffect(() => {
-    loadMessages();
-    loadUnread();
-  }, [user]);
-
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     try {
       const res = await messagesAPI.inbox();
-      setMessages(res.data);
+      setMessages(res.data || []);
     } catch {
       // empty inbox
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const loadUnread = async () => {
-    try {
-      const res = await messagesAPI.unread();
-      setUnreadCount(res.data.count || 0);
-    } catch {
-      // ignore
-    }
-  };
+  useEffect(() => {
+    let active = true;
+    messagesAPI
+      .inbox()
+      .then((res) => {
+        if (active) {
+          const rawList = res.data || [];
+          const normalized = rawList.map((m: any) => ({
+            _id: m._id,
+            subject: m.subject || '(No Subject)',
+            content: m.content || m.body || '',
+            senderName: m.senderName || (typeof m.sender === 'object' ? `${m.sender?.firstName || ''} ${m.sender?.lastName || ''}`.trim() : 'Glory Staff'),
+            senderModel: m.senderModel || 'User',
+            recipientName: m.recipientName || '',
+            read: m.read !== undefined ? m.read : m.isRead || false,
+            createdAt: m.createdAt || m.sentAt || new Date().toISOString(),
+          }));
+          setMessages(normalized);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (active) setLoading(false);
+      });
+
+    messagesAPI
+      .unread()
+      .then((res) => {
+        if (active) {
+          setUnreadCount(res.data.unreadCount ?? res.data.count ?? 0);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, [user]);
 
   const openMessage = async (msg: Message) => {
     setSelected(msg);

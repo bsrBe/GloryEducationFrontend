@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { studentsAPI, universitiesAPI } from '@/lib/api';
-import { useAuthStore } from '@/stores/authStore';
+import { studentsAPI } from '@/lib/api';
 import { Card, Button, Input, Select, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
 import {
-  GraduationCap, Search, CheckCircle, XCircle, Clock, FileText,
-  CreditCard, Sparkles, Check, ChevronRight, X, ExternalLink, RefreshCw
+  GraduationCap, Search, CheckCircle, XCircle, FileText,
+  Sparkles, X, ExternalLink, RefreshCw
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -100,8 +99,24 @@ export default function AdminStudentsPage() {
   }, [search]);
 
   useEffect(() => {
-    loadStudents();
-  }, [loadStudents]);
+    let active = true;
+    studentsAPI
+      .list({ search, limit: 50 })
+      .then((res) => {
+        if (active) {
+          setStudents(res.data.students || []);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setLoading(false);
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [search]);
 
   const selectStudent = async (s: StudentListItem) => {
     setSelectedStudent(s);
@@ -280,7 +295,6 @@ export default function AdminStudentsPage() {
             <div className="space-y-2 max-h-[75vh] overflow-y-auto pr-1">
               {students.map((s) => {
                 const isPaid = s.payments?.some((p) => (p.status || '').toLowerCase() === 'verified');
-                const isAssessed = s.assessment?.totalScore && s.assessment.totalScore > 0;
                 const isSelected = selectedStudent?._id === s._id;
 
                 return (

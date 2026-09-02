@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { saveDraft, getDraft } from '@/lib/draftStorage';
 import { Button, Input, Select, Card } from '@/components/ui';
-import { ArrowRight, Save } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 interface ProfileForm {
   firstName: string;
@@ -56,16 +56,22 @@ export default function ApplyProfilePage() {
     });
   }, [reset]);
 
-  // Auto-save on change (debounced)
-  const watchAll = watch();
+  // Auto-save on change (debounced via subscription)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      saveDraft({ profile: watchAll as unknown as Record<string, unknown>, payment: {}, currentStep: 1 });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 1500);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [watchAll]);
+    let saveTimeout: NodeJS.Timeout;
+    const subscription = watch((value) => {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        saveDraft({ profile: value as unknown as Record<string, unknown>, payment: {}, currentStep: 1 });
+        setSaved(true);
+        setTimeout(() => setSaved(false), 1500);
+      }, 800);
+    });
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(saveTimeout);
+    };
+  }, [watch]);
 
   const onSubmit = () => {
     router.push('/apply/documents');

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { useAuthStore, type UserRole } from '@/stores/authStore';
+import { Logo } from '@/components/ui';
 import {
   LayoutDashboard,
   User,
@@ -16,9 +17,9 @@ import {
   Users,
   BarChart3,
   GraduationCap,
-  Settings,
   ChevronLeft,
   LogOut,
+  Sparkles,
 } from 'lucide-react';
 
 interface NavItem {
@@ -35,7 +36,7 @@ const navItems: NavItem[] = [
   { label: 'Payments', href: '/dashboard/payments', icon: <CreditCard size={18} />, roles: ['student'] },
   { label: 'Documents', href: '/dashboard/documents', icon: <FileText size={18} />, roles: ['student'] },
   { label: 'Results', href: '/dashboard/results', icon: <ClipboardCheck size={18} />, roles: ['student'] },
-  { label: 'Events', href: '/dashboard/events', icon: <Calendar size={18} />, roles: ['student'] },
+  { label: 'Events & Fairs', href: '/dashboard/events', icon: <Calendar size={18} />, roles: ['student'] },
   { label: 'Messages', href: '/dashboard/messages', icon: <MessageSquare size={18} />, roles: ['student'] },
 
   // Glory Staff & Admin
@@ -43,6 +44,8 @@ const navItems: NavItem[] = [
   { label: 'Students Queue', href: '/admin/students', icon: <GraduationCap size={18} />, roles: ['admin', 'glory_staff'] },
   { label: 'Universities', href: '/admin/universities', icon: <Target size={18} />, roles: ['admin', 'glory_staff'] },
   { label: 'Events & Rooms', href: '/admin/events', icon: <Calendar size={18} />, roles: ['admin', 'glory_staff'] },
+  { label: 'Bulk Email', href: '/admin/email', icon: <Sparkles size={18} />, roles: ['admin', 'glory_staff'] },
+  { label: 'Audit Trail', href: '/admin/audit', icon: <ClipboardCheck size={18} />, roles: ['admin', 'glory_staff'] },
   { label: 'User Accounts', href: '/admin/users', icon: <Users size={18} />, roles: ['admin'] },
 
   // University Rep
@@ -60,32 +63,45 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
   return (
     <aside
       className={clsx(
-        'h-screen bg-carbon text-white flex flex-col transition-all duration-300 fixed left-0 top-0 z-40',
-        collapsed ? 'w-16' : 'w-60'
+        'h-screen bg-gradient-to-b from-[#1e1e1d] via-carbon to-[#111110] text-white flex flex-col transition-all duration-300 fixed left-0 top-0 z-40 border-r border-charcoal/30 shadow-xl',
+        collapsed ? 'w-16' : 'w-64'
       )}
     >
-      {/* Logo */}
-      <div className="flex items-center justify-between px-4 py-5 border-b border-charcoal">
+      {/* Brand Header */}
+      <div className="flex items-center justify-between px-3.5 py-4 border-b border-charcoal/30 bg-black/20">
         {!collapsed && (
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🎓</span>
-            <span className="font-display font-bold text-sm">GLORY</span>
-          </div>
+          <Logo
+            href="/dashboard"
+            size="sm"
+            subtitle="Admissions Fair"
+            inverted
+            priority
+          />
         )}
-        {collapsed && <span className="text-xl mx-auto">🎓</span>}
+        {collapsed && (
+          <Logo
+            href="/dashboard"
+            size="sm"
+            showText={false}
+            inverted
+            priority
+            className="mx-auto"
+          />
+        )}
         <button
           onClick={onToggle}
-          className="text-dim-grey hover:text-white transition-colors"
+          className="w-7 h-7 rounded-lg flex items-center justify-center text-dim-grey hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           <ChevronLeft
-            size={18}
-            className={clsx('transition-transform', collapsed && 'rotate-180')}
+            size={16}
+            className={clsx('transition-transform duration-300', collapsed && 'rotate-180')}
           />
         </button>
       </div>
 
       {/* Nav Items */}
-      <nav className="flex-1 overflow-y-auto py-4">
+      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1.5">
         {filtered.map((item) => {
           const isActive =
             pathname === item.href ||
@@ -95,42 +111,55 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
               key={item.href}
               href={item.href}
               className={clsx(
-                'flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm transition-colors',
+                'flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-200 group relative',
                 isActive
-                  ? 'bg-ocean text-white'
-                  : 'text-dim-grey hover:text-white hover:bg-charcoal/50'
+                  ? 'bg-gradient-to-r from-ocean to-ocean-dark text-white font-semibold shadow-glow-ocean'
+                  : 'text-dim-grey hover:text-white hover:bg-white/5 hover:translate-x-0.5'
               )}
               title={collapsed ? item.label : undefined}
             >
-              <span className="flex-shrink-0">{item.icon}</span>
-              {!collapsed && <span>{item.label}</span>}
+              <span
+                className={clsx(
+                  'flex-shrink-0 transition-colors',
+                  isActive ? 'text-white' : 'text-dim-grey group-hover:text-ocean'
+                )}
+              >
+                {item.icon}
+              </span>
+              {!collapsed && <span className="truncate">{item.label}</span>}
+              {isActive && !collapsed && (
+                <span className="w-1.5 h-1.5 rounded-full bg-gold ml-auto shrink-0 shadow-[0_0_8px_#f9bf31]" />
+              )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-charcoal p-3">
+      {/* User Card & Logout Footer */}
+      <div className="border-t border-charcoal/30 p-3 bg-black/25">
         {!collapsed && user && (
-          <div className="flex items-center gap-3 px-2 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-ocean flex items-center justify-center text-white text-sm font-semibold">
-              {user.firstName?.[0]}{user.lastName?.[0]}
+          <div className="flex items-center gap-3 px-2 py-2 mb-2 rounded-xl bg-white/5 border border-white/5">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-ocean to-ocean-dark flex items-center justify-center text-white text-xs font-bold ring-2 ring-gold/40 shrink-0">
+              {user.firstName?.[0]}
+              {user.lastName?.[0]}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">
+              <p className="text-xs font-semibold text-white truncate">
                 {user.firstName} {user.lastName}
               </p>
-              <p className="text-xs text-dim-grey capitalize">{user.role.replace('_', ' ')}</p>
+              <span className="inline-block text-[10px] text-gold font-medium capitalize bg-gold/10 px-1.5 py-0.2 rounded-md">
+                {user.role.replace('_', ' ')}
+              </span>
             </div>
           </div>
         )}
         <button
           onClick={logout}
-          className="flex items-center gap-3 px-4 py-2.5 w-full rounded-lg text-sm text-dim-grey hover:text-white hover:bg-charcoal/50 transition-colors"
+          className="flex items-center gap-3 px-3.5 py-2 w-full rounded-xl text-xs font-medium text-dim-grey hover:text-red hover:bg-red/10 transition-all duration-200 cursor-pointer"
           title="Logout"
         >
-          <LogOut size={18} />
-          {!collapsed && <span>Logout</span>}
+          <LogOut size={16} />
+          {!collapsed && <span>Sign Out</span>}
         </button>
       </div>
     </aside>

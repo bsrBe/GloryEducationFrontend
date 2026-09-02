@@ -151,7 +151,8 @@ export async function syncToBackend(studentId: string): Promise<{ synced: number
       const formData = new FormData();
       formData.append('file', doc.file, doc.fileName);
       const res = await studentsAPI.uploadDocument(studentId, formData);
-      await markDocumentUploaded(doc.id, res.data.url || '');
+      const remoteUrl = res.data?.document?.cloudinaryUrl || res.data?.url || '';
+      await markDocumentUploaded(doc.id, remoteUrl);
       synced++;
     } catch {
       failed++;

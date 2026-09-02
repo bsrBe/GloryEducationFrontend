@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { saveDraft, getDraft, syncToBackend, clearDraft, clearDocuments } from '@/lib/draftStorage';
@@ -35,7 +35,7 @@ export default function ApplyPaymentPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<PaymentForm>({
+  const { register, handleSubmit, watch, getValues, reset, formState: { errors } } = useForm<PaymentForm>({
     defaultValues: { amount: 500 },
   });
 
@@ -55,32 +55,28 @@ export default function ApplyPaymentPage() {
     });
   }, [reset, loadFromStorage]);
 
-  const watchAll = watch();
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const subscription = watch((value) => {
       getDraft().then((draft) => {
-        saveDraft({ profile: draft?.profile || {}, payment: watchAll as unknown as Record<string, unknown>, currentStep: 3 });
+        saveDraft({
+          profile: draft?.profile || {},
+          payment: value as unknown as Record<string, unknown>,
+          currentStep: 3,
+        });
       });
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [watchAll]);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
-  // After login, check auth and proceed
-  useEffect(() => {
-    if (user && showAuth) {
-      setShowAuth(false);
-      // Sync everything to backend now that we're authenticated
-      syncAll();
-    }
-  }, [user, showAuth]);
-
-  const syncAll = async () => {
+  const syncAll = useCallback(async () => {
+    if (!user?._id) return;
     setSubmitting(true);
     setError(null);
     try {
       const draft = await getDraft();
       const profile = (draft?.profile || {}) as Record<string, string>;
       const payment = (draft?.payment || {}) as Record<string, string>;
+      const currentValues = getValues();
 
       // Upload profile (whitelisted fields only)
       const cleanProfile: Record<string, unknown> = {};
@@ -98,21 +94,21 @@ export default function ApplyPaymentPage() {
       if (profile.budget) cleanProfile.budget = Number(profile.budget);
 
       if (Object.keys(cleanProfile).length > 0) {
-        await studentsAPI.updateProfile(user!._id, cleanProfile);
+        await studentsAPI.updateProfile(user._id, cleanProfile);
       }
 
       // Upload documents from IndexedDB
-      await syncToBackend(user!._id);
+      await syncToBackend(user._id);
 
       // Submit payment
       const paymentMethod = (payment.method || selectedMethod || 'telebirr').toLowerCase();
       const validMethod = ['telebirr', 'bank_transfer', 'cash'].includes(paymentMethod) ? paymentMethod : (paymentMethod === 'bank' ? 'bank_transfer' : 'telebirr');
-      const ref = payment.reference || payment.transactionId || watchAll.reference || watchAll.transactionId;
+      const ref = payment.reference || payment.transactionId || currentValues.reference || currentValues.transactionId;
 
       if (ref) {
-        await studentsAPI.addPayment(user!._id, {
+        await studentsAPI.addPayment(user._id, {
           method: validMethod,
-          amount: Number(payment.amount) || Number(watchAll.amount) || 500,
+          amount: Number(payment.amount) || Number(currentValues.amount) || 500,
           transactionRef: ref,
         });
       }
@@ -128,7 +124,16 @@ export default function ApplyPaymentPage() {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [user, selectedMethod, getValues]);
+
+  // After login, check auth and proceed
+  useEffect(() => {
+    if (user && showAuth) {
+      setShowAuth(false);
+      // Sync everything to backend now that we're authenticated
+      syncAll();
+    }
+  }, [user, showAuth, syncAll]);
 
   const onSubmit = () => {
     if (!user) {

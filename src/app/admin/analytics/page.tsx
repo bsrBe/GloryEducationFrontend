@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { studentsAPI } from '@/lib/api';
-import { Card, StatCard, Button, LoadingSpinner, ErrorState } from '@/components/ui';
+import { Card, StatCard, Button, LoadingSpinner, ErrorState, Badge } from '@/components/ui';
 import {
   Users,
   CreditCard,
   ClipboardCheck,
   Target,
   Download,
-  Mail,
   BarChart3,
+  TrendingUp,
+  Layers,
 } from 'lucide-react';
 
 interface RawAnalytics {
@@ -23,7 +24,6 @@ interface RawAnalytics {
   publishedResults?: number;
   applicationStages?: Record<string, number>;
   influencerSources?: Record<string, number>;
-  // Fallbacks for draft mocks
   paymentStats?: { verified: number; pending: number; percentage: number };
   resultStats?: { green: number; yellow: number; red: number };
   influencerBreakdown?: Record<string, number>;
@@ -54,7 +54,7 @@ export default function AnalyticsPage() {
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'students-export.csv';
+      a.download = `glory-students-export-${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch {
@@ -62,7 +62,7 @@ export default function AnalyticsPage() {
     }
   };
 
-  if (loading) return <LoadingSpinner text="Loading analytics..." />;
+  if (loading) return <LoadingSpinner text="Aggregating live admissions telemetry..." />;
   if (error) return <ErrorState message={error} />;
   if (!data) return null;
 
@@ -85,116 +85,168 @@ export default function AnalyticsPage() {
   const sources = data.influencerSources || data.influencerBreakdown || {};
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-charcoal/15 p-6 rounded-3xl shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-carbon">Analytics Dashboard</h1>
-          <p className="text-dim-grey text-sm mt-1">Glory International Admissions Fair 2026</p>
+          <div className="flex items-center gap-2 mb-1">
+            <Badge variant="blue" dot>Live Telemetry</Badge>
+            <span className="text-xs text-dim-grey">Fair Date: Sept 15, 2026</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-carbon tracking-tight">
+            Admissions Analytics & CRM
+          </h1>
+          <p className="text-xs sm:text-sm text-dim-grey mt-0.5">
+            Real-time funnel conversion, 100-point scoring metrics, and university matches.
+          </p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="secondary" size="sm" onClick={handleExport}>
-            <Download size={14} /> Export CSV
+        <div className="flex items-center gap-3">
+          <Button variant="secondary" size="sm" onClick={handleExport} className="shadow-xs font-semibold">
+            <Download size={15} /> Export CSV Dataset
           </Button>
         </div>
       </div>
 
-      {/* Stat Cards */}
+      {/* 4 Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          icon={<Users />}
-          label="Total Students"
+          icon={<Users size={22} />}
+          label="Registered Applicants"
           value={total.toLocaleString()}
+          subtext="Total student accounts"
           color="ocean"
         />
         <StatCard
-          icon={<CreditCard />}
-          label="Payment Verified"
+          icon={<CreditCard size={22} />}
+          label="500 ETB Verified"
           value={`${paidPct}%`}
-          subtext={`${paid} / ${total} students`}
+          subtext={`${paid} of ${total} verified`}
           color="green"
         />
         <StatCard
-          icon={<ClipboardCheck />}
-          label="Assessed"
+          icon={<ClipboardCheck size={22} />}
+          label="Scored & Assessed"
           value={`${assessed}`}
-          subtext={`${Math.max(0, total - assessed)} pending`}
+          subtext={`${Math.max(0, total - assessed)} pending review`}
           color="gold"
         />
         <StatCard
-          icon={<Target />}
-          label="Matches Approved"
+          icon={<Target size={22} />}
+          label="University Matches"
           value={`${matched}`}
-          subtext={`${Math.max(0, total - matched)} pending`}
+          subtext={`${Math.max(0, total - matched)} awaiting match`}
           color="ocean"
         />
       </div>
 
-      {/* Results Breakdown */}
-      <Card>
-        <h3 className="font-semibold text-carbon mb-4 flex items-center gap-2">
-          <BarChart3 size={18} className="text-ocean" /> Results Breakdown
-        </h3>
-
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-carbon">🟢 Green — Eligible</span>
-              <span className="text-sm text-dim-grey">{greenCount} ({greenPct}%)</span>
-            </div>
-            <div className="progress-bar">
-              <div className="h-full bg-green rounded-full" style={{ width: `${greenPct}%` }} />
-            </div>
+      {/* Results Breakdown & Pipeline Grid */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Results Breakdown */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="font-bold text-base text-carbon flex items-center gap-2">
+              <BarChart3 size={18} className="text-ocean" /> Admissions Decision Ratio
+            </h3>
+            <span className="text-xs font-semibold text-dim-grey">{totalResults} Evaluated</span>
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-carbon">🟡 Yellow — Under Review</span>
-              <span className="text-sm text-dim-grey">{yellowCount} ({yellowPct}%)</span>
-            </div>
-            <div className="progress-bar">
-              <div className="h-full bg-gold rounded-full" style={{ width: `${yellowPct}%` }} />
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-carbon">🔴 Red — Not Matched</span>
-              <span className="text-sm text-dim-grey">{redCount} ({redPct}%)</span>
-            </div>
-            <div className="progress-bar">
-              <div className="h-full bg-red rounded-full" style={{ width: `${redPct}%` }} />
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* Application Pipeline */}
-      {pipeline && Object.keys(pipeline).length > 0 && (
-        <Card>
-          <h3 className="font-semibold text-carbon mb-4">Application Pipeline</h3>
-          <div className="flex items-center gap-2 flex-wrap">
-            {Object.entries(pipeline).map(([stage, count], i) => (
-              <div key={stage} className="flex items-center gap-2">
-                {i > 0 && <span className="text-dim-grey">→</span>}
-                <div className="bg-porcelain rounded-lg px-3 py-2 text-center">
-                  <p className="text-xs text-dim-grey capitalize">{stage.replace(/_/g, ' ')}</p>
-                  <p className="font-bold text-carbon">{count as number}</p>
-                </div>
+          <div className="space-y-4">
+            <div className="bg-green/5 border border-green/20 rounded-2xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-green-text flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-green inline-block" />
+                  🟢 Green — Direct Application Recommended
+                </span>
+                <span className="text-xs font-bold text-carbon">{greenCount} ({greenPct}%)</span>
               </div>
-            ))}
+              <div className="progress-bar h-2 bg-green/20">
+                <div className="h-full bg-green rounded-full transition-all duration-500" style={{ width: `${greenPct}%` }} />
+              </div>
+            </div>
+
+            <div className="bg-gold/10 border border-gold/30 rounded-2xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-yellow-text flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-gold-dark inline-block" />
+                  🟡 Yellow — Conditional Review Required
+                </span>
+                <span className="text-xs font-bold text-carbon">{yellowCount} ({yellowPct}%)</span>
+              </div>
+              <div className="progress-bar h-2 bg-gold/30">
+                <div className="h-full bg-gold-dark rounded-full transition-all duration-500" style={{ width: `${yellowPct}%` }} />
+              </div>
+            </div>
+
+            <div className="bg-red/5 border border-red/20 rounded-2xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-red-text flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red inline-block" />
+                  🔴 Red — Foundation / Alternative Tier
+                </span>
+                <span className="text-xs font-bold text-carbon">{redCount} ({redPct}%)</span>
+              </div>
+              <div className="progress-bar h-2 bg-red/20">
+                <div className="h-full bg-red rounded-full transition-all duration-500" style={{ width: `${redPct}%` }} />
+              </div>
+            </div>
           </div>
         </Card>
-      )}
 
-      {/* Influencer Sources */}
+        {/* Application Stage Flow */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="font-bold text-base text-carbon flex items-center gap-2">
+              <Layers size={18} className="text-gold-dark" /> Student Conversion Pipeline
+            </h3>
+            <Badge variant="blue" className="text-[11px]">Funnel</Badge>
+          </div>
+
+          <div className="space-y-2.5">
+            {Object.entries(pipeline).length > 0 ? (
+              Object.entries(pipeline).map(([stage, count], i) => (
+                <div
+                  key={stage}
+                  className="flex items-center justify-between p-3 rounded-xl bg-porcelain border border-charcoal/15 hover:border-ocean/40 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-lg bg-white border border-charcoal/20 text-xs font-bold flex items-center justify-center text-dim-grey">
+                      0{i + 1}
+                    </span>
+                    <span className="text-xs font-bold text-carbon capitalize">
+                      {stage.replace(/_/g, ' ')}
+                    </span>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-ocean bg-ocean/10 px-2 py-0.5 rounded-md">
+                    {count as number} students
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-xs text-dim-grey">
+                No pipeline records yet. Students will appear here as they register and advance.
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
+
+      {/* Influencer & Referral Attribution */}
       {sources && Object.keys(sources).length > 0 && (
-        <Card>
-          <h3 className="font-semibold text-carbon mb-4">Student Sources</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-base text-carbon flex items-center gap-2">
+              <TrendingUp size={18} className="text-green" /> Marketing Channel Attribution
+            </h3>
+            <span className="text-xs text-dim-grey">Telegram, TikTok & Organic</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
             {Object.entries(sources).map(([source, count]) => (
-              <div key={source} className="bg-porcelain rounded-lg p-3 text-center">
-                <p className="text-lg font-bold text-ocean">{count as number}</p>
-                <p className="text-xs text-dim-grey capitalize">{source}</p>
+              <div
+                key={source}
+                className="bg-porcelain border border-charcoal/15 rounded-2xl p-4 text-center card-hoverable transition-all"
+              >
+                <p className="text-2xl font-black text-carbon">{count as number}</p>
+                <p className="text-xs font-semibold text-ocean capitalize mt-1 truncate">{source}</p>
               </div>
             ))}
           </div>

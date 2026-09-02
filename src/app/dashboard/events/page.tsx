@@ -40,30 +40,41 @@ export default function EventsPage() {
   const [checkInSuccess, setCheckInSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    loadEvents();
-  }, [user]);
-
-  const loadEvents = async () => {
-    try {
-      const res = await eventsAPI.list();
-      const evts = res.data;
-      setEvents(evts);
-
-      // Load my sessions for each event
-      for (const evt of evts) {
-        try {
-          const sessRes = await eventsAPI.mySessions(evt._id);
-          setMySessions((prev) => ({ ...prev, [evt._id]: sessRes.data }));
-        } catch {
-          // Student may not have sessions
+    let active = true;
+    eventsAPI
+      .list()
+      .then(async (res) => {
+        if (!active) return;
+        const evts = res.data || [];
+        setEvents(evts);
+        setLoading(false);
+        for (const evt of evts) {
+          try {
+            const sessRes = await eventsAPI.mySessions(evt._id);
+            const raw = sessRes.data;
+            const sessionsList = Array.isArray(raw)
+              ? raw
+              : Array.isArray(raw?.assignedSessions)
+              ? raw.assignedSessions.map((session: any) => ({
+                  session,
+                  checkedIn: raw.hasCheckedIn || raw.attended || false,
+                }))
+              : [];
+            if (active) {
+              setMySessions((prev) => ({ ...prev, [evt._id]: sessionsList }));
+            }
+          } catch {
+            // Student may not have sessions
+          }
         }
-      }
-    } catch {
-      // No events yet
-    } finally {
-      setLoading(false);
-    }
-  };
+      })
+      .catch(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [user]);
 
   const handleCheckIn = async (eventId: string) => {
     setCheckingIn(true);
@@ -152,22 +163,22 @@ export default function EventsPage() {
                       <div>
                         <p className="font-medium text-carbon flex items-center gap-2">
                           <MapPin size={14} className="text-ocean" />
-                          {s.session.name}
+                          {s.session?.name || (s as any).name || 'Breakout Track'}
                         </p>
                         <p className="text-sm text-dim-grey mt-1">
-                          🏛️ {s.session.universityName} • ⏰ {s.session.time}
+                          🏛️ {s.session?.universityName || (s as any).universityName || s.session?.destination || (s as any).destination || 'University Track'} • ⏰ {s.session?.time || (s as any).time || 'Session Time'}
                         </p>
-                        {s.session.repName && (
-                          <p className="text-xs text-dim-grey">Rep: {s.session.repName}</p>
+                        {(s.session?.repName || (s as any).repName) && (
+                          <p className="text-xs text-dim-grey">Rep: {s.session?.repName || (s as any).repName}</p>
                         )}
                       </div>
                       {s.checkedIn ? (
                         <Badge variant="green"><CheckCircle size={12} /> Checked In</Badge>
                       ) : null}
                     </div>
-                    {s.session.roomLink && (
+                    {(s.session?.roomLink || (s as any).roomLink) && (
                       <a
-                        href={s.session.roomLink}
+                        href={s.session?.roomLink || (s as any).roomLink}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-ocean text-sm flex items-center gap-1 hover:underline mt-2"

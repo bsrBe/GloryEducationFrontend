@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { usersAPI } from '@/lib/api';
 import { Card, Button, Input, Select, Badge, LoadingSpinner, ErrorState } from '@/components/ui';
@@ -34,11 +34,7 @@ export default function UsersPage() {
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateUserForm>();
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       const res = await usersAPI.list();
       setUsers(res.data);
@@ -49,7 +45,30 @@ export default function UsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    usersAPI
+      .list()
+      .then((res) => {
+        if (active) {
+          setUsers(res.data);
+          setLoading(false);
+        }
+      })
+      .catch((err: unknown) => {
+        if (active) {
+          setError(
+            (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load users'
+          );
+          setLoading(false);
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const onCreate = async (data: CreateUserForm) => {
     setCreating(true);

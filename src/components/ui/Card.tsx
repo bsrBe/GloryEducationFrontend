@@ -5,13 +5,26 @@ interface CardProps {
   children: ReactNode;
   className?: string;
   padding?: boolean;
+  hoverable?: boolean;
+  glass?: boolean;
+  glow?: 'ocean' | 'gold' | 'none';
 }
 
-export function Card({ children, className, padding = true }: CardProps) {
+export function Card({
+  children,
+  className,
+  padding = true,
+  hoverable = false,
+  glass = false,
+  glow = 'none',
+}: CardProps) {
   return (
     <div
       className={clsx(
-        'bg-white border border-charcoal rounded-xl shadow-md',
+        glass ? 'glass-card' : 'bg-white border border-charcoal/15 rounded-2xl shadow-sm',
+        hoverable && 'card-hoverable cursor-pointer',
+        glow === 'ocean' && 'shadow-glow-ocean border-ocean/30',
+        glow === 'gold' && 'shadow-glow-gold border-gold/30',
         padding && 'p-6',
         className
       )}
@@ -30,7 +43,7 @@ export function CardHeader({ children, className }: CardHeaderProps) {
   return (
     <div
       className={clsx(
-        'bg-ocean text-white rounded-t-xl px-6 py-4 font-semibold',
+        'bg-gradient-to-r from-ocean to-ocean-dark text-white rounded-t-2xl px-6 py-4 font-semibold shadow-sm',
         className
       )}
     >
