@@ -102,12 +102,15 @@ export default function ApplyPaymentPage() {
 
       // Submit payment
       const paymentMethod = (payment.method || selectedMethod || 'telebirr').toLowerCase();
-      const validMethod = ['telebirr', 'bank_transfer', 'cash'].includes(paymentMethod) ? paymentMethod : (paymentMethod === 'bank' ? 'bank_transfer' : 'telebirr');
-      const ref = payment.reference || payment.transactionId || currentValues.reference || currentValues.transactionId;
+      const validMethod = ['telebirr', 'bank_transfer', 'cbe', 'boa', 'cash'].includes(paymentMethod)
+        ? paymentMethod
+        : (paymentMethod === 'bank' ? 'cbe' : 'telebirr');
+      const ref = (payment.reference || payment.transactionId || currentValues.reference || currentValues.transactionId || '').trim();
 
       if (ref) {
         await studentsAPI.addPayment(user._id, {
           method: validMethod,
+          provider: validMethod,
           amount: Number(payment.amount) || Number(currentValues.amount) || 500,
           transactionRef: ref,
         });
@@ -182,7 +185,7 @@ export default function ApplyPaymentPage() {
         </div>
         <h1 className="text-2xl font-bold text-carbon mb-2">Application Submitted! 🎉</h1>
         <p className="text-dim-grey mb-6">
-          Your registration is complete. We&apos;ll verify your payment and review your profile.
+          Your registration is complete. Your payment has been submitted for automated banking verification.
         </p>
         <div className="space-y-3">
           <Button onClick={() => router.push('/dashboard')}>Go to Dashboard</Button>
@@ -193,9 +196,9 @@ export default function ApplyPaymentPage() {
   }
 
   const methods = [
-    { id: 'telebirr', label: 'Telebirr', icon: <Smartphone size={20} />, desc: 'Send to: 0911XXXXXX' },
-    { id: 'bank', label: 'Bank Transfer', icon: <Building2 size={20} />, desc: 'CBE: 1000XXXXXX' },
-    { id: 'cash', label: 'Cash', icon: <Banknote size={20} />, desc: 'Pay at Glory office' },
+    { id: 'telebirr', label: 'Telebirr', icon: <Smartphone size={20} />, desc: 'Instant Verification' },
+    { id: 'cbe', label: 'Commercial Bank of Ethiopia', icon: <Building2 size={20} />, desc: 'CBE Mobile Slip / SMS' },
+    { id: 'boa', label: 'Bank of Abyssinia', icon: <Building2 size={20} />, desc: 'BOA Slip Token or Link' },
   ];
 
   return (
