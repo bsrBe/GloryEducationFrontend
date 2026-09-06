@@ -35,7 +35,7 @@ export default function ApplyPaymentPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { register, handleSubmit, watch, getValues, reset, formState: { errors } } = useForm<PaymentForm>({
+  const { register, handleSubmit, watch, getValues, reset, setValue, formState: { errors } } = useForm<PaymentForm>({
     defaultValues: { amount: 500 },
   });
 
@@ -242,12 +242,7 @@ export default function ApplyPaymentPage() {
                 type="button"
                 onClick={() => {
                   setSelectedMethod(m.id);
-                  const input = document.querySelector('input[name="method"]') as HTMLInputElement;
-                  if (input) {
-                    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
-                    setter?.call(input, m.id);
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                  }
+                  setValue('method', m.id, { shouldValidate: true });
                 }}
                 className={`p-4 rounded-lg border-2 text-left transition-all ${
                   selectedMethod === m.id
