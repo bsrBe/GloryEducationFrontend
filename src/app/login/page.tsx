@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { useAuthStore } from '@/stores/authStore';
 import { Button, Input, Card, Logo } from '@/components/ui';
-import { Eye, EyeOff, KeyRound, Shield, Briefcase, GraduationCap, School } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface LoginForm {
   email: string;
@@ -40,12 +40,6 @@ export default function LoginPage() {
     } catch {
       // Error handled by store
     }
-  };
-
-  const fillTestCredentials = (email: string, pass: string) => {
-    setValue('email', email, { shouldValidate: true });
-    setValue('password', pass, { shouldValidate: true });
-    clearError();
   };
 
   return (
@@ -120,47 +114,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Quick Demo Fill Buttons */}
-          <div className="mt-6 pt-5 border-t border-charcoal/15">
-            <div className="flex items-center gap-1.5 justify-center text-xs font-bold text-dim-grey mb-3">
-              <KeyRound size={13} className="text-gold-dark" />
-              <span>Quick Test Logins:</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => fillTestCredentials('admin@gloryedu.com', 'admin123456')}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-charcoal/15 bg-porcelain hover:bg-ocean/10 hover:border-ocean/40 text-carbon transition-colors cursor-pointer text-left"
-              >
-                <Shield size={13} className="text-red shrink-0" />
-                <span className="font-semibold truncate">Admin</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => fillTestCredentials('staff@gloryedu.com', 'staff123456')}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-charcoal/15 bg-porcelain hover:bg-ocean/10 hover:border-ocean/40 text-carbon transition-colors cursor-pointer text-left"
-              >
-                <Briefcase size={13} className="text-ocean shrink-0" />
-                <span className="font-semibold truncate">Staff</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => fillTestCredentials('rep@mit.edu', 'rep123456')}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-charcoal/15 bg-porcelain hover:bg-ocean/10 hover:border-ocean/40 text-carbon transition-colors cursor-pointer text-left"
-              >
-                <School size={13} className="text-gold-dark shrink-0" />
-                <span className="font-semibold truncate">Univ Rep</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => fillTestCredentials('almaz@test.com', 'student123')}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-charcoal/15 bg-porcelain hover:bg-ocean/10 hover:border-ocean/40 text-carbon transition-colors cursor-pointer text-left"
-              >
-                <GraduationCap size={13} className="text-green shrink-0" />
-                <span className="font-semibold truncate">Student</span>
-              </button>
-            </div>
-          </div>
 
           <p className="text-center text-xs text-dim-grey mt-6">
             Don&apos;t have an account?{' '}
