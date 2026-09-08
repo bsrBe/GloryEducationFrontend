@@ -172,10 +172,27 @@ export default function ConferenceRoomPage({
         }
       });
 
+      const formatDailyError = (e: any) => {
+        const code = e?.errorMsg || e?.message || (typeof e === 'string' ? e : '');
+        if (code === 'account-missing-payment-method') {
+          return 'Your Daily.co account requires a payment method on file to activate live video rooms. Please add a billing card at https://dashboard.daily.co/billing to enable conference calls.';
+        }
+        if (code === 'meeting-full') {
+          return 'This conference room has reached its maximum participant capacity.';
+        }
+        if (code === 'token-expired') {
+          return 'Your conference access pass has expired. Please refresh the page to get a new pass.';
+        }
+        if (code) {
+          return `Conference room error: ${code}`;
+        }
+        return 'Failed to launch video room. Please try again.';
+      };
+
       callFrame.on('error', (e: any) => {
         console.error('Daily.co error event:', e);
-        if (!isDestroyed && e?.errorMsg) {
-          setGeneralError(`Daily error: ${e.errorMsg}`);
+        if (!isDestroyed) {
+          setGeneralError(formatDailyError(e));
         }
       });
 
@@ -201,9 +218,7 @@ export default function ConferenceRoomPage({
         .catch((e: any) => {
           if (!isDestroyed) {
             console.error('Daily.co join error:', e);
-            setGeneralError(
-              e?.message || 'Failed to launch video room. Please try again.'
-            );
+            setGeneralError(formatDailyError(e));
           }
         });
     } catch (error: any) {
