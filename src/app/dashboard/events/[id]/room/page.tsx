@@ -18,15 +18,12 @@ import {
   Calendar,
 } from 'lucide-react';
 
-declare global {
-  interface Window {
-    JitsiMeetExternalAPI?: any;
-  }
-}
+// Daily.co types — we import the class at runtime to avoid SSR issues
+let DailyIframe: any = null;
 
 interface RoomData {
-  domain: string;
-  roomName: string;
+  roomUrl: string;
+  token: string;
   displayName: string;
   email: string;
   isModerator: boolean;
@@ -53,8 +50,8 @@ export default function ConferenceRoomPage({
       : undefined;
 
   const router = useRouter();
-  const jitsiContainerRef = useRef<HTMLDivElement>(null);
-  const jitsiApiRef = useRef<any>(null);
+  const callFrameRef = useRef<HTMLDivElement>(null);
+  const callObjectRef = useRef<any>(null);
 
   const [roomData, setRoomData] = useState<RoomData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,7 +59,6 @@ export default function ConferenceRoomPage({
   const [timeGateError, setTimeGateError] = useState<string | null>(null);
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [jitsiScriptLoaded, setJitsiScriptLoaded] = useState(false);
 
   // 1. Fetch Room Credentials via Protected REST Gate
   useEffect(() => {
@@ -105,119 +101,79 @@ export default function ConferenceRoomPage({
     };
   }, [eventId, sessionIndex]);
 
-  // 2. Load Jitsi External API Script Dynamically
+  // 2. Load Daily.co SDK dynamically (SSR-safe)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    if (window.JitsiMeetExternalAPI) {
-      setJitsiScriptLoaded(true);
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://meet.jit.si/external_api.js';
-    script.async = true;
-    script.onload = () => {
-      setJitsiScriptLoaded(true);
-    };
-    script.onerror = () => {
-      setGeneralError('Failed to load video conferencing library. Please check your network connection.');
-    };
-    document.body.appendChild(script);
-
-    return () => {
-      // Keep script in head for performance if user navigates back
-    };
+    import('@daily-co/daily-js').then((mod) => {
+      DailyIframe = mod.default;
+    });
   }, []);
 
-  // 3. Mount and Initialize Jitsi Meet IFrame when Data and Script are Ready
+  // 3. Mount Daily.co Prebuilt Call Frame when data and SDK are ready
   useEffect(() => {
-    if (!roomData || !jitsiScriptLoaded || !jitsiContainerRef.current) return;
+    if (!roomData || !DailyIframe || !callFrameRef.current) return;
 
     // Destroy existing instance if any
-    if (jitsiApiRef.current) {
-      jitsiApiRef.current.dispose();
-      jitsiApiRef.current = null;
+    if (callObjectRef.current) {
+      try {
+        callObjectRef.current.destroy();
+      } catch {
+        // ignore
+      }
+      callObjectRef.current = null;
     }
 
-    // Clean container before mount
-    jitsiContainerRef.current.innerHTML = '';
-
-    const domain = roomData.domain || 'meet.jit.si';
-    const options = {
-      roomName: roomData.roomName,
-      width: '100%',
-      height: '100%',
-      parentNode: jitsiContainerRef.current,
-      userInfo: {
-        displayName: roomData.displayName,
-        email: roomData.email,
-      },
-      configOverwrite: {
-        prejoinPageEnabled: false,
-        startWithAudioMuted: true,
-        startWithVideoMuted: false,
-        enableNoisyMicDetection: false,
-        enableClosePage: false,
-        disableRemoteMute: !roomData.isModerator,
-        disableInviteFunctions: true,
-        hideConferenceSubject: false,
-        subject: `${roomData.eventName} — ${roomData.sessionName}`,
-      },
-      interfaceConfigOverwrite: {
-        APP_NAME: 'Glory Admissions Fair',
-        SHOW_JITSI_WATERMARK: false,
-        SHOW_WATERMARK_FOR_GUESTS: false,
-        SHOW_BRAND_WATERMARK: false,
-        SHOW_POWERED_BY: false,
-        HIDE_INVITE_MORE_HEADER: true,
-        MOBILE_APP_PROMO: false,
-        TOOLBAR_BUTTONS: [
-          'microphone',
-          'camera',
-          'desktop',
-          'fullscreen',
-          'chat',
-          'raisehand',
-          'tileview',
-          'videoquality',
-          'fodeviceselection',
-          'settings',
-          'hangup',
-        ],
-      },
-    };
+    // Clean container
+    callFrameRef.current.innerHTML = '';
 
     try {
-      const api = new window.JitsiMeetExternalAPI(domain, options);
-      jitsiApiRef.current = api;
-
-      api.executeCommand('displayName', roomData.displayName);
-
-      api.addEventListeners({
-        readyToClose: () => {
-          router.push('/dashboard/events');
-        },
-        videoConferenceLeft: () => {
-          router.push('/dashboard/events');
-        },
+      // Create a Daily.co call object with the prebuilt UI embedded in our div
+      const callFrame = DailyIframe.createCallObject({
+        url: roomData.roomUrl,
+        token: roomData.token,
+        showLeaveButton: false, // We have our own leave button
+        showFullscreenButton: false, // We have our own
       });
+
+      callObjectRef.current = callFrame;
+
+      // Listen for events
+      callFrame.on('joined-meeting', () => {
+        // Successfully joined
+      });
+
+      callFrame.on('error', (e: any) => {
+        console.error('Daily.co error:', e);
+        setGeneralError('Video call error. Please try again.');
+      });
+
+      callFrame.on('left-meeting', () => {
+        router.push('/dashboard/events');
+      });
+
+      callFrame.on('call-instance-destroyed', () => {
+        router.push('/dashboard/events');
+      });
+
+      // Load the call frame UI into our container
+      callFrame.loadCalendar(callFrameRef.current);
     } catch (error) {
-      console.error('Error initializing Jitsi Meet:', error);
-      setGeneralError('Failed to launch video room player.');
+      console.error('Error initializing Daily.co:', error);
+      setGeneralError('Failed to launch video room. Please check your Daily.co configuration.');
     }
 
     return () => {
-      if (jitsiApiRef.current) {
+      if (callObjectRef.current) {
         try {
-          jitsiApiRef.current.dispose();
+          callObjectRef.current.destroy();
         } catch {
           // ignore cleanup errors
         }
-        jitsiApiRef.current = null;
+        callObjectRef.current = null;
       }
     };
-  }, [roomData, jitsiScriptLoaded, router]);
+  }, [roomData, router]);
 
   const handleToggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -230,9 +186,9 @@ export default function ConferenceRoomPage({
   };
 
   const handleLeave = () => {
-    if (jitsiApiRef.current) {
+    if (callObjectRef.current) {
       try {
-        jitsiApiRef.current.executeCommand('hangup');
+        callObjectRef.current.leave();
       } catch {
         // ignore
       }
@@ -360,7 +316,7 @@ export default function ConferenceRoomPage({
     );
   }
 
-  // --- Embedded Live Conference Player ---
+  // --- Embedded Daily.co Conference Player ---
   return (
     <div className="flex flex-col h-[calc(100vh-5.5rem)] -m-4 sm:-m-6 lg:-m-8 bg-carbon rounded-none sm:rounded-2xl overflow-hidden border border-charcoal/30 shadow-2xl">
       {/* Conference Room Top Bar */}
@@ -411,10 +367,10 @@ export default function ConferenceRoomPage({
         </div>
       </div>
 
-      {/* Embedded Jitsi Meeting Iframe Mount */}
+      {/* Daily.co Call Frame Mount */}
       <div className="relative flex-1 w-full h-full bg-black">
         <div
-          ref={jitsiContainerRef}
+          ref={callFrameRef}
           className="w-full h-full"
           style={{ minHeight: '450px' }}
         />
