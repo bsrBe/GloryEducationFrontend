@@ -18,8 +18,6 @@ import {
   Calendar,
 } from 'lucide-react';
 
-// Daily.co types — we import the class at runtime to avoid SSR issues
-let DailyIframe: any = null;
 
 interface RoomData {
   roomUrl: string;
@@ -102,17 +100,28 @@ export default function ConferenceRoomPage({
   }, [eventId, sessionIndex]);
 
   // 2. Load Daily.co SDK dynamically (SSR-safe)
+  const [dailyLoaded, setDailyLoaded] = useState(false);
+  const dailyIframeRef = useRef<any>(null);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    import('@daily-co/daily-js').then((mod) => {
-      DailyIframe = mod.default;
-    });
+    import('@daily-co/daily-js')
+      .then((mod) => {
+        dailyIframeRef.current = mod.default || mod;
+        setDailyLoaded(true);
+      })
+      .catch((err) => {
+        console.error('Failed to load Daily.co SDK:', err);
+        setGeneralError('Failed to load video conferencing library.');
+      });
   }, []);
 
   // 3. Mount Daily.co Prebuilt Call Frame when data and SDK are ready
   useEffect(() => {
-    if (!roomData || !DailyIframe || !callFrameRef.current) return;
+    if (!roomData || !dailyLoaded || !callFrameRef.current) return;
+    const DailyIframeClass = dailyIframeRef.current;
+    if (!DailyIframeClass) return;
 
     // Destroy existing instance if any
     if (callObjectRef.current) {
@@ -128,9 +137,9 @@ export default function ConferenceRoomPage({
     callFrameRef.current.innerHTML = '';
 
     try {
-      // createFrame() = Daily prebuilt UI (video tiles, controls, chat) embedded in our div
-      const callFrame = DailyIframe.createFrame({
-        iframeStyles: {
+      // createFrame(parentElement, options) mounts the Daily prebuilt UI directly into our container div
+      const callFrame = DailyIframeClass.createFrame(callFrameRef.current, {
+        iframeStyle: {
           width: '100%',
           height: '100%',
           border: '0',
@@ -138,20 +147,9 @@ export default function ConferenceRoomPage({
         },
         showLeaveButton: false, // We have our own leave button
         showFullscreenButton: false, // We have our own fullscreen button
-        url: roomData.roomUrl,
-        token: roomData.token,
       });
 
       callObjectRef.current = callFrame;
-
-      // Mount the prebuilt UI into our container and join the meeting
-      callFrame
-        .iframe(callFrameRef.current)
-        .then(() => callFrame.join())
-        .catch((e: any) => {
-          console.error('Daily.co mount/join error:', e);
-          setGeneralError('Failed to launch video room. Please try again.');
-        });
 
       // Listen for events
       callFrame.on('error', (e: any) => {
@@ -161,9 +159,25 @@ export default function ConferenceRoomPage({
       callFrame.on('left-meeting', () => {
         router.push('/dashboard/events');
       });
-    } catch (error) {
+
+      // Join the meeting with the room URL and token
+      callFrame
+        .join({
+          url: roomData.roomUrl,
+          token: roomData.token,
+        })
+        .catch((e: any) => {
+          console.error('Daily.co join error:', e);
+          setGeneralError(
+            e?.message || 'Failed to launch video room. Please try again.'
+          );
+        });
+    } catch (error: any) {
       console.error('Error initializing Daily.co:', error);
-      setGeneralError('Failed to launch video room. Please check your Daily.co configuration.');
+      setGeneralError(
+        error?.message ||
+          'Failed to launch video room. Please check your Daily.co configuration.'
+      );
     }
 
     return () => {
@@ -176,7 +190,7 @@ export default function ConferenceRoomPage({
         callObjectRef.current = null;
       }
     };
-  }, [roomData, router]);
+  }, [roomData, dailyLoaded, router]);
 
   const handleToggleFullscreen = () => {
     if (!document.fullscreenElement) {
