@@ -50,6 +50,8 @@ export default function ConferenceRoomPage({
   const router = useRouter();
   const callFrameRef = useRef<HTMLDivElement>(null);
   const callObjectRef = useRef<any>(null);
+  const isLeavingRef = useRef(false);
+  const mountedRoomUrlRef = useRef<string | null>(null);
 
   const [roomData, setRoomData] = useState<RoomData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -120,9 +122,13 @@ export default function ConferenceRoomPage({
   // 3. Mount Daily.co Prebuilt Call Frame when data and SDK are ready
   useEffect(() => {
     if (!roomData || !dailyLoaded || !callFrameRef.current) return;
+    if (mountedRoomUrlRef.current === roomData.roomUrl) {
+      return; // Already mounted for this room, do not recreate
+    }
     const DailyIframeClass = dailyIframeRef.current;
     if (!DailyIframeClass) return;
 
+    mountedRoomUrlRef.current = roomData.roomUrl;
     let isDestroyed = false;
 
     // Destroy existing instance if any
@@ -139,7 +145,7 @@ export default function ConferenceRoomPage({
     callFrameRef.current.innerHTML = '';
 
     try {
-      // createFrame(parentElement, options) mounts the Daily prebuilt UI directly into our container div
+      console.log('Daily: creating frame for', roomData.roomUrl);
       const callFrame = DailyIframeClass.createFrame(callFrameRef.current, {
         iframeStyle: {
           width: '100%',
@@ -153,15 +159,33 @@ export default function ConferenceRoomPage({
 
       callObjectRef.current = callFrame;
 
-      // Listen for events
-      callFrame.on('error', (e: any) => {
-        console.error('Daily.co error:', e);
+      // Listen for all Daily events
+      callFrame.on('loading', (e: any) => console.log('Daily: loading', e));
+      callFrame.on('loaded', (e: any) => console.log('Daily: loaded', e));
+      callFrame.on('joining-meeting', (e: any) => console.log('Daily: joining-meeting', e));
+      callFrame.on('joined-meeting', (e: any) => console.log('Daily: joined-meeting', e));
+      callFrame.on('camera-error', (e: any) => console.error('Daily: camera-error event:', e));
+      callFrame.on('load-attempt-failed', (e: any) => {
+        console.error('Daily: load-attempt-failed event:', e);
+        if (!isDestroyed) {
+          setGeneralError('Failed to connect to Daily video servers. Please check your network connection.');
+        }
       });
 
-      callFrame.on('left-meeting', () => {
-        // Only navigate away if the component is still actively mounted and the user left
-        if (!isDestroyed) {
+      callFrame.on('error', (e: any) => {
+        console.error('Daily.co error event:', e);
+        if (!isDestroyed && e?.errorMsg) {
+          setGeneralError(`Daily error: ${e.errorMsg}`);
+        }
+      });
+
+      callFrame.on('left-meeting', (e: any) => {
+        console.log('Daily.co left-meeting event:', e);
+        // Only redirect if the user explicitly clicked Leave
+        if (isLeavingRef.current) {
           router.push('/dashboard/events');
+        } else {
+          console.warn('Daily left-meeting fired without explicit leave action');
         }
       });
 
@@ -194,6 +218,7 @@ export default function ConferenceRoomPage({
 
     return () => {
       isDestroyed = true;
+      mountedRoomUrlRef.current = null;
       if (callObjectRef.current) {
         try {
           callObjectRef.current.destroy();
@@ -216,6 +241,7 @@ export default function ConferenceRoomPage({
   };
 
   const handleLeave = () => {
+    isLeavingRef.current = true;
     if (callObjectRef.current) {
       try {
         callObjectRef.current.leave();
