@@ -123,6 +123,8 @@ export default function ConferenceRoomPage({
     const DailyIframeClass = dailyIframeRef.current;
     if (!DailyIframeClass) return;
 
+    let isDestroyed = false;
+
     // Destroy existing instance if any
     if (callObjectRef.current) {
       try {
@@ -157,7 +159,10 @@ export default function ConferenceRoomPage({
       });
 
       callFrame.on('left-meeting', () => {
-        router.push('/dashboard/events');
+        // Only navigate away if the component is still actively mounted and the user left
+        if (!isDestroyed) {
+          router.push('/dashboard/events');
+        }
       });
 
       // Join the meeting with the room URL and token
@@ -166,21 +171,29 @@ export default function ConferenceRoomPage({
           url: roomData.roomUrl,
           token: roomData.token,
         })
+        .then(() => {
+          console.log('Daily.co joined room successfully');
+        })
         .catch((e: any) => {
-          console.error('Daily.co join error:', e);
-          setGeneralError(
-            e?.message || 'Failed to launch video room. Please try again.'
-          );
+          if (!isDestroyed) {
+            console.error('Daily.co join error:', e);
+            setGeneralError(
+              e?.message || 'Failed to launch video room. Please try again.'
+            );
+          }
         });
     } catch (error: any) {
-      console.error('Error initializing Daily.co:', error);
-      setGeneralError(
-        error?.message ||
-          'Failed to launch video room. Please check your Daily.co configuration.'
-      );
+      if (!isDestroyed) {
+        console.error('Error initializing Daily.co:', error);
+        setGeneralError(
+          error?.message ||
+            'Failed to launch video room. Please check your Daily.co configuration.'
+        );
+      }
     }
 
     return () => {
+      isDestroyed = true;
       if (callObjectRef.current) {
         try {
           callObjectRef.current.destroy();
