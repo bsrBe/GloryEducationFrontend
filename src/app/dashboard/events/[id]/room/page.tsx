@@ -128,36 +128,39 @@ export default function ConferenceRoomPage({
     callFrameRef.current.innerHTML = '';
 
     try {
-      // Create a Daily.co call object with the prebuilt UI embedded in our div
-      const callFrame = DailyIframe.createCallObject({
+      // createFrame() = Daily prebuilt UI (video tiles, controls, chat) embedded in our div
+      const callFrame = DailyIframe.createFrame({
+        iframeStyles: {
+          width: '100%',
+          height: '100%',
+          border: '0',
+          borderRadius: '0',
+        },
+        showLeaveButton: false, // We have our own leave button
+        showFullscreenButton: false, // We have our own fullscreen button
         url: roomData.roomUrl,
         token: roomData.token,
-        showLeaveButton: false, // We have our own leave button
-        showFullscreenButton: false, // We have our own
       });
 
       callObjectRef.current = callFrame;
 
-      // Listen for events
-      callFrame.on('joined-meeting', () => {
-        // Successfully joined
-      });
+      // Mount the prebuilt UI into our container and join the meeting
+      callFrame
+        .iframe(callFrameRef.current)
+        .then(() => callFrame.join())
+        .catch((e: any) => {
+          console.error('Daily.co mount/join error:', e);
+          setGeneralError('Failed to launch video room. Please try again.');
+        });
 
+      // Listen for events
       callFrame.on('error', (e: any) => {
         console.error('Daily.co error:', e);
-        setGeneralError('Video call error. Please try again.');
       });
 
       callFrame.on('left-meeting', () => {
         router.push('/dashboard/events');
       });
-
-      callFrame.on('call-instance-destroyed', () => {
-        router.push('/dashboard/events');
-      });
-
-      // Load the call frame UI into our container
-      callFrame.loadCalendar(callFrameRef.current);
     } catch (error) {
       console.error('Error initializing Daily.co:', error);
       setGeneralError('Failed to launch video room. Please check your Daily.co configuration.');
