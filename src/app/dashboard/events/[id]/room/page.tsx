@@ -21,7 +21,6 @@ import {
 
 interface RoomData {
   roomUrl: string;
-  token: string;
   displayName: string;
   email: string;
   isModerator: boolean;
@@ -31,6 +30,15 @@ interface RoomData {
   endTime?: string;
   date?: string;
   status?: string;
+}
+
+// Custom element tag provided by @whereby.com/browser-sdk
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'whereby-embed': any;
+    }
+  }
 }
 
 export default function ConferenceRoomPage({
@@ -48,8 +56,8 @@ export default function ConferenceRoomPage({
       : undefined;
 
   const router = useRouter();
-  const callFrameRef = useRef<HTMLDivElement>(null);
-  const callObjectRef = useRef<any>(null);
+  const wherebyHostRef = useRef<HTMLDivElement>(null);
+  const embedElRef = useRef<any>(null);
   const isLeavingRef = useRef(false);
   const mountedRoomUrlRef = useRef<string | null>(null);
 
@@ -59,6 +67,7 @@ export default function ConferenceRoomPage({
   const [timeGateError, setTimeGateError] = useState<string | null>(null);
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [sdkReady, setSdkReady] = useState(false);
 
   // 1. Fetch Room Credentials via Protected REST Gate
   useEffect(() => {
@@ -101,149 +110,79 @@ export default function ConferenceRoomPage({
     };
   }, [eventId, sessionIndex]);
 
-  // 2. Load Daily.co SDK dynamically (SSR-safe)
-  const [dailyLoaded, setDailyLoaded] = useState(false);
-  const dailyIframeRef = useRef<any>(null);
-
+  // 2. Load the Whereby browser SDK (registers the <whereby-embed> custom element, SSR-safe)
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    let active = true;
 
-    import('@daily-co/daily-js')
-      .then((mod) => {
-        dailyIframeRef.current = mod.default || mod;
-        setDailyLoaded(true);
+    import('@whereby.com/browser-sdk/embed')
+      .then(() => {
+        if (active) setSdkReady(true);
       })
       .catch((err) => {
-        console.error('Failed to load Daily.co SDK:', err);
-        setGeneralError('Failed to load video conferencing library.');
-      });
-  }, []);
-
-  // 3. Mount Daily.co Prebuilt Call Frame when data and SDK are ready
-  useEffect(() => {
-    if (!roomData || !dailyLoaded || !callFrameRef.current) return;
-    if (mountedRoomUrlRef.current === roomData.roomUrl) {
-      return; // Already mounted for this room, do not recreate
-    }
-    const DailyIframeClass = dailyIframeRef.current;
-    if (!DailyIframeClass) return;
-
-    mountedRoomUrlRef.current = roomData.roomUrl;
-    let isDestroyed = false;
-
-    // Destroy existing instance if any
-    if (callObjectRef.current) {
-      try {
-        callObjectRef.current.destroy();
-      } catch {
-        // ignore
-      }
-      callObjectRef.current = null;
-    }
-
-    // Clean container
-    callFrameRef.current.innerHTML = '';
-
-    try {
-      console.log('Daily: creating frame for', roomData.roomUrl);
-      const callFrame = DailyIframeClass.createFrame(callFrameRef.current, {
-        iframeStyle: {
-          width: '100%',
-          height: '100%',
-          border: '0',
-          borderRadius: '0',
-        },
-        showLeaveButton: false, // We have our own leave button
-        showFullscreenButton: false, // We have our own fullscreen button
-      });
-
-      callObjectRef.current = callFrame;
-
-      // Listen for all Daily events
-      callFrame.on('loading', (e: any) => console.log('Daily: loading', e));
-      callFrame.on('loaded', (e: any) => console.log('Daily: loaded', e));
-      callFrame.on('joining-meeting', (e: any) => console.log('Daily: joining-meeting', e));
-      callFrame.on('joined-meeting', (e: any) => console.log('Daily: joined-meeting', e));
-      callFrame.on('camera-error', (e: any) => console.error('Daily: camera-error event:', e));
-      callFrame.on('load-attempt-failed', (e: any) => {
-        console.error('Daily: load-attempt-failed event:', e);
-        if (!isDestroyed) {
-          setGeneralError('Failed to connect to Daily video servers. Please check your network connection.');
+        console.error('Failed to load Whereby SDK:', err);
+        if (active) {
+          setGeneralError('Failed to load video conferencing library.');
         }
       });
-
-      const formatDailyError = (e: any) => {
-        const code = e?.errorMsg || e?.message || (typeof e === 'string' ? e : '');
-        if (code === 'account-missing-payment-method') {
-          return 'Your Daily.co account requires a payment method on file to activate live video rooms. Please add a billing card at https://dashboard.daily.co/billing to enable conference calls.';
-        }
-        if (code === 'meeting-full') {
-          return 'This conference room has reached its maximum participant capacity.';
-        }
-        if (code === 'token-expired') {
-          return 'Your conference access pass has expired. Please refresh the page to get a new pass.';
-        }
-        if (code) {
-          return `Conference room error: ${code}`;
-        }
-        return 'Failed to launch video room. Please try again.';
-      };
-
-      callFrame.on('error', (e: any) => {
-        console.error('Daily.co error event:', e);
-        if (!isDestroyed) {
-          setGeneralError(formatDailyError(e));
-        }
-      });
-
-      callFrame.on('left-meeting', (e: any) => {
-        console.log('Daily.co left-meeting event:', e);
-        // Only redirect if the user explicitly clicked Leave
-        if (isLeavingRef.current) {
-          router.push('/dashboard/events');
-        } else {
-          console.warn('Daily left-meeting fired without explicit leave action');
-        }
-      });
-
-      // Join the meeting with the room URL and token
-      callFrame
-        .join({
-          url: roomData.roomUrl,
-          token: roomData.token,
-        })
-        .then(() => {
-          console.log('Daily.co joined room successfully');
-        })
-        .catch((e: any) => {
-          if (!isDestroyed) {
-            console.error('Daily.co join error:', e);
-            setGeneralError(formatDailyError(e));
-          }
-        });
-    } catch (error: any) {
-      if (!isDestroyed) {
-        console.error('Error initializing Daily.co:', error);
-        setGeneralError(
-          error?.message ||
-            'Failed to launch video room. Please check your Daily.co configuration.'
-        );
-      }
-    }
 
     return () => {
-      isDestroyed = true;
+      active = false;
+    };
+  }, []);
+
+  // 3. Mount the <whereby-embed> element once room data + SDK are ready
+  useEffect(() => {
+    if (!roomData || !sdkReady || !wherebyHostRef.current) return;
+    if (mountedRoomUrlRef.current === roomData.roomUrl) return; // already mounted
+
+    mountedRoomUrlRef.current = roomData.roomUrl;
+
+    const embed = document.createElement('whereby-embed');
+    embed.setAttribute('room', roomData.roomUrl);
+    embed.setAttribute('displayName', roomData.displayName || 'Guest');
+    embed.setAttribute('audio', 'on');
+    embed.setAttribute('video', 'on');
+    embed.setAttribute('screenshare', 'on');
+    embed.setAttribute('chat', 'on');
+    embed.setAttribute('leaveButton', 'on');
+    embed.setAttribute('background', 'on');
+    embed.style.width = '100%';
+    embed.style.height = '100%';
+    embed.style.border = '0';
+
+    embed.addEventListener('join', () => {
+      console.log('Whereby: participant joined');
+    });
+
+    embed.addEventListener('leave', () => {
+      console.log('Whereby: participant left');
+      // Only auto-redirect when the user explicitly used our Leave button;
+      // Whereby fires 'leave' for its own leave button too, which is also
+      // an explicit leave — navigating back is the expected UX either way.
+      if (!isLeavingRef.current) {
+        isLeavingRef.current = true;
+      }
+      router.push('/dashboard/events');
+    });
+
+    embed.addEventListener('meeting_end', () => {
+      console.log('Whereby: meeting ended by host');
+      router.push('/dashboard/events');
+    });
+
+    embedElRef.current = embed;
+    wherebyHostRef.current.innerHTML = '';
+    wherebyHostRef.current.appendChild(embed);
+
+    return () => {
       mountedRoomUrlRef.current = null;
-      if (callObjectRef.current) {
-        try {
-          callObjectRef.current.destroy();
-        } catch {
-          // ignore cleanup errors
-        }
-        callObjectRef.current = null;
+      embedElRef.current = null;
+      if (wherebyHostRef.current) {
+        wherebyHostRef.current.innerHTML = '';
       }
     };
-  }, [roomData, dailyLoaded, router]);
+  }, [roomData, sdkReady, router]);
 
   const handleToggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -257,12 +196,10 @@ export default function ConferenceRoomPage({
 
   const handleLeave = () => {
     isLeavingRef.current = true;
-    if (callObjectRef.current) {
-      try {
-        callObjectRef.current.leave();
-      } catch {
-        // ignore
-      }
+    try {
+      embedElRef.current?.leaveRoom?.();
+    } catch {
+      // ignore — element may not be connected
     }
     router.push('/dashboard/events');
   };
@@ -387,7 +324,7 @@ export default function ConferenceRoomPage({
     );
   }
 
-  // --- Embedded Daily.co Conference Player ---
+  // --- Embedded Whereby Conference Player ---
   return (
     <div className="flex flex-col h-[calc(100vh-5.5rem)] -m-4 sm:-m-6 lg:-m-8 bg-carbon rounded-none sm:rounded-2xl overflow-hidden border border-charcoal/30 shadow-2xl">
       {/* Conference Room Top Bar */}
@@ -438,10 +375,10 @@ export default function ConferenceRoomPage({
         </div>
       </div>
 
-      {/* Daily.co Call Frame Mount */}
+      {/* Whereby Embed Mount */}
       <div className="relative flex-1 w-full h-full bg-black">
         <div
-          ref={callFrameRef}
+          ref={wherebyHostRef}
           className="w-full h-full"
           style={{ minHeight: '450px' }}
         />
