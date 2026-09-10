@@ -25,6 +25,24 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     }
   }, [user, router]);
 
+  // Lock body scroll while the mobile drawer is open
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
+  // Close the mobile drawer whenever the viewport grows to desktop size
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) setMobileMenuOpen(false);
+    };
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
   if (!user) {
     return (
       <div className="min-h-screen bg-porcelain flex items-center justify-center">
@@ -43,19 +61,32 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         />
       </div>
 
-      {/* Mobile Sidebar Overlay */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setMobileMenuOpen(false)}
-          />
+      {/* Mobile Sidebar Drawer */}
+      <div
+        className={clsx(
+          'lg:hidden fixed inset-0 z-50 transition-opacity duration-200',
+          mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        )}
+        aria-hidden={!mobileMenuOpen}
+      >
+        <div
+          className="absolute inset-0 bg-black/50"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+        {/* Slide-in panel; h-dvh keeps the Sign Out button above mobile browser chrome */}
+        <div
+          className={clsx(
+            'absolute left-0 top-0 h-dvh transition-transform duration-300 ease-out',
+            mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          )}
+        >
           <Sidebar
             collapsed={false}
             onToggle={() => setMobileMenuOpen(false)}
+            mobile
           />
         </div>
-      )}
+      </div>
 
       {/* Main Content */}
       <div

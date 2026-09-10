@@ -40,7 +40,7 @@ export default function LandingPage() {
               </Link>
               <Link href="/apply/profile">
                 <Button variant="accent" size="sm" className="shadow-md font-bold">
-                  Register — 500 ETB
+                  Register
                 </Button>
               </Link>
             </div>
@@ -65,7 +65,7 @@ export default function LandingPage() {
               Admissions Fair 2026 Registration Open
             </span>
             <span className="text-xs text-ocean font-bold flex items-center gap-0.5">
-              500 ETB Pass <ArrowRight size={12} />
+              Apply Now <ArrowRight size={12} />
             </span>
           </div>
 
@@ -265,7 +265,7 @@ export default function LandingPage() {
               },
               {
                 step: '02',
-                title: '500 ETB Pass Payment',
+                title: 'Pass Payment',
                 desc: 'Pay securely via Telebirr or direct Commercial Bank of Ethiopia transfer with receipt verification.',
                 icon: <ShieldCheck size={20} className="text-gold-dark" />,
               },
@@ -325,12 +325,12 @@ export default function LandingPage() {
             Ready to Discover Your University Matches?
           </h2>
           <p className="text-pale-sky text-sm sm:text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-            Register today for 500 ETB. Secure your evaluation spot, upload your documents, and attend the Fair.
+            Register today to secure your evaluation spot, upload your documents, and attend the Fair.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/apply/profile" className="w-full sm:w-auto">
               <Button variant="accent" size="lg" className="w-full sm:w-auto shadow-glow-gold text-base font-bold">
-                Register Now — 500 ETB <ArrowRight size={18} />
+                Register Now <ArrowRight size={18} />
               </Button>
             </Link>
             <Link href="/login" className="w-full sm:w-auto">

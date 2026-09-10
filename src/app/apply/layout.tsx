@@ -7,10 +7,10 @@ import { Check } from 'lucide-react';
 import { Logo } from '@/components/ui';
 
 const steps = [
-  { label: 'Profile', href: '/apply/profile', step: 1 },
-  { label: 'Documents', href: '/apply/documents', step: 2 },
-  { label: 'Payment', href: '/apply/payment', step: 3 },
-  { label: 'Review', href: '/apply/review', step: 4 },
+  { label: 'Profile', short: 'Profile', href: '/apply/profile', step: 1 },
+  { label: 'Documents', short: 'Docs', href: '/apply/documents', step: 2 },
+  { label: 'Payment', short: 'Pay', href: '/apply/payment', step: 3 },
+  { label: 'Review', short: 'Review', href: '/apply/review', step: 4 },
 ];
 
 export default function ApplyLayout({ children }: { children: React.ReactNode }) {
@@ -25,7 +25,7 @@ export default function ApplyLayout({ children }: { children: React.ReactNode })
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
           <Logo href="/" size="sm" subtitle="Applicant Portal" priority />
           <div className="flex items-center gap-3">
-            <span className="text-xs sm:text-sm text-dim-grey hidden sm:inline">
+            <span className="text-xs sm:text-sm text-dim-grey">
               Step {currentStep} of {steps.length}
             </span>
             <Link href="/login">
@@ -60,6 +60,15 @@ export default function ApplyLayout({ children }: { children: React.ReactNode })
                   >
                     {isComplete ? <Check size={14} /> : s.step}
                   </div>
+                  {/* Short label stays visible on mobile so steps are identifiable; full label on sm+ */}
+                  <span
+                    className={clsx(
+                      'text-[10px] sm:hidden font-semibold whitespace-nowrap',
+                      isCurrent ? 'text-ocean' : isComplete ? 'text-carbon' : 'text-dim-grey'
+                    )}
+                  >
+                    {s.short}
+                  </span>
                   <span
                     className={clsx(
                       'text-xs sm:text-sm font-medium hidden sm:inline',

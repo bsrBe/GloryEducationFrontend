@@ -10,7 +10,8 @@ const inter = Inter({
 const poppins = Poppins({
   variable: '--font-poppins',
   subsets: ['latin'],
-  weight: ['600', '700'],
+  // Include 800/900 so font-display extrabold/black headings don't render as synthetic fake-bold
+  weight: ['600', '700', '800', '900'],
 });
 
 export const metadata: Metadata = {

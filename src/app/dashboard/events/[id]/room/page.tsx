@@ -328,34 +328,36 @@ export default function ConferenceRoomPage({
   return (
     <div className="flex flex-col h-[calc(100vh-5.5rem)] -m-4 sm:-m-6 lg:-m-8 bg-carbon rounded-none sm:rounded-2xl overflow-hidden border border-charcoal/30 shadow-2xl">
       {/* Conference Room Top Bar */}
-      <div className="bg-[#181816] text-white px-4 py-2.5 flex items-center justify-between border-b border-charcoal/20 z-10 shrink-0">
-        <div className="flex items-center gap-3">
+      <div className="bg-[#181816] text-white px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2 sm:gap-3 border-b border-charcoal/20 z-10 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           <button
             onClick={handleLeave}
-            className="text-dim-grey hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+            className="text-dim-grey hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors shrink-0"
             title="Leave conference"
           >
             <ArrowLeft size={18} />
           </button>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-sm text-white tracking-tight">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-bold text-sm text-white tracking-tight truncate">
                 {roomData.eventName}
               </span>
-              <Badge variant="green" className="py-0 px-2 text-[10px] flex items-center gap-1">
+              <Badge variant="green" className="py-0 px-2 text-[10px] flex items-center gap-1 shrink-0">
                 <Radio size={10} className="animate-pulse" /> LIVE
               </Badge>
             </div>
-            <p className="text-[11px] text-dim-grey font-medium flex items-center gap-1.5">
-              <Video size={12} className="text-ocean" />
-              <span>{roomData.sessionName}</span>
-              <span>•</span>
-              <span className="text-pale-sky font-mono">{roomData.displayName}</span>
+            <p className="text-[11px] text-dim-grey font-medium flex items-center gap-1.5 min-w-0">
+              <Video size={12} className="text-ocean shrink-0" />
+              <span className="truncate">{roomData.sessionName}</span>
+              <span className="hidden sm:inline shrink-0">•</span>
+              <span className="hidden sm:inline text-pale-sky font-mono truncate">
+                {roomData.displayName}
+              </span>
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Button
             size="sm"
             variant="secondary"

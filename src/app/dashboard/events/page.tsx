@@ -181,12 +181,12 @@ export default function EventsPage() {
                       ) : null}
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-charcoal/10 flex items-center justify-between">
+                    <div className="mt-3 pt-2.5 border-t border-charcoal/10 flex flex-wrap items-center justify-between gap-2">
                       <span className="text-[11px] text-dim-grey font-medium flex items-center gap-1">
                         <Lock size={12} className="text-gold" /> 500 ETB Pass Protected
                       </span>
                       <Link href={`/dashboard/events/${evt._id}/room?sessionIndex=${i}`}>
-                        <Button size="sm" variant="outline-ocean" className="text-xs font-bold flex items-center gap-1.5 py-1">
+                        <Button size="sm" variant="outline-ocean" className="text-xs font-bold flex items-center gap-1.5 py-2 px-3">
                           <Video size={13} /> Enter Breakout Track
                         </Button>
                       </Link>
@@ -203,18 +203,19 @@ export default function EventsPage() {
                   ✅ Checked in successfully!
                 </div>
               ) : (
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                   <input
                     type="text"
                     placeholder="Check-in code (optional)"
                     value={checkInCode}
                     onChange={(e) => setCheckInCode(e.target.value)}
-                    className="glory-input flex-1 py-2 text-sm"
+                    className="glory-input flex-1 py-2 text-sm sm:min-w-0"
                   />
                   <Button
                     size="sm"
                     onClick={() => handleCheckIn(evt._id)}
                     loading={checkingIn}
+                    className="py-2.5 sm:py-2 shrink-0"
                   >
                     ✓ I Attended
                   </Button>

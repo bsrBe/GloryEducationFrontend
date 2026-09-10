@@ -119,6 +119,7 @@ export default function RegisterPage() {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 error={errors.password?.message}
+                className="pr-11"
                 {...register('password', {
                   required: 'Password is required',
                   minLength: { value: 6, message: 'Min 6 characters' },
@@ -127,7 +128,8 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[38px] text-dim-grey hover:text-carbon"
+                className="absolute right-3 top-[38px] p-1 text-dim-grey hover:text-carbon"
+                title={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>

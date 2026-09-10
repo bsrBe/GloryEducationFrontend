@@ -159,7 +159,9 @@ export default function UsersPage() {
       )}
 
       <Card padding={false}>
-        <table className="w-full">
+        {/* Horizontal scroll keeps 5 columns usable on phones instead of crushing them */}
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[640px]">
           <thead>
             <tr className="border-b border-charcoal/10">
               <th className="text-left px-6 py-3 text-xs font-semibold text-dim-grey uppercase">Name</th>
@@ -200,6 +202,7 @@ export default function UsersPage() {
             ))}
           </tbody>
         </table>
+        </div>
         {users.length === 0 && (
           <div className="text-center py-8 text-dim-grey">
             <UserCheck size={24} className="mx-auto mb-2 opacity-50" />

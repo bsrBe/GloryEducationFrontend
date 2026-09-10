@@ -18,8 +18,8 @@ import {
   BarChart3,
   GraduationCap,
   ChevronLeft,
-  LogOut,
   Sparkles,
+  X,
 } from 'lucide-react';
 
 interface NavItem {
@@ -53,18 +53,31 @@ const navItems: NavItem[] = [
   { label: 'Review Portal', href: '/rep/portal', icon: <ClipboardCheck size={18} />, roles: ['university_rep'] },
 ];
 
-export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+export function Sidebar({
+  collapsed,
+  onToggle,
+  mobile = false,
+}: {
+  collapsed: boolean;
+  onToggle: () => void;
+  mobile?: boolean;
+}) {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
 
   const filtered = navItems.filter((item) => user && item.roles.includes(user.role));
 
   return (
     <aside
       className={clsx(
-        'h-screen bg-gradient-to-b from-[#1e1e1d] via-carbon to-[#111110] text-white flex flex-col transition-all duration-300 fixed left-0 top-0 z-40 border-r border-charcoal/30 shadow-xl',
-        collapsed ? 'w-16' : 'w-64'
+        'bg-gradient-to-b from-[#1e1e1d] via-carbon to-[#111110] text-white flex flex-col transition-all duration-300 border-r border-charcoal/30',
+        // Mobile drawer: static-positioned inside the sliding panel, full height using dynamic viewport units
+        mobile
+          ? 'h-dvh w-64 shadow-xl'
+          : clsx(
+              'h-screen fixed left-0 top-0 z-40 shadow-xl',
+              collapsed ? 'w-16' : 'w-64'
+            )
       )}
     >
       {/* Brand Header */}
@@ -88,16 +101,27 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
             className="mx-auto"
           />
         )}
-        <button
-          onClick={onToggle}
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-dim-grey hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          <ChevronLeft
-            size={16}
-            className={clsx('transition-transform duration-300', collapsed && 'rotate-180')}
-          />
-        </button>
+        {mobile ? (
+          <button
+            onClick={onToggle}
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-dim-grey hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            title="Close menu"
+            aria-label="Close menu"
+          >
+            <X size={16} />
+          </button>
+        ) : (
+          <button
+            onClick={onToggle}
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-dim-grey hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <ChevronLeft
+              size={16}
+              className={clsx('transition-transform duration-300', collapsed && 'rotate-180')}
+            />
+          </button>
+        )}
       </div>
 
       {/* Nav Items */}
@@ -135,33 +159,9 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
         })}
       </nav>
 
-      {/* User Card & Logout Footer */}
-      <div className="border-t border-charcoal/30 p-3 bg-black/25">
-        {!collapsed && user && (
-          <div className="flex items-center gap-3 px-2 py-2 mb-2 rounded-xl bg-white/5 border border-white/5">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-ocean to-ocean-dark flex items-center justify-center text-white text-xs font-bold ring-2 ring-gold/40 shrink-0">
-              {user.firstName?.[0]}
-              {user.lastName?.[0]}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-white truncate">
-                {user.firstName} {user.lastName}
-              </p>
-              <span className="inline-block text-[10px] text-gold font-medium capitalize bg-gold/10 px-1.5 py-0.2 rounded-md">
-                {user.role.replace('_', ' ')}
-              </span>
-            </div>
-          </div>
-        )}
-        <button
-          onClick={logout}
-          className="flex items-center gap-3 px-3.5 py-2 w-full rounded-xl text-xs font-medium text-dim-grey hover:text-red hover:bg-red/10 transition-all duration-200 cursor-pointer"
-          title="Logout"
-        >
-          <LogOut size={16} />
-          {!collapsed && <span>Sign Out</span>}
-        </button>
-      </div>
+      {/* User info & sign-out live in the TopBar avatar menu (UserMenu) —
+          no duplicate footer here. Spacer keeps nav pinned to the top. */}
+      <div className="flex-1" aria-hidden />
     </aside>
   );
 }
