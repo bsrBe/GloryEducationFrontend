@@ -82,6 +82,8 @@ export const studentsAPI = {
   overrideAssess: (id: string, data: { score: number; reason: string }) =>
     api.post(`/students/${id}/assess/override`, data),
   match: (id: string) => api.post(`/students/${id}/match`),
+  updateMatch: (id: string, data: Record<string, unknown>) =>
+    api.patch(`/students/${id}/match`, data),
   approveMatch: (id: string, data: Record<string, unknown>) =>
     api.patch(`/students/${id}/match/approve`, data),
   review: (id: string, data: Record<string, unknown>) =>
@@ -122,6 +124,8 @@ export const eventsAPI = {
     api.post(`/events/${eventId}/sessions`, data),
   assignStudents: (eventId: string, sessionIdx: number, data: Record<string, unknown>) =>
     api.post(`/events/${eventId}/sessions/${sessionIdx}/assign`, data),
+  removeStudent: (eventId: string, sessionIdx: number, studentId: string) =>
+    api.delete(`/events/${eventId}/sessions/${sessionIdx}/students/${studentId}`),
   mySessions: (eventId: string) =>
     api.get(`/events/${eventId}/my-sessions`),
   checkIn: (eventId: string, data: Record<string, unknown>) =>

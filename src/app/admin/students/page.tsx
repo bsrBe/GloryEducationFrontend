@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { studentsAPI } from '@/lib/api';
+import { studentsAPI, universitiesAPI } from '@/lib/api';
 import { Card, Button, Input, Select, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
 import {
   GraduationCap, Search, CheckCircle, XCircle, FileText,
-  Sparkles, X, ExternalLink, RefreshCw
+  Sparkles, X, ExternalLink, RefreshCw, Edit, Save
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -69,7 +69,11 @@ export default function AdminStudentsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<StudentListItem | null>(null);
-  const [actionLoading, setActionLoading] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [assessmentLoading, setAssessmentLoading] = useState(false);
+  const [matchLoading, setMatchLoading] = useState(false);
+  const [resultLoading, setResultLoading] = useState(false);
+  const [crmLoading, setCrmLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   // Scoring form state
@@ -86,6 +90,14 @@ export default function AdminStudentsPage() {
 
   // Application CRM stage
   const [crmStage, setCrmStage] = useState('Interested');
+
+  // Match editing state
+  const [editingMatch, setEditingMatch] = useState(false);
+  const [universities, setUniversities] = useState<Array<{_id: string; name: string; destination: string; programs: Array<{name: string}>}>>([]);
+  const [primaryUniversityId, setPrimaryUniversityId] = useState('');
+  const [primaryProgram, setPrimaryProgram] = useState('');
+  const [secondaryUniversityId, setSecondaryUniversityId] = useState('');
+  const [secondaryProgram, setSecondaryProgram] = useState('');
 
   const loadStudents = useCallback(async () => {
     try {
@@ -118,9 +130,21 @@ export default function AdminStudentsPage() {
     };
   }, [search]);
 
+  // Load universities for match editing
+  useEffect(() => {
+    universitiesAPI.list()
+      .then((res) => {
+        setUniversities(res.data || []);
+      })
+      .catch(() => {
+        // ignore
+      });
+  }, []);
+
   const selectStudent = async (s: StudentListItem) => {
     setSelectedStudent(s);
     setFeedback(null);
+    setEditingMatch(false);
     if (s.assessment?.categoryScores) {
       setAcademicScore(s.assessment.categoryScores.academic ?? 25);
       setEnglishScore(s.assessment.categoryScores.english ?? 15);
@@ -136,11 +160,20 @@ export default function AdminStudentsPage() {
     if (s.application?.stage) {
       setCrmStage(s.application.stage);
     }
+    // Initialize match editing fields
+    if (s.matches?.primary) {
+      setPrimaryUniversityId(s.matches.primary.university || '');
+      setPrimaryProgram(s.matches.primary.program || '');
+    }
+    if (s.matches?.secondary) {
+      setSecondaryUniversityId(s.matches.secondary.university || '');
+      setSecondaryProgram(s.matches.secondary.program || '');
+    }
   };
 
   const handleVerifyPayment = async (paymentIdx: number, status: 'Verified' | 'Failed') => {
     if (!selectedStudent) return;
-    setActionLoading(true);
+    setPaymentLoading(true);
     try {
       await studentsAPI.verifyPayment(selectedStudent._id, paymentIdx, { status });
       setFeedback({ type: 'success', message: `Payment marked as ${status}` });
@@ -150,13 +183,13 @@ export default function AdminStudentsPage() {
     } catch {
       setFeedback({ type: 'error', message: 'Failed to update payment status' });
     } finally {
-      setActionLoading(false);
+      setPaymentLoading(false);
     }
   };
 
   const handleSaveAssessment = async () => {
     if (!selectedStudent) return;
-    setActionLoading(true);
+    setAssessmentLoading(true);
     try {
       const total = academicScore + englishScore + programFitScore + reqScore + gradScore + docScore;
       await studentsAPI.assess(selectedStudent._id, {
@@ -177,13 +210,13 @@ export default function AdminStudentsPage() {
     } catch {
       setFeedback({ type: 'error', message: 'Failed to save assessment' });
     } finally {
-      setActionLoading(false);
+      setAssessmentLoading(false);
     }
   };
 
   const handleSuggestMatches = async () => {
     if (!selectedStudent) return;
-    setActionLoading(true);
+    setMatchLoading(true);
     try {
       await studentsAPI.match(selectedStudent._id);
       setFeedback({ type: 'success', message: 'University matches suggested successfully!' });
@@ -193,13 +226,13 @@ export default function AdminStudentsPage() {
     } catch {
       setFeedback({ type: 'error', message: 'Failed to run matching engine' });
     } finally {
-      setActionLoading(false);
+      setMatchLoading(false);
     }
   };
 
   const handleApproveMatch = async () => {
     if (!selectedStudent) return;
-    setActionLoading(true);
+    setMatchLoading(true);
     try {
       await studentsAPI.approveMatch(selectedStudent._id, { status: 'approved' });
       setFeedback({ type: 'success', message: 'Matches approved for university rep review!' });
@@ -209,13 +242,13 @@ export default function AdminStudentsPage() {
     } catch {
       setFeedback({ type: 'error', message: 'Failed to approve matches' });
     } finally {
-      setActionLoading(false);
+      setMatchLoading(false);
     }
   };
 
   const handlePublishResult = async () => {
     if (!selectedStudent) return;
-    setActionLoading(true);
+    setResultLoading(true);
     try {
       await studentsAPI.publishResult(selectedStudent._id, {
         status: resultStatus,
@@ -229,13 +262,35 @@ export default function AdminStudentsPage() {
     } catch {
       setFeedback({ type: 'error', message: 'Failed to publish result' });
     } finally {
-      setActionLoading(false);
+      setResultLoading(false);
+    }
+  };
+
+  const handleUpdateMatch = async () => {
+    if (!selectedStudent) return;
+    setMatchLoading(true);
+    try {
+      await studentsAPI.updateMatch(selectedStudent._id, {
+        primaryUniversityId,
+        primaryProgram,
+        secondaryUniversityId,
+        secondaryProgram,
+      });
+      setFeedback({ type: 'success', message: 'Match updated successfully!' });
+      const res = await studentsAPI.get(selectedStudent._id);
+      setSelectedStudent(res.data);
+      loadStudents();
+      setEditingMatch(false);
+    } catch {
+      setFeedback({ type: 'error', message: 'Failed to update match' });
+    } finally {
+      setMatchLoading(false);
     }
   };
 
   const handleUpdateCrm = async (newStage: string) => {
     if (!selectedStudent) return;
-    setActionLoading(true);
+    setCrmLoading(true);
     try {
       await studentsAPI.updateApplication(selectedStudent._id, newStage);
       setCrmStage(newStage);
@@ -246,7 +301,7 @@ export default function AdminStudentsPage() {
     } catch {
       setFeedback({ type: 'error', message: 'Failed to update application stage' });
     } finally {
-      setActionLoading(false);
+      setCrmLoading(false);
     }
   };
 
@@ -454,7 +509,8 @@ export default function AdminStudentsPage() {
                                 size="sm"
                                 variant="accent"
                                 className="text-xs py-1 px-2.5"
-                                disabled={actionLoading}
+                                disabled={paymentLoading}
+                                loading={paymentLoading}
                                 onClick={() => handleVerifyPayment(idx, 'Verified')}
                               >
                                 Verify Payment
@@ -545,7 +601,7 @@ export default function AdminStudentsPage() {
                   </div>
                 </div>
                 <div className="mt-3 flex justify-end">
-                  <Button size="sm" onClick={handleSaveAssessment} loading={actionLoading}>
+                  <Button size="sm" onClick={handleSaveAssessment} loading={assessmentLoading}>
                     Save Assessment Score
                   </Button>
                 </div>
@@ -555,34 +611,104 @@ export default function AdminStudentsPage() {
               <Card>
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-carbon text-sm">University Matches</h3>
-                  <Button size="sm" variant="secondary" onClick={handleSuggestMatches} loading={actionLoading}>
-                    <Sparkles size={14} className="text-ocean" /> Suggest Matches
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="secondary" onClick={handleSuggestMatches} loading={matchLoading}>
+                      <Sparkles size={14} className="text-ocean" /> Suggest Matches
+                    </Button>
+                    {selectedStudent.matches?.primary && !editingMatch && (
+                      <Button size="sm" variant="ghost" onClick={() => setEditingMatch(true)}>
+                        <Edit size={14} /> Edit
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 {selectedStudent.matches?.primary ? (
-                  <div className="space-y-2">
-                    <div className="p-3 bg-ocean-light/20 border border-ocean/30 rounded-lg text-xs">
-                      <p className="font-bold text-ocean">Primary: {selectedStudent.matches.primary.program || 'Program Match'}</p>
-                      <p className="text-dim-grey mt-0.5 font-medium">Reason: {selectedStudent.matches.primary.reason}</p>
-                    </div>
-                    {selectedStudent.matches?.secondary && (
-                      <div className="p-3 bg-porcelain border border-charcoal/10 rounded-lg text-xs">
-                        <p className="font-bold text-carbon">Secondary: {selectedStudent.matches.secondary.program || 'Alternative Program'}</p>
-                        <p className="text-dim-grey mt-0.5">Reason: {selectedStudent.matches.secondary.reason}</p>
+                  editingMatch ? (
+                    // Edit Mode
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-semibold text-dim-grey">Primary University</label>
+                          <Select
+                            value={primaryUniversityId}
+                            options={universities.map(u => ({
+                              value: u._id,
+                              label: `${u.name} (${u.destination})`
+                            }))}
+                            onChange={(e) => setPrimaryUniversityId(e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-dim-grey">Primary Program</label>
+                          <Input
+                            value={primaryProgram}
+                            onChange={(e) => setPrimaryProgram(e.target.value)}
+                            placeholder="Enter program name"
+                          />
+                        </div>
                       </div>
-                    )}
-                    <div className="flex items-center justify-between mt-2 pt-2">
-                      <span className="text-xs text-dim-grey">
-                        Match Status: <strong>{selectedStudent.matches.status || 'suggested'}</strong>
-                      </span>
-                      {selectedStudent.matches.status !== 'approved' && (
-                        <Button size="sm" onClick={handleApproveMatch} loading={actionLoading}>
-                          Approve for University Rep
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-semibold text-dim-grey">Secondary University (Optional)</label>
+                          <Select
+                            value={secondaryUniversityId}
+                            options={[
+                              { value: '', label: 'No secondary match' },
+                              ...universities.map(u => ({
+                                value: u._id,
+                                label: `${u.name} (${u.destination})`
+                              }))
+                            ]}
+                            onChange={(e) => setSecondaryUniversityId(e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-dim-grey">Secondary Program</label>
+                          <Input
+                            value={secondaryProgram}
+                            onChange={(e) => setSecondaryProgram(e.target.value)}
+                            placeholder="Enter program name"
+                            disabled={!secondaryUniversityId}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-2 pt-2">
+                        <Button size="sm" variant="secondary" onClick={() => setEditingMatch(false)}>
+                          Cancel
                         </Button>
-                      )}
+                        <Button size="sm" onClick={handleUpdateMatch} loading={matchLoading}>
+                          <Save size={14} /> Save Changes
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    // View Mode
+                    <div className="space-y-2">
+                      <div className="p-3 bg-ocean-light/20 border border-ocean/30 rounded-lg text-xs">
+                        <p className="font-bold text-ocean">Primary: {selectedStudent.matches.primary.program || 'Program Match'}</p>
+                        <p className="text-dim-grey mt-0.5 font-medium">Reason: {selectedStudent.matches.primary.reason}</p>
+                      </div>
+                      {selectedStudent.matches?.secondary && (
+                        <div className="p-3 bg-porcelain border border-charcoal/10 rounded-lg text-xs">
+                          <p className="font-bold text-carbon">Secondary: {selectedStudent.matches.secondary.program || 'Alternative Program'}</p>
+                          <p className="text-dim-grey mt-0.5">Reason: {selectedStudent.matches.secondary.reason}</p>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between mt-2 pt-2">
+                        <span className="text-xs text-dim-grey">
+                          Match Status: <strong>{selectedStudent.matches.status || 'suggested'}</strong>
+                        </span>
+                        {selectedStudent.matches.status !== 'approved' && (
+                          <Button size="sm" onClick={handleApproveMatch} loading={matchLoading}>
+                            Approve for University Rep
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  )
                 ) : (
                   <p className="text-xs text-dim-grey">Click &quot;Suggest Matches&quot; to calculate fit against active university programs.</p>
                 )}
@@ -613,7 +739,7 @@ export default function AdminStudentsPage() {
                     <p className="text-xs text-dim-grey">
                       {selectedStudent.result?.isPublished ? '✅ Result is currently published to student.' : '⏳ Not yet published.'}
                     </p>
-                    <Button size="sm" variant="accent" onClick={handlePublishResult} loading={actionLoading}>
+                    <Button size="sm" variant="accent" onClick={handlePublishResult} loading={resultLoading}>
                       Publish & Send Email Alert
                     </Button>
                   </div>

@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { eventsAPI } from '@/lib/api';
+import { eventsAPI, studentsAPI } from '@/lib/api';
 import { Card, Button, Input, Select, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
-import { Calendar, Plus, ExternalLink, X, Video } from 'lucide-react';
+import { Calendar, Plus, ExternalLink, X, Video, Users, UserCheck } from 'lucide-react';
 
 interface Session {
   name: string;
@@ -31,7 +31,14 @@ export default function AdminEventsPage() {
   const [loading, setLoading] = useState(true);
   const [showEventModal, setShowEventModal] = useState(false);
   const [showSessionModal, setShowSessionModal] = useState<string | null>(null);
+  const [showAssignModal, setShowAssignModal] = useState<{eventId: string; sessionIndex: number} | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Student assignment state
+  const [students, setStudents] = useState<Array<{_id: string; studentId: string; firstName: string; lastName: string; preferredCountry?: string}>>([]);
+  const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+  const [studentSearch, setStudentSearch] = useState('');
+  const [assignmentFilter, setAssignmentFilter] = useState('all'); // 'all', 'unassigned', 'by_country'
 
   // New Event Form State
   const [name, setName] = useState('Glory International Admissions Fair 2026');
@@ -76,6 +83,17 @@ export default function AdminEventsPage() {
     };
   }, []);
 
+  // Load students for assignment
+  useEffect(() => {
+    studentsAPI.list({ limit: 100 })
+      .then((res) => {
+        setStudents(res.data.students || []);
+      })
+      .catch(() => {
+        // ignore
+      });
+  }, []);
+
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -118,6 +136,44 @@ export default function AdminEventsPage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleAssignStudents = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!showAssignModal || selectedStudents.length === 0) return;
+    setSubmitting(true);
+    try {
+      await eventsAPI.assignStudents(showAssignModal.eventId, showAssignModal.sessionIndex, {
+        studentIds: selectedStudents
+      });
+      setShowAssignModal(null);
+      setSelectedStudents([]);
+      setStudentSearch('');
+      loadEvents();
+    } catch {
+      // ignore
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const toggleStudentSelection = (studentId: string) => {
+    setSelectedStudents(prev => 
+      prev.includes(studentId) 
+        ? prev.filter(id => id !== studentId)
+        : [...prev, studentId]
+    );
+  };
+
+  const getFilteredStudents = () => {
+    return students.filter(student => {
+      const searchMatch = !studentSearch || 
+        student.firstName.toLowerCase().includes(studentSearch.toLowerCase()) ||
+        student.lastName.toLowerCase().includes(studentSearch.toLowerCase()) ||
+        student.studentId.toLowerCase().includes(studentSearch.toLowerCase());
+      
+      return searchMatch;
+    });
   };
 
   if (loading) return <LoadingSpinner text="Loading fair events..." />;
@@ -190,16 +246,53 @@ export default function AdminEventsPage() {
                         <p className="text-xs text-dim-grey">⏰ {sess.time}</p>
                         <p className="text-xs text-dim-grey">Capacity: {sess.capacity || 50} students</p>
 
+                        {/* Show assigned students if any */}
+                        {sess.assignedStudents && sess.assignedStudents.length > 0 && (
+                          <div className="pt-2 border-t border-charcoal/10">
+                            <div className="text-xs font-semibold text-carbon mb-1">Assigned Students:</div>
+                            <div className="max-h-20 overflow-y-auto space-y-1">
+                              {sess.assignedStudents.map((student: any, idx: number) => (
+                                <div key={idx} className="flex items-center justify-between text-xs bg-white rounded px-2 py-1">
+                                  <span>{student.firstName} {student.lastName} ({student.studentId})</span>
+                                  <button
+                                    onClick={async () => {
+                                      try {
+                                        await eventsAPI.removeStudent(evt._id, sIdx, student._id || student.studentId);
+                                        loadEvents();
+                                      } catch {
+                                        // ignore
+                                      }
+                                    }}
+                                    className="text-red hover:text-red/70 ml-2"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                         <div className="pt-2 border-t border-charcoal/10 flex items-center justify-between">
                           <span className="text-[11px] text-dim-grey font-medium">
                             {sess.assignedStudents?.length || 0} Students Assigned
                           </span>
-                          <Link
-                            href={`/dashboard/events/${evt._id}/room?sessionIndex=${sIdx}`}
-                            className="text-xs text-ocean font-semibold hover:underline flex items-center gap-1"
-                          >
-                            Enter Track <Video size={12} />
-                          </Link>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-xs px-2 py-1"
+                              onClick={() => setShowAssignModal({eventId: evt._id, sessionIndex: sIdx})}
+                            >
+                              <Users size={12} /> Assign
+                            </Button>
+                            <Link
+                              href={`/dashboard/events/${evt._id}/room?sessionIndex=${sIdx}`}
+                              className="text-xs text-ocean font-semibold hover:underline flex items-center gap-1"
+                            >
+                              Enter Track <Video size={12} />
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -328,6 +421,83 @@ export default function AdminEventsPage() {
                 </Button>
                 <Button type="submit" loading={submitting}>
                   Save Track
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Assign Students Modal */}
+      {showAssignModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-4 max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-carbon">Assign Students to Session</h2>
+              <button onClick={() => setShowAssignModal(null)} className="text-dim-grey hover:text-carbon">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAssignStudents} className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Input
+                  placeholder="Search students by name or ID..."
+                  value={studentSearch}
+                  onChange={(e) => setStudentSearch(e.target.value)}
+                  className="flex-1"
+                />
+                <Select
+                  value={assignmentFilter}
+                  options={[
+                    { value: 'all', label: 'All Students' },
+                    { value: 'unassigned', label: 'Unassigned Only' },
+                    { value: 'by_country', label: 'By Country Preference' }
+                  ]}
+                  onChange={(e) => setAssignmentFilter(e.target.value)}
+                />
+              </div>
+
+              <div className="border border-charcoal/10 rounded-lg p-3">
+                <div className="text-sm font-semibold text-carbon mb-2">
+                  Select Students ({selectedStudents.length} selected)
+                </div>
+                <div className="max-h-60 overflow-y-auto space-y-1">
+                  {getFilteredStudents().map((student) => (
+                    <label
+                      key={student._id}
+                      className="flex items-center gap-3 p-2 hover:bg-pale-sky/20 rounded cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedStudents.includes(student._id)}
+                        onChange={() => toggleStudentSelection(student._id)}
+                        className="w-4 h-4 text-ocean focus:ring-ocean border-gray-300 rounded"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-sm">{student.firstName} {student.lastName}</span>
+                          <span className="text-xs text-dim-grey">{student.studentId}</span>
+                        </div>
+                        {student.preferredCountry && (
+                          <div className="text-xs text-dim-grey">Prefers: {student.preferredCountry}</div>
+                        )}
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3">
+                <Button type="button" variant="secondary" onClick={() => setShowAssignModal(null)}>
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  loading={submitting}
+                  disabled={selectedStudents.length === 0}
+                >
+                  <UserCheck size={14} /> Assign {selectedStudents.length} Student{selectedStudents.length !== 1 ? 's' : ''}
                 </Button>
               </div>
             </form>
