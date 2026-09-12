@@ -167,12 +167,40 @@ export default function AdminEventsPage() {
 
   const getFilteredStudents = () => {
     return students.filter(student => {
+      // Search filter
       const searchMatch = !studentSearch || 
         student.firstName.toLowerCase().includes(studentSearch.toLowerCase()) ||
         student.lastName.toLowerCase().includes(studentSearch.toLowerCase()) ||
         student.studentId.toLowerCase().includes(studentSearch.toLowerCase());
       
-      return searchMatch;
+      if (!searchMatch) return false;
+
+      // Assignment filter
+      if (assignmentFilter === 'unassigned') {
+        // Check if student is already assigned to any session in any event
+        const isAssigned = events.some(event => 
+          event.sessions?.some(session => 
+            session.assignedStudents?.some((assigned: any) => 
+              assigned._id === student._id || assigned.studentId === student.studentId
+            )
+          )
+        );
+        return !isAssigned;
+      }
+      
+      if (assignmentFilter === 'by_country' && showAssignModal) {
+        // Find the session we're assigning to
+        const currentEvent = events.find(e => e._id === showAssignModal.eventId);
+        const currentSession = currentEvent?.sessions?.[showAssignModal.sessionIndex];
+        
+        if (currentSession && student.preferredCountry) {
+          // Match student's preferred country with session's destination
+          return student.preferredCountry.toLowerCase() === currentSession.destination.toLowerCase();
+        }
+        return false; // Only show students with matching country preference
+      }
+      
+      return true; // 'all' filter or no specific filter
     });
   };
 
@@ -452,39 +480,74 @@ export default function AdminEventsPage() {
                   options={[
                     { value: 'all', label: 'All Students' },
                     { value: 'unassigned', label: 'Unassigned Only' },
-                    { value: 'by_country', label: 'By Country Preference' }
+                    { value: 'by_country', label: 'Match Country Preference' }
                   ]}
                   onChange={(e) => setAssignmentFilter(e.target.value)}
                 />
+                {(studentSearch || assignmentFilter !== 'all') && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setStudentSearch('');
+                      setAssignmentFilter('all');
+                    }}
+                    className="text-xs"
+                  >
+                    Clear Filters
+                  </Button>
+                )}
               </div>
 
               <div className="border border-charcoal/10 rounded-lg p-3">
-                <div className="text-sm font-semibold text-carbon mb-2">
-                  Select Students ({selectedStudents.length} selected)
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-semibold text-carbon">
+                    Select Students ({selectedStudents.length} selected)
+                  </div>
+                  {assignmentFilter === 'unassigned' && (
+                    <div className="text-xs text-dim-grey">Showing students not assigned to any session</div>
+                  )}
+                  {assignmentFilter === 'by_country' && (
+                    <div className="text-xs text-dim-grey">
+                      Showing students who prefer {events.find(e => e._id === showAssignModal?.eventId)?.sessions?.[showAssignModal?.sessionIndex || 0]?.destination}
+                    </div>
+                  )}
                 </div>
                 <div className="max-h-60 overflow-y-auto space-y-1">
-                  {getFilteredStudents().map((student) => (
-                    <label
-                      key={student._id}
-                      className="flex items-center gap-3 p-2 hover:bg-pale-sky/20 rounded cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedStudents.includes(student._id)}
-                        onChange={() => toggleStudentSelection(student._id)}
-                        className="w-4 h-4 text-ocean focus:ring-ocean border-gray-300 rounded"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">{student.firstName} {student.lastName}</span>
-                          <span className="text-xs text-dim-grey">{student.studentId}</span>
-                        </div>
-                        {student.preferredCountry && (
-                          <div className="text-xs text-dim-grey">Prefers: {student.preferredCountry}</div>
-                        )}
+                  {getFilteredStudents().length === 0 ? (
+                    <div className="text-center py-8 text-dim-grey">
+                      <div className="text-sm">No students match the current filter</div>
+                      <div className="text-xs mt-1">
+                        {assignmentFilter === 'unassigned' && 'All students are already assigned to sessions'}
+                        {assignmentFilter === 'by_country' && 'No students prefer this destination'}
+                        {assignmentFilter === 'all' && studentSearch && 'Try a different search term'}
                       </div>
-                    </label>
-                  ))}
+                    </div>
+                  ) : (
+                    getFilteredStudents().map((student) => (
+                      <label
+                        key={student._id}
+                        className="flex items-center gap-3 p-2 hover:bg-pale-sky/20 rounded cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedStudents.includes(student._id)}
+                          onChange={() => toggleStudentSelection(student._id)}
+                          className="w-4 h-4 text-ocean focus:ring-ocean border-gray-300 rounded"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm">{student.firstName} {student.lastName}</span>
+                            <span className="text-xs text-dim-grey">{student.studentId}</span>
+                          </div>
+                          {student.preferredCountry && (
+                            <div className="text-xs text-dim-grey">Prefers: {student.preferredCountry}</div>
+                          )}
+                        </div>
+                      </label>
+                    ))
+                  )}
                 </div>
               </div>
 

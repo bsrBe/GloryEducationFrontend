@@ -270,13 +270,14 @@ export default function AdminStudentsPage() {
     if (!selectedStudent) return;
     setMatchLoading(true);
     try {
-      await studentsAPI.updateMatch(selectedStudent._id, {
+      await studentsAPI.approveMatch(selectedStudent._id, {
         primaryUniversityId,
         primaryProgram,
         secondaryUniversityId,
         secondaryProgram,
+        status: 'approved' // Approve after editing
       });
-      setFeedback({ type: 'success', message: 'Match updated successfully!' });
+      setFeedback({ type: 'success', message: 'Match updated and approved successfully!' });
       const res = await studentsAPI.get(selectedStudent._id);
       setSelectedStudent(res.data);
       loadStudents();

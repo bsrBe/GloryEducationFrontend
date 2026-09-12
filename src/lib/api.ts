@@ -46,7 +46,9 @@ export const authAPI = {
   getProfile: () => api.get('/auth/profile'),
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     api.post('/auth/change-password', data),
-  resetPassword: (data: { email: string }) =>
+  forgotPassword: (data: { email: string }) =>
+    api.post('/auth/forgot-password', data),
+  resetPassword: (data: { token: string; newPassword: string }) =>
     api.post('/auth/reset-password', data),
 };
 
@@ -57,7 +59,9 @@ export const usersAPI = {
   create: (data: Record<string, unknown>) => api.post('/users', data),
   update: (id: string, data: Record<string, unknown>) =>
     api.patch(`/users/${id}`, data),
+  updateSelf: (data: Record<string, unknown>) => api.patch('/users/me', data),
   remove: (id: string) => api.delete(`/users/${id}`),
+  deleteSelf: () => api.delete('/users/me'),
 };
 
 // --- Students ---
@@ -82,8 +86,6 @@ export const studentsAPI = {
   overrideAssess: (id: string, data: { score: number; reason: string }) =>
     api.post(`/students/${id}/assess/override`, data),
   match: (id: string) => api.post(`/students/${id}/match`),
-  updateMatch: (id: string, data: Record<string, unknown>) =>
-    api.patch(`/students/${id}/match`, data),
   approveMatch: (id: string, data: Record<string, unknown>) =>
     api.patch(`/students/${id}/match/approve`, data),
   review: (id: string, data: Record<string, unknown>) =>
@@ -101,6 +103,7 @@ export const studentsAPI = {
     api.post('/students/bulk/assess', data),
   representativeAssigned: () =>
     api.get('/students/representative/assigned'),
+  deleteSelf: () => api.post('/students/dashboard/delete-account'),
 };
 
 // --- Universities ---

@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   Sparkles,
   X,
+  Settings,
 } from 'lucide-react';
 
 interface NavItem {
@@ -51,6 +52,9 @@ const navItems: NavItem[] = [
   // University Rep
   { label: 'Assigned Students', href: '/rep/assigned', icon: <GraduationCap size={18} />, roles: ['university_rep'] },
   { label: 'Review Portal', href: '/rep/portal', icon: <ClipboardCheck size={18} />, roles: ['university_rep'] },
+
+  // Account Settings (All Users)
+  { label: 'Account Settings', href: '/dashboard/settings', icon: <Settings size={18} />, roles: ['student', 'admin', 'glory_staff', 'university_rep'] },
 ];
 
 export function Sidebar({
