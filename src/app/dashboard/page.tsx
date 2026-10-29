@@ -11,7 +11,7 @@ import {
   FileText,
   BarChart3,
   Target,
-  ClipboardCheck,
+  // ClipboardCheck, // [G/Y/R disabled]
   Calendar,
   Sparkles,
   ArrowRight,
@@ -69,7 +69,7 @@ export default function StudentDashboard() {
   const hasDocuments = data?.documentStatus && data.documentStatus !== 'Not Uploaded';
   const hasAssessment = data?.assessmentStatus === 'Completed' || (data?.assessmentScore != null && data.assessmentScore > 0);
   const hasMatch = !!data?.primaryMatch;
-  const hasResult = !!data?.resultPublished || !!data?.result?.status;
+  // [G/Y/R disabled] const hasResult = !!data?.resultPublished || !!data?.result?.status;
 
   const steps = [
     { label: 'Register & Account', done: true },
@@ -83,14 +83,15 @@ export default function StudentDashboard() {
   const completedStepsCount = steps.filter((s) => s.done).length;
   const progressPct = Math.round((completedStepsCount / steps.length) * 100);
 
-  const decisionVariant = (d?: string) => {
-    const lower = (d || '').toLowerCase();
-    if (lower === 'green') return 'green' as const;
-    if (lower === 'yellow') return 'yellow' as const;
-    return 'red' as const;
-  };
-
-  const resultDecision = data?.result?.status || data?.representativeDecision;
+  // [G/Y/R disabled]
+  // const decisionVariant = (d?: string) => {
+  //   const lower = (d || '').toLowerCase();
+  //   if (lower === 'green') return 'green' as const;
+  //   if (lower === 'yellow') return 'yellow' as const;
+  //   return 'red' as const;
+  // };
+  //
+  // const resultDecision = data?.result?.status || data?.representativeDecision;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -135,8 +136,8 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      {/* 6 Status Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+      {/* 5 Status Cards ([G/Y/R disabled] was 6 with Fair Decision, lg:grid-cols-6) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
         <StatusCard
           icon={<User size={18} />}
           title="Profile Form"
@@ -182,6 +183,7 @@ export default function StudentDashboard() {
           color="ocean"
           href="/dashboard"
         />
+        {/* [G/Y/R disabled] Fair Decision card
         <StatusCard
           icon={<ClipboardCheck size={18} />}
           title="Fair Decision"
@@ -192,6 +194,7 @@ export default function StudentDashboard() {
           variant={hasResult && resultDecision ? decisionVariant(resultDecision) : undefined}
           href="/dashboard/results"
         />
+        */}
       </div>
 
       {/* Progress Milestone Pipeline */}

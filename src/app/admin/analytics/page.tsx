@@ -9,7 +9,7 @@ import {
   ClipboardCheck,
   Target,
   Download,
-  BarChart3,
+  // BarChart3, // [G/Y/R disabled]
   TrendingUp,
   Layers,
 } from 'lucide-react';
@@ -72,14 +72,15 @@ export default function AnalyticsPage() {
   const assessed = data.assessedStudents || 0;
   const matched = data.matchedStudents || 0;
 
-  const greenCount = data.representativeReviews?.green ?? data.resultStats?.green ?? 0;
-  const yellowCount = data.representativeReviews?.yellow ?? data.resultStats?.yellow ?? 0;
-  const redCount = data.representativeReviews?.red ?? data.resultStats?.red ?? 0;
-
-  const totalResults = greenCount + yellowCount + redCount;
-  const greenPct = totalResults ? Math.round((greenCount / totalResults) * 100) : 0;
-  const yellowPct = totalResults ? Math.round((yellowCount / totalResults) * 100) : 0;
-  const redPct = totalResults ? Math.round((redCount / totalResults) * 100) : 0;
+  // [G/Y/R disabled]
+  // const greenCount = data.representativeReviews?.green ?? data.resultStats?.green ?? 0;
+  // const yellowCount = data.representativeReviews?.yellow ?? data.resultStats?.yellow ?? 0;
+  // const redCount = data.representativeReviews?.red ?? data.resultStats?.red ?? 0;
+  //
+  // const totalResults = greenCount + yellowCount + redCount;
+  // const greenPct = totalResults ? Math.round((greenCount / totalResults) * 100) : 0;
+  // const yellowPct = totalResults ? Math.round((yellowCount / totalResults) * 100) : 0;
+  // const redPct = totalResults ? Math.round((redCount / totalResults) * 100) : 0;
 
   const pipeline = data.applicationStages || data.applicationPipeline || {};
   const sources = data.influencerSources || data.influencerBreakdown || {};
@@ -139,9 +140,9 @@ export default function AnalyticsPage() {
         />
       </div>
 
-      {/* Results Breakdown & Pipeline Grid */}
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Results Breakdown */}
+      {/* Results Breakdown & Pipeline Grid ([G/Y/R disabled] was lg:grid-cols-2 with Results Breakdown) */}
+      <div className="grid gap-6">
+        {/* [G/Y/R disabled] Results Breakdown
         <Card className="p-6">
           <div className="flex items-center justify-between mb-5">
             <h3 className="font-bold text-base text-carbon flex items-center gap-2">
@@ -191,6 +192,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
         </Card>
+        */}
 
         {/* Application Stage Flow */}
         <Card className="p-6">

@@ -5,7 +5,7 @@ import { Button, Badge, Logo } from '@/components/ui';
 import {
   BarChart3,
   Target,
-  GraduationCap,
+  // GraduationCap, // [G/Y/R disabled]
   Check,
   ArrowRight,
   Sparkles,
@@ -139,7 +139,8 @@ export default function LandingPage() {
             <div className="text-center p-4">
               <p className="text-3xl sm:text-5xl font-black text-green tracking-tight">100-Pt</p>
               <p className="text-xs sm:text-sm font-bold text-carbon mt-1">Scientific Scoring</p>
-              <p className="text-xs text-dim-grey">Green / Yellow / Red Decision</p>
+              {/* [G/Y/R disabled] was: Green / Yellow / Red Decision */}
+              <p className="text-xs text-dim-grey">Admissions Assessment</p>
             </div>
           </div>
         </div>
@@ -197,7 +198,8 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
+          {/* [G/Y/R disabled] was md:grid-cols-3 with the Results card */}
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
             <div className="bg-porcelain/60 border border-charcoal/15 rounded-3xl p-6 sm:p-8 card-hoverable relative overflow-hidden group">
               <div className="w-14 h-14 rounded-2xl bg-ocean/10 border border-ocean/20 flex items-center justify-center mb-6 text-ocean group-hover:scale-110 transition-transform">
                 <BarChart3 size={28} />
@@ -224,6 +226,7 @@ export default function LandingPage() {
               </div>
             </div>
 
+            {/* [G/Y/R disabled] Green / Yellow / Red Results feature card
             <div className="bg-porcelain/60 border border-charcoal/15 rounded-3xl p-6 sm:p-8 card-hoverable relative overflow-hidden group">
               <div className="w-14 h-14 rounded-2xl bg-green/10 border border-green/20 flex items-center justify-center mb-6 text-green group-hover:scale-110 transition-transform">
                 <GraduationCap size={28} />
@@ -236,6 +239,7 @@ export default function LandingPage() {
                 <span>Actionable Decision Reports</span>
               </div>
             </div>
+            */}
           </div>
         </div>
       </section>
@@ -284,7 +288,8 @@ export default function LandingPage() {
               {
                 step: '05',
                 title: 'Get Matched',
-                desc: 'Receive official Green, Yellow, or Red match status along with institutional recommendations.',
+                // [G/Y/R disabled] was: 'Receive official Green, Yellow, or Red match status along with institutional recommendations.'
+                desc: 'Receive your primary and secondary university matches along with institutional recommendations.',
                 icon: <Compass size={20} className="text-ocean" />,
               },
               {

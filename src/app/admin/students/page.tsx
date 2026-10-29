@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { studentsAPI } from '@/lib/api';
-import { Card, Button, Input, Select, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
+// [G/Y/R disabled] Input, Select were only used by the Publish Result panel
+import { Card, Button, /* Input, Select, */ Badge, LoadingSpinner, EmptyState } from '@/components/ui';
 import {
   GraduationCap, Search, CheckCircle, XCircle, FileText,
   Sparkles, X, ExternalLink, RefreshCw
@@ -80,9 +81,9 @@ export default function AdminStudentsPage() {
   const [gradScore, setGradScore] = useState(8);
   const [docScore, setDocScore] = useState(8);
 
-  // Result publishing form
-  const [resultStatus, setResultStatus] = useState('Green');
-  const [nextStep, setNextStep] = useState('Application recommended — start your application now!');
+  // Result publishing form — [G/Y/R disabled]
+  // const [resultStatus, setResultStatus] = useState('Green');
+  // const [nextStep, setNextStep] = useState('Application recommended — start your application now!');
 
   // Application CRM stage
   const [crmStage, setCrmStage] = useState('Interested');
@@ -129,10 +130,11 @@ export default function AdminStudentsPage() {
       setGradScore(s.assessment.categoryScores.graduation ?? 8);
       setDocScore(s.assessment.categoryScores.documents ?? 8);
     }
-    if (s.result?.status) {
-      setResultStatus(s.result.status);
-      setNextStep(s.result.nextStep || '');
-    }
+    // [G/Y/R disabled]
+    // if (s.result?.status) {
+    //   setResultStatus(s.result.status);
+    //   setNextStep(s.result.nextStep || '');
+    // }
     if (s.application?.stage) {
       setCrmStage(s.application.stage);
     }
@@ -213,25 +215,26 @@ export default function AdminStudentsPage() {
     }
   };
 
-  const handlePublishResult = async () => {
-    if (!selectedStudent) return;
-    setActionLoading(true);
-    try {
-      await studentsAPI.publishResult(selectedStudent._id, {
-        status: resultStatus,
-        nextStep,
-        disclaimer: 'This assessment is preliminary. Final admission depends on the institution official application.',
-      });
-      setFeedback({ type: 'success', message: `Result published & email sent to ${selectedStudent.email}!` });
-      const res = await studentsAPI.get(selectedStudent._id);
-      setSelectedStudent(res.data);
-      loadStudents();
-    } catch {
-      setFeedback({ type: 'error', message: 'Failed to publish result' });
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  // [G/Y/R disabled]
+//   const handlePublishResult = async () => {
+//     if (!selectedStudent) return;
+//     setActionLoading(true);
+//     try {
+//       await studentsAPI.publishResult(selectedStudent._id, {
+//         status: resultStatus,
+//         nextStep,
+//         disclaimer: 'This assessment is preliminary. Final admission depends on the institution official application.',
+//       });
+//       setFeedback({ type: 'success', message: `Result published & email sent to ${selectedStudent.email}!` });
+//       const res = await studentsAPI.get(selectedStudent._id);
+//       setSelectedStudent(res.data);
+//       loadStudents();
+//     } catch {
+//       setFeedback({ type: 'error', message: 'Failed to publish result' });
+//     } finally {
+//       setActionLoading(false);
+//     }
+//   };
 
   const handleUpdateCrm = async (newStage: string) => {
     if (!selectedStudent) return;
@@ -257,7 +260,8 @@ export default function AdminStudentsPage() {
         <div>
           <h1 className="text-2xl font-bold text-carbon">Student Admissions Desk</h1>
           <p className="text-dim-grey text-sm mt-1">
-            Screening, 100-Point Scoring, University Matching & Result Publishing
+            {/* [G/Y/R disabled] was: Screening, 100-Point Scoring, University Matching & Result Publishing */}
+            Screening, 100-Point Scoring & University Matching
           </p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -316,6 +320,7 @@ export default function AdminStudentsPage() {
                         ) : (
                           <Badge variant="yellow" className="text-[10px]">Unpaid</Badge>
                         )}
+                        {/* [G/Y/R disabled] published result badge
                         {s.result?.isPublished && (
                           <Badge
                             variant={s.result.status?.toLowerCase() === 'green' ? 'green' : s.result.status?.toLowerCase() === 'yellow' ? 'yellow' : 'red'}
@@ -324,6 +329,7 @@ export default function AdminStudentsPage() {
                             {s.result.status}
                           </Badge>
                         )}
+                        */}
                       </div>
                     </div>
 
@@ -588,7 +594,7 @@ export default function AdminStudentsPage() {
                 )}
               </Card>
 
-              {/* 5. Publish Result to Student */}
+              {/* [G/Y/R disabled] 5. Publish Result to Student
               <Card>
                 <h3 className="font-semibold text-carbon text-sm mb-3">Publish Official Assessment Result</h3>
                 <div className="space-y-3">
@@ -619,6 +625,7 @@ export default function AdminStudentsPage() {
                   </div>
                 </div>
               </Card>
+              */}
 
               {/* 6. Application CRM Pipeline */}
               <Card>
