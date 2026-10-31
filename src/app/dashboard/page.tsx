@@ -7,11 +7,11 @@ import { useAuthStore } from '@/stores/authStore';
 import { Card, Badge, LoadingSpinner, ErrorState, Button } from '@/components/ui';
 import {
   User,
-  CreditCard,
+  // CreditCard, // [Payment disabled]
   FileText,
-  BarChart3,
+  // BarChart3, // [Scoring hidden]
   Target,
-  ClipboardCheck,
+  // ClipboardCheck, // [G/Y/R disabled]
   Calendar,
   Sparkles,
   ArrowRight,
@@ -65,50 +65,49 @@ export default function StudentDashboard() {
   if (error) return <ErrorState message={error} />;
 
   const profileComplete = data?.profileComplete ?? 0;
-  const isPaymentVerified = (data?.paymentStatus || '').toLowerCase() === 'verified';
+  // [Payment disabled] const isPaymentVerified = (data?.paymentStatus || '').toLowerCase() === 'verified';
   const hasDocuments = data?.documentStatus && data.documentStatus !== 'Not Uploaded';
-  const hasAssessment = data?.assessmentStatus === 'Completed' || (data?.assessmentScore != null && data.assessmentScore > 0);
+  // [Scoring hidden] const hasAssessment = data?.assessmentStatus === 'Completed' || (data?.assessmentScore != null && data.assessmentScore > 0);
   const hasMatch = !!data?.primaryMatch;
-  const hasResult = !!data?.resultPublished || !!data?.result?.status;
+  // [G/Y/R disabled] const hasResult = !!data?.resultPublished || !!data?.result?.status;
 
   const steps = [
     { label: 'Register & Account', done: true },
-    { label: '500 ETB Pass', done: isPaymentVerified },
+    // [Payment disabled] { label: '500 ETB Pass', done: isPaymentVerified },
     { label: 'Academic Profile', done: profileComplete === 100 },
     { label: 'Upload Documents', done: !!hasDocuments },
-    { label: 'Score Assessment', done: !!hasAssessment },
+    // [Scoring hidden] { label: 'Score Assessment', done: !!hasAssessment },
     { label: 'University Match', done: !!hasMatch },
   ];
 
   const completedStepsCount = steps.filter((s) => s.done).length;
   const progressPct = Math.round((completedStepsCount / steps.length) * 100);
 
-  const decisionVariant = (d?: string) => {
-    const lower = (d || '').toLowerCase();
-    if (lower === 'green') return 'green' as const;
-    if (lower === 'yellow') return 'yellow' as const;
-    return 'red' as const;
-  };
-
-  const resultDecision = data?.result?.status || data?.representativeDecision;
+  // [G/Y/R disabled]
+  // const decisionVariant = (d?: string) => {
+  //   const lower = (d || '').toLowerCase();
+  //   if (lower === 'green') return 'green' as const;
+  //   if (lower === 'yellow') return 'yellow' as const;
+  //   return 'red' as const;
+  // };
+  //
+  // const resultDecision = data?.result?.status || data?.representativeDecision;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Welcome Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-carbon via-[#242422] to-carbon text-white p-6 sm:p-8 border border-charcoal/30 shadow-lg">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-ocean/15 blur-3xl rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 right-1/3 w-64 h-64 bg-gold/10 blur-3xl rounded-full pointer-events-none" />
+      <div className="relative overflow-hidden rounded-3xl bg-ocean-dark text-white p-6 sm:p-8 border border-charcoal/30 shadow-lg">
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-xs font-semibold text-gold mb-3">
               <Sparkles size={13} />
-              <span>International Admissions Fair 2026</span>
+              <span>Veridan Education webinars</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               Welcome back, {user?.firstName || data?.name?.split(' ')[0]}! 👋
             </h1>
-            <p className="text-xs sm:text-sm text-dim-grey/90 mt-1 flex flex-wrap items-center gap-2 sm:gap-4">
+            <p className="text-xs sm:text-sm text-pale-sky mt-1 flex flex-wrap items-center gap-2 sm:gap-4">
               <span>
                 Student ID:{' '}
                 <span className="font-mono font-bold text-gold bg-gold/10 px-2 py-0.5 rounded-md border border-gold/20">
@@ -128,15 +127,15 @@ export default function StudentDashboard() {
             </Link>
             <Link href="/dashboard/events">
               <Button variant="secondary" size="sm" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
-                Fair Sessions
+                Webinar sessions
               </Button>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* 6 Status Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+      {/* 3 Status Cards ([G/Y/R disabled], [Payment disabled] and [Scoring hidden]: was 6, lg:grid-cols-6) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         <StatusCard
           icon={<User size={18} />}
           title="Profile Form"
@@ -146,6 +145,7 @@ export default function StudentDashboard() {
           color="ocean"
           href="/dashboard/profile"
         />
+        {/* [Payment disabled] 500 ETB Pass card
         <StatusCard
           icon={<CreditCard size={18} />}
           title="500 ETB Pass"
@@ -155,6 +155,7 @@ export default function StudentDashboard() {
           color="gold"
           href="/dashboard/payments"
         />
+        */}
         <StatusCard
           icon={<FileText size={18} />}
           title="Documents"
@@ -164,6 +165,7 @@ export default function StudentDashboard() {
           color="ocean"
           href="/dashboard/documents"
         />
+        {/* [Scoring hidden] Staff use the score; students do not see it
         <StatusCard
           icon={<BarChart3 size={18} />}
           title="100-Pt Score"
@@ -173,6 +175,7 @@ export default function StudentDashboard() {
           color="gold"
           href="/dashboard"
         />
+        */}
         <StatusCard
           icon={<Target size={18} />}
           title="Target Match"
@@ -182,6 +185,7 @@ export default function StudentDashboard() {
           color="ocean"
           href="/dashboard"
         />
+        {/* [G/Y/R disabled] Fair Decision card
         <StatusCard
           icon={<ClipboardCheck size={18} />}
           title="Fair Decision"
@@ -192,6 +196,7 @@ export default function StudentDashboard() {
           variant={hasResult && resultDecision ? decisionVariant(resultDecision) : undefined}
           href="/dashboard/results"
         />
+        */}
       </div>
 
       {/* Progress Milestone Pipeline */}
@@ -210,7 +215,7 @@ export default function StudentDashboard() {
           <div className="progress-bar-fill" style={{ width: `${progressPct}%` }} />
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-xs">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
           {steps.map((step, idx) => (
             <div
               key={step.label}
@@ -243,17 +248,17 @@ export default function StudentDashboard() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <Badge variant="blue" dot>Live Virtual Fair</Badge>
+                <Badge variant="blue" dot>Live webinar</Badge>
                 <Badge variant="yellow">Breakout Sessions</Badge>
               </div>
               <h3 className="text-base sm:text-lg font-bold text-carbon">
-                Glory International Admissions Fair 2026
+                Your next Veridan webinar
               </h3>
               <p className="text-xs sm:text-sm text-dim-grey mt-1">
-                September 15, 2026 • 2:00 PM - 5:00 PM (EAT)
+                Dates and room links appear on your webinars page.
               </p>
               <p className="text-xs text-dim-grey mt-2">
-                Join dedicated virtual tracks with university representatives from the US, UK, Canada, and Europe.
+                Join dedicated virtual tracks with university representatives.
               </p>
             </div>
           </div>
@@ -270,14 +275,14 @@ export default function StudentDashboard() {
           </div>
         </Card>
 
-        <Card className="p-6 flex flex-col justify-between bg-gradient-to-br from-white to-pale-sky/20">
+        <Card className="p-6 flex flex-col justify-between">
           <div>
             <div className="w-10 h-10 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold-dark mb-4">
               <AlertCircle size={20} />
             </div>
             <h4 className="font-bold text-sm text-carbon mb-1">Need Consultation?</h4>
             <p className="text-xs text-dim-grey leading-relaxed">
-              Message your assigned advisor directly through our internal messaging inbox for help with documents or scoring.
+              Message your assigned advisor directly through our internal messaging inbox for help with documents or applications.
             </p>
           </div>
           <Link href="/dashboard/messages" className="mt-5">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { universitiesAPI } from '@/lib/api';
+import { universityDestinationOptions } from '@/lib/destinations';
 import { Card, Button, Input, Select, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
 import { Target, Plus, MapPin, Trash2, X } from 'lucide-react';
 
@@ -210,14 +211,8 @@ export default function UniversitiesPage() {
                   label="Destination Country *"
                   value={destination}
                   options={[
-                    { value: 'USA', label: 'USA' },
-                    { value: 'Canada', label: 'Canada' },
-                    { value: 'UK', label: 'UK' },
-                    { value: 'Germany', label: 'Germany' },
-                    { value: 'Australia', label: 'Australia' },
-                    { value: 'Ireland', label: 'Ireland' },
+                    ...universityDestinationOptions,
                     { value: 'Italy', label: 'Italy' },
-                    { value: 'Spain', label: 'Spain' },
                   ]}
                   onChange={(e) => setDestination(e.target.value)}
                 />

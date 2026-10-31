@@ -121,7 +121,7 @@ export function UserMenu() {
         aria-expanded={open}
         title="Account menu"
       >
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-ocean to-ocean-dark flex items-center justify-center text-white text-xs font-bold shadow-sm ring-2 ring-ocean/20">
+        <div className="w-9 h-9 rounded-xl bg-ocean flex items-center justify-center text-white text-xs font-bold shadow-sm ring-2 ring-ocean/20">
           {initials}
         </div>
         <ChevronDown
@@ -140,22 +140,22 @@ export function UserMenu() {
           className="absolute right-0 top-[calc(100%+8px)] w-72 sm:w-80 bg-white rounded-2xl shadow-xl border border-charcoal/15 overflow-hidden z-[60] animate-fade-in origin-top-right"
         >
           {/* Basic info header */}
-          <div className="bg-gradient-to-r from-carbon via-[#242422] to-carbon text-white p-4">
+          <div className="bg-ocean-dark text-white p-4">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-ocean to-ocean-dark flex items-center justify-center text-white text-sm font-bold ring-2 ring-gold/40 shrink-0">
+                <div className="w-11 h-11 rounded-xl bg-ocean flex items-center justify-center text-white text-sm font-bold ring-2 ring-gold/40 shrink-0">
                   {initials}
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-bold truncate">
                     {user.firstName} {user.lastName}
                   </p>
-                  <p className="text-[11px] text-dim-grey truncate">{user.email}</p>
+                  <p className="text-[11px] text-pale-sky truncate">{user.email}</p>
                 </div>
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="text-dim-grey hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors shrink-0"
+                className="text-pale-sky hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors shrink-0"
                 title="Close menu"
               >
                 <X size={16} />
@@ -191,7 +191,7 @@ export function UserMenu() {
               <div className="px-3 py-2 text-xs text-dim-grey flex items-start gap-2">
                 <UserIcon size={14} className="text-ocean mt-0.5 shrink-0" />
                 <span>
-                  Profile details are managed by Glory admin. You can update your phone number
+                  Profile details are managed by Veridan admin. You can update your phone number
                   below.
                 </span>
               </div>

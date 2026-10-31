@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { usersAPI } from '@/lib/api';
+import { usersAPI, universitiesAPI } from '@/lib/api';
 import { Card, Button, Input, Select, Badge, LoadingSpinner, ErrorState } from '@/components/ui';
 import { Plus, Trash2, UserCheck, X } from 'lucide-react';
+import clsx from 'clsx';
 
 interface User {
   _id: string;
@@ -13,6 +14,7 @@ interface User {
   lastName: string;
   role: string;
   phone?: string;
+  university?: string;
   createdAt: string;
 }
 
@@ -23,6 +25,12 @@ interface CreateUserForm {
   lastName: string;
   role: string;
   phone: string;
+  university: string;
+}
+
+interface UniversityOption {
+  _id: string;
+  name: string;
 }
 
 export default function UsersPage() {
@@ -32,7 +40,31 @@ export default function UsersPage() {
   const [showForm, setShowForm] = useState(false);
   const [creating, setCreating] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateUserForm>();
+  const [universities, setUniversities] = useState<UniversityOption[]>([]);
+
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<CreateUserForm>();
+  const selectedRole = watch('role');
+
+  useEffect(() => {
+    universitiesAPI
+      .list()
+      .then((res) => setUniversities(res.data || []))
+      .catch(() => {});
+  }, []);
+
+  const universityOptions = [
+    { value: '', label: 'Select a university' },
+    ...universities.map((u) => ({ value: u._id, label: u.name })),
+  ];
+
+  const onChangeUniversity = async (id: string, university: string) => {
+    try {
+      await usersAPI.update(id, { university });
+      setUsers((prev) => prev.map((u) => (u._id === id ? { ...u, university } : u)));
+    } catch {
+      setError('Could not update the rep\'s university');
+    }
+  };
 
   const loadUsers = useCallback(async () => {
     try {
@@ -73,7 +105,9 @@ export default function UsersPage() {
   const onCreate = async (data: CreateUserForm) => {
     setCreating(true);
     try {
-      await usersAPI.create(data as unknown as Record<string, unknown>);
+      // University only applies to reps
+      const { university, ...rest } = data;
+      await usersAPI.create({ ...rest, ...(data.role === 'university_rep' && { university }) });
       reset();
       setShowForm(false);
       loadUsers();
@@ -101,7 +135,7 @@ export default function UsersPage() {
       case 'admin':
         return <Badge variant="red">Admin</Badge>;
       case 'glory_staff':
-        return <Badge variant="blue">Glory Staff</Badge>;
+        return <Badge variant="blue">Veridan Staff</Badge>;
       case 'university_rep':
         return <Badge variant="yellow">University Rep</Badge>;
       default:
@@ -145,7 +179,7 @@ export default function UsersPage() {
                 options={[
                   { value: '', label: 'Select...' },
                   { value: 'admin', label: 'Admin' },
-                  { value: 'glory_staff', label: 'Glory Staff' },
+                  { value: 'glory_staff', label: 'Veridan Staff' },
                   { value: 'university_rep', label: 'University Rep' },
                 ]}
                 {...register('role', { required: true })}
@@ -153,6 +187,15 @@ export default function UsersPage() {
               />
               <Input label="Phone (optional)" {...register('phone')} />
             </div>
+            {selectedRole === 'university_rep' && (
+              <Select
+                id="new-user-university"
+                label="University"
+                options={universityOptions}
+                {...register('university', { required: 'Reps need a university to see any students' })}
+                error={errors.university?.message}
+              />
+            )}
             <Button type="submit" loading={creating}>Create User</Button>
           </form>
         </Card>
@@ -166,6 +209,7 @@ export default function UsersPage() {
             <tr className="border-b border-charcoal/10">
               <th className="text-left px-6 py-3 text-xs font-semibold text-dim-grey uppercase">Name</th>
               <th className="text-left px-6 py-3 text-xs font-semibold text-dim-grey uppercase">Email</th>
+              <th className="text-left px-6 py-3 text-xs font-semibold text-dim-grey uppercase">University</th>
               <th className="text-left px-6 py-3 text-xs font-semibold text-dim-grey uppercase">Role</th>
               <th className="text-left px-6 py-3 text-xs font-semibold text-dim-grey uppercase">Created</th>
               <th className="text-right px-6 py-3 text-xs font-semibold text-dim-grey uppercase">Actions</th>
@@ -185,6 +229,19 @@ export default function UsersPage() {
                   </div>
                 </td>
                 <td className="px-6 py-3 text-sm text-dim-grey">{u.email}</td>
+                <td className="px-6 py-3">
+                  {u.role === 'university_rep' ? (
+                    <Select
+                      aria-label={`University for ${u.firstName} ${u.lastName}`}
+                      value={u.university || ''}
+                      options={universityOptions}
+                      className={clsx('py-1.5 text-xs min-w-40', !u.university && 'border-red')}
+                      onChange={(e) => onChangeUniversity(u._id, e.target.value)}
+                    />
+                  ) : (
+                    <span className="text-sm text-dim-grey">Not applicable</span>
+                  )}
+                </td>
                 <td className="px-6 py-3">{roleBadge(u.role)}</td>
                 <td className="px-6 py-3 text-sm text-dim-grey">
                   {new Date(u.createdAt).toLocaleDateString()}

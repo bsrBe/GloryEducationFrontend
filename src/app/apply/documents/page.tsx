@@ -75,7 +75,8 @@ export default function ApplyDocumentsPage() {
       payment: draft?.payment || {},
       currentStep: 2,
     });
-    router.push('/apply/payment');
+    // [Payment disabled] was: router.push('/apply/payment');
+    router.push('/apply/submit');
   };
 
   const formatSize = (bytes: number) => {
@@ -114,7 +115,7 @@ export default function ApplyDocumentsPage() {
             <>
               <Upload size={28} className="mx-auto text-dim-grey mb-2" />
               <p className="font-medium text-carbon text-sm">Click to upload</p>
-              <p className="text-xs text-dim-grey mt-1">PDF, JPEG, or PNG — max 10MB</p>
+              <p className="text-xs text-dim-grey mt-1">PDF, JPEG, or PNG, max 10MB</p>
             </>
           )}
         </div>
@@ -169,7 +170,7 @@ export default function ApplyDocumentsPage() {
           <ArrowLeft size={16} /> Back
         </Button>
         <Button onClick={handleNext}>
-          Continue to Payment <ArrowRight size={16} />
+          Continue to Submit <ArrowRight size={16} />
         </Button>
       </div>
     </div>

@@ -9,7 +9,8 @@ import { Logo } from '@/components/ui';
 const steps = [
   { label: 'Profile', short: 'Profile', href: '/apply/profile', step: 1 },
   { label: 'Documents', short: 'Docs', href: '/apply/documents', step: 2 },
-  { label: 'Payment', short: 'Pay', href: '/apply/payment', step: 3 },
+  // [Payment disabled] { label: 'Payment', short: 'Pay', href: '/apply/payment', step: 3 },
+  { label: 'Submit', short: 'Submit', href: '/apply/submit', step: 3 },
   { label: 'Review', short: 'Review', href: '/apply/review', step: 4 },
 ];
 
@@ -80,7 +81,7 @@ export default function ApplyLayout({ children }: { children: React.ReactNode })
                   {i < steps.length - 1 && (
                     <div
                       className={clsx(
-                        'w-6 sm:w-12 h-0.5 mx-1',
+                        'w-3 sm:w-12 h-0.5 sm:mx-1',
                         isComplete ? 'bg-ocean' : 'bg-pale-sky'
                       )}
                     />
@@ -98,8 +99,8 @@ export default function ApplyLayout({ children }: { children: React.ReactNode })
       </main>
 
       {/* Footer */}
-      <footer className="bg-carbon py-4 text-center">
-        <p className="text-dim-grey text-xs">Glory Educational Consultancy © 2026</p>
+      <footer className="bg-ocean-dark py-4 text-center">
+        <p className="text-pale-sky text-xs">Veridan Education © 2026</p>
       </footer>
     </div>
   );

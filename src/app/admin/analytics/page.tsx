@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { studentsAPI } from '@/lib/api';
+import { usePolling } from '@/lib/usePolling';
 import { Card, StatCard, Button, LoadingSpinner, ErrorState, Badge } from '@/components/ui';
 import {
   Users,
-  CreditCard,
+  // CreditCard, // [Payment disabled]
   ClipboardCheck,
   Target,
   Download,
-  BarChart3,
+  // BarChart3, // [G/Y/R disabled]
   TrendingUp,
   Layers,
 } from 'lucide-react';
@@ -48,13 +49,26 @@ export default function AnalyticsPage() {
       });
   }, []);
 
+  // Live refresh so new registrations are reflected in the counts; background
+  // failures keep the last good data on screen instead of showing an error.
+  const refreshAnalytics = useCallback(() => {
+    studentsAPI
+      .analytics()
+      .then((res) => {
+        setData(res.data);
+        setError(null);
+      })
+      .catch(() => {});
+  }, []);
+  usePolling(refreshAnalytics);
+
   const handleExport = async () => {
     try {
       const res = await studentsAPI.exportCSV();
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const a = document.createElement('a');
       a.href = url;
-      a.download = `glory-students-export-${new Date().toISOString().split('T')[0]}.csv`;
+      a.download = `veridan-students-export-${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch {
@@ -67,19 +81,21 @@ export default function AnalyticsPage() {
   if (!data) return null;
 
   const total = data.totalStudents || 0;
-  const paid = data.paidStudents ?? data.paymentStats?.verified ?? 0;
-  const paidPct = total ? Math.round((paid / total) * 100) : 0;
+  // [Payment disabled]
+  // const paid = data.paidStudents ?? data.paymentStats?.verified ?? 0;
+  // const paidPct = total ? Math.round((paid / total) * 100) : 0;
   const assessed = data.assessedStudents || 0;
   const matched = data.matchedStudents || 0;
 
-  const greenCount = data.representativeReviews?.green ?? data.resultStats?.green ?? 0;
-  const yellowCount = data.representativeReviews?.yellow ?? data.resultStats?.yellow ?? 0;
-  const redCount = data.representativeReviews?.red ?? data.resultStats?.red ?? 0;
-
-  const totalResults = greenCount + yellowCount + redCount;
-  const greenPct = totalResults ? Math.round((greenCount / totalResults) * 100) : 0;
-  const yellowPct = totalResults ? Math.round((yellowCount / totalResults) * 100) : 0;
-  const redPct = totalResults ? Math.round((redCount / totalResults) * 100) : 0;
+  // [G/Y/R disabled]
+  // const greenCount = data.representativeReviews?.green ?? data.resultStats?.green ?? 0;
+  // const yellowCount = data.representativeReviews?.yellow ?? data.resultStats?.yellow ?? 0;
+  // const redCount = data.representativeReviews?.red ?? data.resultStats?.red ?? 0;
+  //
+  // const totalResults = greenCount + yellowCount + redCount;
+  // const greenPct = totalResults ? Math.round((greenCount / totalResults) * 100) : 0;
+  // const yellowPct = totalResults ? Math.round((yellowCount / totalResults) * 100) : 0;
+  // const redPct = totalResults ? Math.round((redCount / totalResults) * 100) : 0;
 
   const pipeline = data.applicationStages || data.applicationPipeline || {};
   const sources = data.influencerSources || data.influencerBreakdown || {};
@@ -91,7 +107,6 @@ export default function AnalyticsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="blue" dot>Live Telemetry</Badge>
-            <span className="text-xs text-dim-grey">Fair Date: Sept 15, 2026</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-carbon tracking-tight">
             Admissions Analytics & CRM
@@ -107,8 +122,8 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* 4 Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 3 Stat Cards ([Payment disabled] was 4, lg:grid-cols-4) */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           icon={<Users size={22} />}
           label="Registered Applicants"
@@ -116,6 +131,7 @@ export default function AnalyticsPage() {
           subtext="Total student accounts"
           color="ocean"
         />
+        {/* [Payment disabled] 500 ETB Verified card
         <StatCard
           icon={<CreditCard size={22} />}
           label="500 ETB Verified"
@@ -123,6 +139,7 @@ export default function AnalyticsPage() {
           subtext={`${paid} of ${total} verified`}
           color="green"
         />
+        */}
         <StatCard
           icon={<ClipboardCheck size={22} />}
           label="Scored & Assessed"
@@ -139,9 +156,9 @@ export default function AnalyticsPage() {
         />
       </div>
 
-      {/* Results Breakdown & Pipeline Grid */}
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Results Breakdown */}
+      {/* Results Breakdown & Pipeline Grid ([G/Y/R disabled] was lg:grid-cols-2 with Results Breakdown) */}
+      <div className="grid gap-6">
+        {/* [G/Y/R disabled] Results Breakdown
         <Card className="p-6">
           <div className="flex items-center justify-between mb-5">
             <h3 className="font-bold text-base text-carbon flex items-center gap-2">
@@ -191,6 +208,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
         </Card>
+        */}
 
         {/* Application Stage Flow */}
         <Card className="p-6">

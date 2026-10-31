@@ -13,16 +13,19 @@ interface LogoProps {
 }
 
 const sizeMap = {
-  sm: { icon: 40, text: 'text-sm font-bold', sub: 'text-[9.5px]' },
-  md: { icon: 52, text: 'text-lg sm:text-xl font-black', sub: 'text-[11px]' },
-  lg: { icon: 64, text: 'text-xl sm:text-2xl font-black', sub: 'text-xs' },
-  xl: { icon: 80, text: 'text-2xl sm:text-3xl font-black', sub: 'text-sm' },
+  sm: { icon: 40, text: 'text-sm', sub: 'text-[9.5px]' },
+  md: { icon: 52, text: 'text-lg sm:text-xl', sub: 'text-[11px]' },
+  lg: { icon: 64, text: 'text-xl sm:text-2xl', sub: 'text-xs' },
+  xl: { icon: 80, text: 'text-2xl sm:text-3xl', sub: 'text-sm' },
 };
+
+// The mark is navy and gold, so on dark surfaces it sits on a white plate.
+const MARK_RATIO = 555 / 360;
 
 export function Logo({
   size = 'md',
   showText = true,
-  subtitle = 'Admissions Fair 2026',
+  subtitle = 'Education',
   href,
   className,
   inverted = false,
@@ -32,18 +35,22 @@ export function Logo({
   const currentSizeConfig = typeof size === 'string' ? sizeMap[size] : sizeMap.md;
 
   const content = (
-    <div className={clsx('inline-flex items-center gap-3 select-none group', className)}>
+    <div className={clsx('inline-flex items-center gap-3 select-none', className)}>
       <div
-        className="relative overflow-hidden rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105"
-        style={{ width: pixelSize, height: pixelSize }}
+        className={clsx(
+          'relative flex items-center justify-center shrink-0 rounded-lg bg-white overflow-hidden',
+          inverted && 'p-1'
+        )}
+        style={{ height: pixelSize, width: Math.round(pixelSize * MARK_RATIO) }}
       >
         <Image
-          src="/IMG_1746.png"
-          alt="Glory Educational Consultancy"
-          width={pixelSize * 2}
-          height={pixelSize * 2}
+          src="/brand/veridan-mark.svg"
+          alt="Veridan Education"
+          width={555}
+          height={360}
           priority={priority}
-          className="w-full h-full object-contain rounded-xl"
+          unoptimized
+          className="w-full h-full object-contain"
         />
       </div>
 
@@ -51,17 +58,17 @@ export function Logo({
         <div className="flex flex-col text-left">
           <span
             className={clsx(
-              'font-display font-black tracking-tight leading-tight',
+              'font-display font-bold tracking-[0.08em] leading-tight',
               currentSizeConfig.text,
-              inverted ? 'text-white' : 'text-carbon'
+              inverted ? 'text-white' : 'text-black'
             )}
           >
-            GLORY<span className="text-ocean">EDU</span>
+            VERIDAN
           </span>
           {subtitle && (
             <span
               className={clsx(
-                'font-semibold uppercase tracking-widest leading-none mt-0.5',
+                'font-medium tracking-[0.06em] leading-none mt-0.5',
                 currentSizeConfig.sub,
                 inverted ? 'text-gold' : 'text-dim-grey'
               )}

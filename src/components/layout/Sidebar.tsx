@@ -8,7 +8,7 @@ import { Logo } from '@/components/ui';
 import {
   LayoutDashboard,
   User,
-  CreditCard,
+  // CreditCard, // [Payment disabled]
   FileText,
   Target,
   ClipboardCheck,
@@ -34,13 +34,13 @@ const navItems: NavItem[] = [
   // Student
   { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard size={18} />, roles: ['student'] },
   { label: 'My Profile', href: '/dashboard/profile', icon: <User size={18} />, roles: ['student'] },
-  { label: 'Payments', href: '/dashboard/payments', icon: <CreditCard size={18} />, roles: ['student'] },
+  // [Payment disabled] { label: 'Payments', href: '/dashboard/payments', icon: <CreditCard size={18} />, roles: ['student'] },
   { label: 'Documents', href: '/dashboard/documents', icon: <FileText size={18} />, roles: ['student'] },
-  { label: 'Results', href: '/dashboard/results', icon: <ClipboardCheck size={18} />, roles: ['student'] },
-  { label: 'Events & Fairs', href: '/dashboard/events', icon: <Calendar size={18} />, roles: ['student'] },
+  // [G/Y/R disabled] { label: 'Results', href: '/dashboard/results', icon: <ClipboardCheck size={18} />, roles: ['student'] },
+  { label: 'Webinars', href: '/dashboard/events', icon: <Calendar size={18} />, roles: ['student'] },
   { label: 'Messages', href: '/dashboard/messages', icon: <MessageSquare size={18} />, roles: ['student'] },
 
-  // Glory Staff & Admin
+  // Staff & Admin
   { label: 'Analytics', href: '/admin/analytics', icon: <BarChart3 size={18} />, roles: ['admin', 'glory_staff'] },
   { label: 'Students Queue', href: '/admin/students', icon: <GraduationCap size={18} />, roles: ['admin', 'glory_staff'] },
   { label: 'Universities', href: '/admin/universities', icon: <Target size={18} />, roles: ['admin', 'glory_staff'] },
@@ -74,7 +74,7 @@ export function Sidebar({
   return (
     <aside
       className={clsx(
-        'bg-gradient-to-b from-[#1e1e1d] via-carbon to-[#111110] text-white flex flex-col transition-all duration-300 border-r border-charcoal/30',
+        'bg-ocean-dark text-white flex flex-col transition-all duration-300 border-r border-charcoal/30',
         // Mobile drawer: static-positioned inside the sliding panel, full height using dynamic viewport units
         mobile
           ? 'h-dvh w-64 shadow-xl'
@@ -90,7 +90,7 @@ export function Sidebar({
           <Logo
             href="/dashboard"
             size="sm"
-            subtitle="Admissions Fair"
+            subtitle="Education"
             inverted
             priority
           />
@@ -108,7 +108,7 @@ export function Sidebar({
         {mobile ? (
           <button
             onClick={onToggle}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-dim-grey hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-pale-sky hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             title="Close menu"
             aria-label="Close menu"
           >
@@ -117,7 +117,7 @@ export function Sidebar({
         ) : (
           <button
             onClick={onToggle}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-dim-grey hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-pale-sky hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <ChevronLeft
@@ -141,22 +141,22 @@ export function Sidebar({
               className={clsx(
                 'flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-200 group relative',
                 isActive
-                  ? 'bg-gradient-to-r from-ocean to-ocean-dark text-white font-semibold shadow-glow-ocean'
-                  : 'text-dim-grey hover:text-white hover:bg-white/5 hover:translate-x-0.5'
+                  ? 'bg-white/15 text-white font-semibold'
+                  : 'text-pale-sky hover:text-white hover:bg-white/5'
               )}
               title={collapsed ? item.label : undefined}
             >
               <span
                 className={clsx(
                   'flex-shrink-0 transition-colors',
-                  isActive ? 'text-white' : 'text-dim-grey group-hover:text-ocean'
+                  isActive ? 'text-white' : 'text-pale-sky group-hover:text-gold'
                 )}
               >
                 {item.icon}
               </span>
               {!collapsed && <span className="truncate">{item.label}</span>}
               {isActive && !collapsed && (
-                <span className="w-1.5 h-1.5 rounded-full bg-gold ml-auto shrink-0 shadow-[0_0_8px_#f9bf31]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-gold ml-auto shrink-0" />
               )}
             </Link>
           );

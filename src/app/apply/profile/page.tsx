@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { saveDraft, getDraft } from '@/lib/draftStorage';
+import { destinationOptions } from '@/lib/destinations';
 import { Button, Input, Select, Card } from '@/components/ui';
 import { ArrowRight } from 'lucide-react';
 
@@ -12,6 +13,7 @@ interface ProfileForm {
   lastName: string;
   email: string;
   phone: string;
+  country: string;
   dateOfBirth: string;
   gender: string;
   educationLevel: string;
@@ -21,7 +23,7 @@ interface ProfileForm {
   countryPreference: string;
   englishProficiency: string;
   englishScore: string;
-  financialBudget: string;
+  // financialBudget: string; // [Budget removed]
   additionalNotes: string;
 }
 
@@ -40,6 +42,7 @@ export default function ApplyProfilePage() {
           lastName: p.lastName || '',
           email: p.email || '',
           phone: p.phone || '',
+          country: p.country || '',
           dateOfBirth: p.dateOfBirth || '',
           gender: p.gender || '',
           educationLevel: p.educationLevel || '',
@@ -49,7 +52,7 @@ export default function ApplyProfilePage() {
           countryPreference: p.countryPreference || '',
           englishProficiency: p.englishProficiency || '',
           englishScore: p.englishScore || '',
-          financialBudget: p.financialBudget || '',
+          // financialBudget: p.financialBudget || '', // [Budget removed]
           additionalNotes: p.additionalNotes || '',
         });
       }
@@ -73,7 +76,9 @@ export default function ApplyProfilePage() {
     };
   }, [watch]);
 
-  const onSubmit = () => {
+  const onSubmit = async (data: ProfileForm) => {
+    // Leaving the page cancels the debounced auto-save, so save the latest values first
+    await saveDraft({ profile: data as unknown as Record<string, unknown>, payment: {}, currentStep: 1 });
     router.push('/apply/documents');
   };
 
@@ -102,6 +107,7 @@ export default function ApplyProfilePage() {
               {...register('email', { required: 'Required', pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' } })} />
             <Input label="Phone *" placeholder="+251911111111" error={errors.phone?.message}
               {...register('phone', { required: 'Required' })} />
+            <Input label="Country you live in" placeholder="e.g. Kenya" {...register('country')} />
             <Input label="Date of Birth" type="date" {...register('dateOfBirth')} />
             <Select label="Gender" options={[
               { value: '', label: 'Select...' },
@@ -117,21 +123,17 @@ export default function ApplyProfilePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select label="Education Level" options={[
               { value: '', label: 'Select...' },
-              { value: 'high_school', label: 'High School' },
-              { value: 'diploma', label: 'Diploma' },
-              { value: 'bachelor', label: "Bachelor's Degree" },
-              { value: 'master', label: "Master's Degree" },
+              { value: 'High School', label: 'High School' },
+              { value: 'Diploma', label: 'Diploma' },
+              { value: "Bachelor's Degree", label: "Bachelor's Degree" },
+              { value: "Master's Degree", label: "Master's Degree" },
             ]} {...register('educationLevel')} />
             <Input label="Institution" placeholder="e.g. Addis Ababa University" {...register('institution')} />
             <Input label="GPA" type="number" step="0.01" min="0" max="4" placeholder="e.g. 3.5" {...register('gpa')} />
             <Input label="Program of Interest" placeholder="e.g. Computer Science" {...register('programInterest')} />
             <Select label="Country Preference" options={[
               { value: '', label: 'Select...' },
-              { value: 'usa', label: 'USA' },
-              { value: 'uk', label: 'UK' },
-              { value: 'canada', label: 'Canada' },
-              { value: 'germany', label: 'Germany' },
-              { value: 'australia', label: 'Australia' },
+              ...destinationOptions,
               { value: 'other', label: 'Other' },
             ]} {...register('countryPreference')} />
           </div>
@@ -143,16 +145,17 @@ export default function ApplyProfilePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select label="Test Type" options={[
               { value: '', label: 'Select...' },
-              { value: 'ielts', label: 'IELTS' },
-              { value: 'toefl', label: 'TOEFL' },
-              { value: 'duolingo', label: 'Duolingo' },
-              { value: 'none', label: 'No test yet' },
+              { value: 'IELTS', label: 'IELTS' },
+              { value: 'TOEFL', label: 'TOEFL' },
+              { value: 'Duolingo', label: 'Duolingo' },
+              { value: 'Medium of Instruction', label: 'English Medium of Instruction (MOI)' },
+              { value: 'No test yet', label: 'No test yet' },
             ]} {...register('englishProficiency')} />
             <Input label="Score" type="number" step="0.5" placeholder="e.g. 7.0" {...register('englishScore')} />
           </div>
         </Card>
 
-        {/* Budget */}
+        {/* [Budget removed]
         <Card className="mb-5">
           <h3 className="font-semibold text-carbon mb-4">Budget</h3>
           <Select label="Annual Budget" options={[
@@ -164,6 +167,7 @@ export default function ApplyProfilePage() {
             { value: 'over_50k', label: 'Over $50,000' },
           ]} {...register('financialBudget')} />
         </Card>
+        */}
 
         <div className="flex justify-end">
           <Button type="submit">
