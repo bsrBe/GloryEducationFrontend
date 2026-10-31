@@ -1,8 +1,8 @@
 'use client';
 
-import { universityDestinationOptions } from '@/lib/destinations';
 import { useEffect, useState, useCallback } from 'react';
 import { universitiesAPI } from '@/lib/api';
+import { universityDestinationOptions } from '@/lib/destinations';
 import { Card, Button, Input, Select, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
 import { Target, Plus, MapPin, Trash2, X } from 'lucide-react';
 

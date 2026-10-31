@@ -23,7 +23,7 @@ interface ProfileForm {
   countryPreference: string;
   englishProficiency: string;
   englishScore: string;
-  financialBudget: string;
+  // financialBudget: string; // [Budget removed]
   additionalNotes: string;
 }
 
@@ -52,7 +52,7 @@ export default function ApplyProfilePage() {
           countryPreference: p.countryPreference || '',
           englishProficiency: p.englishProficiency || '',
           englishScore: p.englishScore || '',
-          financialBudget: p.financialBudget || '',
+          // financialBudget: p.financialBudget || '', // [Budget removed]
           additionalNotes: p.additionalNotes || '',
         });
       }
@@ -155,7 +155,7 @@ export default function ApplyProfilePage() {
           </div>
         </Card>
 
-        {/* Budget */}
+        {/* [Budget removed]
         <Card className="mb-5">
           <h3 className="font-semibold text-carbon mb-4">Budget</h3>
           <Select label="Annual Budget" options={[
@@ -167,6 +167,7 @@ export default function ApplyProfilePage() {
             { value: 'over_50k', label: 'Over $50,000' },
           ]} {...register('financialBudget')} />
         </Card>
+        */}
 
         <div className="flex justify-end">
           <Button type="submit">

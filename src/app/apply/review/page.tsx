@@ -82,10 +82,12 @@ export default function ApplyReviewPage() {
             <p className="text-dim-grey">English</p>
             <p className="font-medium text-carbon">{profile.englishProficiency} {profile.englishScore}</p>
           </div>
+          {/* [Budget removed]
           <div>
             <p className="text-dim-grey">Budget</p>
             <p className="font-medium text-carbon capitalize">{profile.financialBudget?.replace('_', ' ') || 'Not provided'}</p>
           </div>
+          */}
         </div>
       </Card>
 

@@ -19,6 +19,8 @@ interface StudentListItem {
   email: string;
   phone: string;
   country?: string;
+  dateOfBirth?: string;
+  gender?: string;
   educationLevel?: string;
   school?: string;
   gpa?: number;
@@ -400,6 +402,14 @@ export default function AdminStudentsPage() {
                   <div>
                     <span className="text-dim-grey">Lives in</span>
                     <p className="font-semibold text-carbon mt-0.5">{selectedStudent.country || '—'}</p>
+                  </div>
+                  <div>
+                    <span className="text-dim-grey">Date of birth</span>
+                    <p className="font-semibold text-carbon mt-0.5">{selectedStudent.dateOfBirth || '—'}</p>
+                  </div>
+                  <div>
+                    <span className="text-dim-grey">Gender</span>
+                    <p className="font-semibold text-carbon mt-0.5 capitalize">{selectedStudent.gender || '—'}</p>
                   </div>
                   <div>
                     <span className="text-dim-grey">Education Level</span>

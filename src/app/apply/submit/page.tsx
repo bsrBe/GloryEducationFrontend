@@ -44,6 +44,8 @@ export default function ApplySubmitPage() {
       if (profile.lastName) cleanProfile.lastName = profile.lastName;
       if (profile.phone) cleanProfile.phone = profile.phone;
       if (profile.country) cleanProfile.country = profile.country;
+      if (profile.dateOfBirth) cleanProfile.dateOfBirth = profile.dateOfBirth;
+      if (profile.gender) cleanProfile.gender = profile.gender;
       if (profile.educationLevel) cleanProfile.educationLevel = profile.educationLevel;
       if (profile.institution || profile.school) cleanProfile.school = profile.institution || profile.school;
       if (profile.gpa) cleanProfile.gpa = parseFloat(profile.gpa);
@@ -52,7 +54,7 @@ export default function ApplySubmitPage() {
       if (profile.countryPreference || profile.preferredCountry) cleanProfile.preferredCountry = profile.countryPreference || profile.preferredCountry;
       if (profile.englishProficiency || profile.englishTest) cleanProfile.englishTest = profile.englishProficiency || profile.englishTest;
       if (profile.englishScore) cleanProfile.englishScore = parseFloat(profile.englishScore);
-      if (profile.budget) cleanProfile.budget = Number(profile.budget);
+      // [Budget removed] if (profile.budget) cleanProfile.budget = Number(profile.budget);
 
       if (Object.keys(cleanProfile).length > 0) {
         await studentsAPI.updateProfile(currentUser._id, cleanProfile);
