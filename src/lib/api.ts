@@ -84,6 +84,8 @@ export const studentsAPI = {
   overrideAssess: (id: string, data: { score: number; reason: string }) =>
     api.post(`/students/${id}/assess/override`, data),
   match: (id: string) => api.post(`/students/${id}/match`),
+  overrideMatch: (id: string, data: Record<string, unknown>) =>
+    api.patch(`/students/${id}/match/override`, data),
   approveMatch: (id: string, data: Record<string, unknown>) =>
     api.patch(`/students/${id}/match/approve`, data),
   review: (id: string, data: Record<string, unknown>) =>

@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { studentsAPI } from '@/lib/api';
+import { studentsAPI, universitiesAPI } from '@/lib/api';
+import { MatchOverride, type MatchableUniversity } from '@/components/admin/MatchOverride';
 import { usePolling } from '@/lib/usePolling';
 // [G/Y/R disabled] Input, Select were only used by the Publish Result panel; [Payment disabled] Badge by the payment UI
 import { Card, Button, /* Input, Select, Badge, */ LoadingSpinner, EmptyState } from '@/components/ui';
@@ -52,6 +53,8 @@ interface StudentListItem {
     primary?: { university: string; program: string; reason: string };
     secondary?: { university: string; program: string; reason: string };
     status?: string;
+    overridden?: boolean;
+    overrideReason?: string;
   };
   representativeReview?: {
     decision?: string;
@@ -89,6 +92,10 @@ export default function AdminStudentsPage() {
   // const [resultStatus, setResultStatus] = useState('Green');
   // const [nextStep, setNextStep] = useState('Application recommended — start your application now!');
 
+  // University matching
+  const [universities, setUniversities] = useState<MatchableUniversity[]>([]);
+  const [editingMatch, setEditingMatch] = useState(false);
+
   // Application CRM stage
   const [crmStage, setCrmStage] = useState('Interested');
 
@@ -123,12 +130,22 @@ export default function AdminStudentsPage() {
     };
   }, [search]);
 
+  useEffect(() => {
+    universitiesAPI
+      .list()
+      .then((res) => setUniversities(res.data || []))
+      .catch(() => {});
+  }, []);
+
+  const universityName = (id?: string) => universities.find((u) => u._id === id)?.name || 'University';
+
   // Live refresh so newly registered students appear without a manual reload
   usePolling(loadStudents);
 
   const selectStudent = async (s: StudentListItem) => {
     setSelectedStudent(s);
     setFeedback(null);
+    setEditingMatch(false);
     if (s.assessment?.categoryScores) {
       setAcademicScore(s.assessment.categoryScores.academic ?? 25);
       setEnglishScore(s.assessment.categoryScores.english ?? 15);
@@ -191,8 +208,23 @@ export default function AdminStudentsPage() {
     }
   };
 
+  const handleMatchOverridden = async () => {
+    if (!selectedStudent) return;
+    setEditingMatch(false);
+    setFeedback({ type: 'success', message: 'Match updated. Approve it to send it to the university rep.' });
+    const res = await studentsAPI.get(selectedStudent._id);
+    setSelectedStudent(res.data);
+    loadStudents();
+  };
+
   const handleSuggestMatches = async () => {
     if (!selectedStudent) return;
+    if (
+      selectedStudent.matches?.overridden &&
+      !window.confirm('This replaces the match staff chose by hand. Continue?')
+    ) {
+      return;
+    }
     setActionLoading(true);
     try {
       await studentsAPI.match(selectedStudent._id);
@@ -584,26 +616,47 @@ export default function AdminStudentsPage() {
               <Card>
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-carbon text-sm">University Matches</h3>
-                  <Button size="sm" variant="secondary" onClick={handleSuggestMatches} loading={actionLoading}>
-                    <Sparkles size={14} className="text-ocean" /> Suggest Matches
-                  </Button>
+                  {!editingMatch && (
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="secondary" onClick={() => setEditingMatch(true)}>
+                        {selectedStudent.matches?.primary ? 'Change match' : 'Choose manually'}
+                      </Button>
+                      <Button size="sm" variant="secondary" onClick={handleSuggestMatches} loading={actionLoading}>
+                        <Sparkles size={14} className="text-ocean" /> Suggest Matches
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
-                {selectedStudent.matches?.primary ? (
+                {editingMatch ? (
+                  <MatchOverride
+                    studentId={selectedStudent._id}
+                    universities={universities}
+                    primary={selectedStudent.matches?.primary}
+                    secondary={selectedStudent.matches?.secondary}
+                    onSaved={handleMatchOverridden}
+                    onCancel={() => setEditingMatch(false)}
+                  />
+                ) : selectedStudent.matches?.primary ? (
                   <div className="space-y-2">
                     <div className="p-3 bg-ocean-light/20 border border-ocean/30 rounded-lg text-xs">
-                      <p className="font-bold text-ocean">Primary: {selectedStudent.matches.primary.program || 'Program Match'}</p>
+                      <p className="font-bold text-ocean">
+                        Primary: {universityName(selectedStudent.matches.primary.university)}, {selectedStudent.matches.primary.program || 'Program Match'}
+                      </p>
                       <p className="text-dim-grey mt-0.5 font-medium">Reason: {selectedStudent.matches.primary.reason}</p>
                     </div>
                     {selectedStudent.matches?.secondary && (
                       <div className="p-3 bg-porcelain border border-charcoal/10 rounded-lg text-xs">
-                        <p className="font-bold text-carbon">Secondary: {selectedStudent.matches.secondary.program || 'Alternative Program'}</p>
+                        <p className="font-bold text-carbon">
+                          Secondary: {universityName(selectedStudent.matches.secondary.university)}, {selectedStudent.matches.secondary.program || 'Alternative Program'}
+                        </p>
                         <p className="text-dim-grey mt-0.5">Reason: {selectedStudent.matches.secondary.reason}</p>
                       </div>
                     )}
                     <div className="flex items-center justify-between mt-2 pt-2">
                       <span className="text-xs text-dim-grey">
                         Match Status: <strong>{selectedStudent.matches.status || 'suggested'}</strong>
+                        {selectedStudent.matches.overridden && ' (chosen by staff)'}
                       </span>
                       {selectedStudent.matches.status !== 'approved' && (
                         <Button size="sm" onClick={handleApproveMatch} loading={actionLoading}>
@@ -613,7 +666,7 @@ export default function AdminStudentsPage() {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-xs text-dim-grey">Click &quot;Suggest Matches&quot; to calculate fit against active university programs.</p>
+                  <p className="text-xs text-dim-grey">Click &quot;Suggest Matches&quot; to calculate fit against active university programs, or choose a university manually.</p>
                 )}
               </Card>
 
