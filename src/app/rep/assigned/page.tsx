@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { studentsAPI } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
-import { Card, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
+import { Card, /* Badge, [G/Y/R disabled] */ LoadingSpinner, EmptyState } from '@/components/ui';
 import { GraduationCap, MapPin, BookOpen, BarChart3 } from 'lucide-react';
 
 interface AssignedStudent {
@@ -76,7 +76,7 @@ export default function AssignedPage() {
 
       <div className="grid gap-4">
         {students.map((s) => {
-          const decision = s.representativeReview?.decision || s.representative?.status;
+          // [G/Y/R disabled] const decision = s.representativeReview?.decision || s.representative?.status;
           const comments = s.representativeReview?.comments || s.representative?.comments;
           const program = s.intendedProgram || s.programInterest || s.matches?.primary?.program || 'General Program';
           const country = s.preferredCountry || s.countryPreference || 'International';
@@ -96,6 +96,7 @@ export default function AssignedPage() {
                       </p>
                       <p className="text-xs text-dim-grey">{s.studentId}</p>
                     </div>
+                    {/* [G/Y/R disabled] decision badge
                     {decision && (
                       <Badge
                         variant={
@@ -113,6 +114,7 @@ export default function AssignedPage() {
                           : '🔴 No Match'}
                       </Badge>
                     )}
+                    */}
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
@@ -133,12 +135,14 @@ export default function AssignedPage() {
                     </div>
                   </div>
 
+                  {/* [Scoring hidden]
                   {s.assessment?.totalScore != null && (
                     <div className="mt-2">
                       <span className="text-xs text-dim-grey">Score: </span>
                       <span className="text-sm font-bold text-ocean">{s.assessment.totalScore}/100</span>
                     </div>
                   )}
+                  */}
 
                   {comments && (
                     <div className="mt-2 bg-porcelain rounded-lg px-3 py-2">

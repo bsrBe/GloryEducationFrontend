@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { studentsAPI } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
-import { Card, Button, Badge, LoadingSpinner, EmptyState, Input } from '@/components/ui';
-import { ClipboardCheck, CheckCircle } from 'lucide-react';
-import clsx from 'clsx';
+// [G/Y/R disabled] Button, Badge, Input, CheckCircle, clsx were only used by the decision form
+import { Card, /* Button, Badge, */ LoadingSpinner, EmptyState /* , Input */ } from '@/components/ui';
+import { ClipboardCheck /* , CheckCircle */ } from 'lucide-react';
+// import clsx from 'clsx';
 
 interface Student {
   _id: string;
@@ -30,8 +31,9 @@ export default function PortalPage() {
   const user = useAuthStore((s) => s.user);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
-  const [reviewing, setReviewing] = useState<string | null>(null);
-  const [reviews, setReviews] = useState<Record<string, { status: string; comments: string }>>({});
+  // [G/Y/R disabled]
+  // const [reviewing, setReviewing] = useState<string | null>(null);
+  // const [reviews, setReviews] = useState<Record<string, { status: string; comments: string }>>({});
 
   useEffect(() => {
     studentsAPI
@@ -43,43 +45,44 @@ export default function PortalPage() {
       .catch(() => setLoading(false));
   }, [user]);
 
-  const handleReview = async (studentId: string) => {
-    const review = reviews[studentId];
-    if (!review?.status) return;
-
-    setReviewing(studentId);
-    try {
-      await studentsAPI.review(studentId, {
-        decision: review.status, // 'Green', 'Yellow', or 'Red'
-        comments: review.comments || '',
-      });
-      setStudents((prev) =>
-        prev.map((s) =>
-          s._id === studentId
-            ? {
-                ...s,
-                representativeReview: {
-                  decision: review.status,
-                  comments: review.comments || '',
-                  isLocked: true,
-                },
-              }
-            : s
-        )
-      );
-    } catch {
-      // error
-    } finally {
-      setReviewing(null);
-    }
-  };
-
-  const updateReview = (id: string, field: string, value: string) => {
-    setReviews((prev) => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: value },
-    }));
-  };
+  // [G/Y/R disabled]
+  // const handleReview = async (studentId: string) => {
+  //   const review = reviews[studentId];
+  //   if (!review?.status) return;
+  //
+  //   setReviewing(studentId);
+  //   try {
+  //     await studentsAPI.review(studentId, {
+  //       decision: review.status, // 'Green', 'Yellow', or 'Red'
+  //       comments: review.comments || '',
+  //     });
+  //     setStudents((prev) =>
+  //       prev.map((s) =>
+  //         s._id === studentId
+  //           ? {
+  //               ...s,
+  //               representativeReview: {
+  //                 decision: review.status,
+  //                 comments: review.comments || '',
+  //                 isLocked: true,
+  //               },
+  //             }
+  //           : s
+  //       )
+  //     );
+  //   } catch {
+  //     // error
+  //   } finally {
+  //     setReviewing(null);
+  //   }
+  // };
+  //
+  // const updateReview = (id: string, field: string, value: string) => {
+  //   setReviews((prev) => ({
+  //     ...prev,
+  //     [id]: { ...prev[id], [field]: value },
+  //   }));
+  // };
 
   if (loading) return <LoadingSpinner text="Loading students..." />;
 
@@ -103,15 +106,16 @@ export default function PortalPage() {
       </div>
 
       {students.map((s) => {
-        const repDecision = s.representativeReview?.decision || s.representative?.status;
-        const reviewed = !!repDecision;
-        const currentReview = reviews[s._id] || {};
+        // [G/Y/R disabled]
+        // const repDecision = s.representativeReview?.decision || s.representative?.status;
+        // const reviewed = !!repDecision;
+        // const currentReview = reviews[s._id] || {};
         const program = s.intendedProgram || s.programInterest || s.matches?.primary?.program || 'General Program';
         const country = s.preferredCountry || s.countryPreference || 'International';
         const docUrl = s.documents?.[0]?.cloudinaryUrl;
 
         return (
-          <Card key={s._id} className={reviewed ? 'border-green/30' : ''}>
+          <Card key={s._id} /* [G/Y/R disabled] className={reviewed ? 'border-green/30' : ''} */>
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-ocean-light flex items-center justify-center text-ocean font-bold text-sm flex-shrink-0">
                 {s.firstName?.[0]}{s.lastName?.[0]}
@@ -123,6 +127,7 @@ export default function PortalPage() {
                     {s.firstName} {s.lastName}
                   </p>
                   <span className="text-xs text-dim-grey">{s.studentId}</span>
+                  {/* [G/Y/R disabled] decision badge
                   {reviewed && (
                     <Badge
                       variant={
@@ -136,6 +141,7 @@ export default function PortalPage() {
                       <CheckCircle size={10} /> {repDecision}
                     </Badge>
                   )}
+                  */}
                 </div>
 
                 <div className="flex flex-wrap gap-3 text-sm text-dim-grey mb-3">
@@ -144,8 +150,10 @@ export default function PortalPage() {
                   <span>{program}</span>
                   <span>•</span>
                   <span>{country}</span>
+                  {/* [Scoring hidden]
                   <span>•</span>
                   <span>Score: {s.assessment?.totalScore ?? 'Pending'}/100</span>
+                  */}
                   {docUrl && (
                     <>
                       <span>•</span>
@@ -156,6 +164,15 @@ export default function PortalPage() {
                   )}
                 </div>
 
+                {(s.representativeReview?.comments || s.representative?.comments) && (
+                  <div className="bg-porcelain rounded-lg px-4 py-3">
+                    <p className="text-sm text-carbon">
+                      {s.representativeReview?.comments || s.representative?.comments}
+                    </p>
+                  </div>
+                )}
+
+                {/* [G/Y/R disabled] Green/Yellow/Red decision form
                 {!reviewed ? (
                   <div className="space-y-3">
                     <div className="flex gap-3">
@@ -211,6 +228,7 @@ export default function PortalPage() {
                     )}
                   </div>
                 )}
+                */}
               </div>
             </div>
           </Card>

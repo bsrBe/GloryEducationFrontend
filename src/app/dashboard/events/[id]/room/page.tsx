@@ -6,14 +6,14 @@ import Link from 'next/link';
 import { eventsAPI } from '@/lib/api';
 import { Card, Button, Badge, LoadingSpinner } from '@/components/ui';
 import {
-  Lock,
+  // Lock, // [Payment disabled]
   Clock,
   ArrowLeft,
   Maximize2,
   Minimize2,
   Video,
-  ShieldCheck,
-  CreditCard,
+  // ShieldCheck, // [Payment disabled]
+  // CreditCard, // [Payment disabled]
   Radio,
   Calendar,
 } from 'lucide-react';
@@ -63,7 +63,7 @@ export default function ConferenceRoomPage({
 
   const [roomData, setRoomData] = useState<RoomData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [paywallError, setPaywallError] = useState<string | null>(null);
+  // const [paywallError, setPaywallError] = useState<string | null>(null); // [Payment disabled]
   const [timeGateError, setTimeGateError] = useState<string | null>(null);
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -73,7 +73,6 @@ export default function ConferenceRoomPage({
   useEffect(() => {
     let active = true;
     setLoading(true);
-    setPaywallError(null);
     setTimeGateError(null);
     setGeneralError(null);
 
@@ -90,12 +89,8 @@ export default function ConferenceRoomPage({
         const status = err.response?.status;
         const msg = err.response?.data?.message || err.message;
 
-        if (status === 403) {
-          setPaywallError(
-            msg ||
-              'Access to live fair conference rooms requires a verified 500 ETB admissions pass.'
-          );
-        } else if (status === 400) {
+        // [Payment disabled] a 403 used to show the 500 ETB paywall; it now shows the real reason
+        if (status === 400) {
           setTimeGateError(
             msg ||
               'This conference room is not accessible yet. Please check back 15 minutes before the scheduled start time.'
@@ -213,55 +208,56 @@ export default function ConferenceRoomPage({
     );
   }
 
-  // --- Paywall Barrier (403 Forbidden) ---
-  if (paywallError) {
-    return (
-      <div className="max-w-2xl mx-auto py-10 px-4">
-        <Card className="p-8 text-center space-y-6 border-gold/40 shadow-xl bg-gradient-to-b from-white to-gold/5">
-          <div className="w-16 h-16 rounded-2xl bg-gold/15 border border-gold/30 text-gold-dark flex items-center justify-center mx-auto">
-            <Lock size={32} />
-          </div>
-
-          <div className="space-y-2">
-            <Badge variant="yellow" className="px-3 py-1 font-bold">
-              Fair Pass Required
-            </Badge>
-            <h1 className="text-2xl font-black text-carbon">
-              Verified 500 ETB Pass Needed
-            </h1>
-            <p className="text-sm text-dim-grey max-w-lg mx-auto leading-relaxed">
-              {paywallError}
-            </p>
-          </div>
-
-          <div className="bg-porcelain p-4 rounded-xl text-left border border-charcoal/10 space-y-2 text-xs text-dim-grey">
-            <div className="flex items-center gap-2 text-carbon font-semibold">
-              <ShieldCheck size={16} className="text-ocean" />
-              <span>Why is this session protected?</span>
-            </div>
-            <p>
-              Glory International Admissions Fair features exclusive direct breakout tracks
-              with university delegates from the US, UK, Canada, and Europe. Access is strictly
-              reserved for registered students with a verified application pass.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <Link href="/dashboard/payments" className="w-full sm:w-auto">
-              <Button variant="accent" className="w-full flex items-center gap-2">
-                <CreditCard size={16} /> Complete or Verify Payment
-              </Button>
-            </Link>
-            <Link href="/dashboard/events" className="w-full sm:w-auto">
-              <Button variant="secondary" className="w-full">
-                Back to Event Schedule
-              </Button>
-            </Link>
-          </div>
-        </Card>
-      </div>
-    );
-  }
+  // [Payment disabled]
+  // // --- Paywall Barrier (403 Forbidden) ---
+  // if (paywallError) {
+  //   return (
+  //     <div className="max-w-2xl mx-auto py-10 px-4">
+  //       <Card className="p-8 text-center space-y-6 border-gold/40 shadow-xl bg-gradient-to-b from-white to-gold/5">
+  //         <div className="w-16 h-16 rounded-2xl bg-gold/15 border border-gold/30 text-gold-dark flex items-center justify-center mx-auto">
+  //           <Lock size={32} />
+  //         </div>
+  // 
+  //         <div className="space-y-2">
+  //           <Badge variant="yellow" className="px-3 py-1 font-bold">
+  //             Fair Pass Required
+  //           </Badge>
+  //           <h1 className="text-2xl font-black text-carbon">
+  //             Verified 500 ETB Pass Needed
+  //           </h1>
+  //           <p className="text-sm text-dim-grey max-w-lg mx-auto leading-relaxed">
+  //             {paywallError}
+  //           </p>
+  //         </div>
+  // 
+  //         <div className="bg-porcelain p-4 rounded-xl text-left border border-charcoal/10 space-y-2 text-xs text-dim-grey">
+  //           <div className="flex items-center gap-2 text-carbon font-semibold">
+  //             <ShieldCheck size={16} className="text-ocean" />
+  //             <span>Why is this session protected?</span>
+  //           </div>
+  //           <p>
+  //             Glory International Admissions Fair features exclusive direct breakout tracks
+  //             with university delegates from the US, UK, Canada, and Europe. Access is strictly
+  //             reserved for registered students with a verified application pass.
+  //           </p>
+  //         </div>
+  // 
+  //         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+  //           <Link href="/dashboard/payments" className="w-full sm:w-auto">
+  //             <Button variant="accent" className="w-full flex items-center gap-2">
+  //               <CreditCard size={16} /> Complete or Verify Payment
+  //             </Button>
+  //           </Link>
+  //           <Link href="/dashboard/events" className="w-full sm:w-auto">
+  //             <Button variant="secondary" className="w-full">
+  //               Back to Event Schedule
+  //             </Button>
+  //           </Link>
+  //         </div>
+  //       </Card>
+  //     </div>
+  //   );
+  // }
 
   // --- Time Gate Barrier (400 Bad Request / Early or Closed) ---
   if (timeGateError) {
@@ -328,11 +324,11 @@ export default function ConferenceRoomPage({
   return (
     <div className="flex flex-col h-[calc(100vh-5.5rem)] -m-4 sm:-m-6 lg:-m-8 bg-carbon rounded-none sm:rounded-2xl overflow-hidden border border-charcoal/30 shadow-2xl">
       {/* Conference Room Top Bar */}
-      <div className="bg-[#181816] text-white px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2 sm:gap-3 border-b border-charcoal/20 z-10 shrink-0">
+      <div className="bg-ocean-dark text-white px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2 sm:gap-3 border-b border-charcoal/20 z-10 shrink-0">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           <button
             onClick={handleLeave}
-            className="text-dim-grey hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors shrink-0"
+            className="text-pale-sky hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors shrink-0"
             title="Leave conference"
           >
             <ArrowLeft size={18} />
@@ -346,7 +342,7 @@ export default function ConferenceRoomPage({
                 <Radio size={10} className="animate-pulse" /> LIVE
               </Badge>
             </div>
-            <p className="text-[11px] text-dim-grey font-medium flex items-center gap-1.5 min-w-0">
+            <p className="text-[11px] text-pale-sky font-medium flex items-center gap-1.5 min-w-0">
               <Video size={12} className="text-ocean shrink-0" />
               <span className="truncate">{roomData.sessionName}</span>
               <span className="hidden sm:inline shrink-0">•</span>

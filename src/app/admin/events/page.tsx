@@ -41,8 +41,8 @@ export default function AdminEventsPage() {
   const [assignmentFilter, setAssignmentFilter] = useState('all'); // 'all', 'unassigned', 'by_country'
 
   // New Event Form State
-  const [name, setName] = useState('Glory International Admissions Fair 2026');
-  const [date, setDate] = useState('2026-09-15');
+  const [name, setName] = useState('Veridan Education webinar');
+  const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('09:00 AM');
   const [endTime, setEndTime] = useState('12:30 PM');
   const [mainRoomLink, setMainRoomLink] = useState('');
@@ -204,15 +204,15 @@ export default function AdminEventsPage() {
     });
   };
 
-  if (loading) return <LoadingSpinner text="Loading fair events..." />;
+  if (loading) return <LoadingSpinner text="Loading webinars..." />;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-carbon">Fair Events & Breakout Rooms</h1>
+          <h1 className="text-2xl font-bold text-carbon">Webinars & Breakout Rooms</h1>
           <p className="text-dim-grey text-sm mt-1">
-            Schedule virtual admissions fairs and configure destination breakout tracks
+            Schedule webinars and configure destination breakout tracks
           </p>
         </div>
         <Button variant="accent" onClick={() => setShowEventModal(true)}>
@@ -224,7 +224,7 @@ export default function AdminEventsPage() {
         <EmptyState
           icon={<Calendar />}
           title="No Events Scheduled"
-          description="Create your first International Admissions Fair to start assigning students to breakout tracks."
+          description="Create your first webinar to start assigning students to breakout tracks."
         />
       ) : (
         <div className="space-y-6">
@@ -337,7 +337,7 @@ export default function AdminEventsPage() {
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-carbon">Create Fair Event</h2>
+              <h2 className="text-xl font-bold text-carbon">Create Webinar</h2>
               <button onClick={() => setShowEventModal(false)} className="text-dim-grey hover:text-carbon">
                 <X size={20} />
               </button>

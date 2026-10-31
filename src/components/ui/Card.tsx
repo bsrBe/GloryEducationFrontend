@@ -43,7 +43,7 @@ export function CardHeader({ children, className }: CardHeaderProps) {
   return (
     <div
       className={clsx(
-        'bg-gradient-to-r from-ocean to-ocean-dark text-white rounded-t-2xl px-6 py-4 font-semibold shadow-sm',
+        'bg-ocean-dark text-white rounded-t-2xl px-6 py-4 font-semibold shadow-sm',
         className
       )}
     >

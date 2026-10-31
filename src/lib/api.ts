@@ -22,7 +22,9 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && typeof window !== 'undefined') {
+    // A 401 from login means wrong credentials, not an expired session: let the caller show the error
+    const isLoginRequest = error.config?.url === '/auth/login';
+    if (error.response?.status === 401 && !isLoginRequest && typeof window !== 'undefined') {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.replace('/login');
@@ -86,6 +88,8 @@ export const studentsAPI = {
   overrideAssess: (id: string, data: { score: number; reason: string }) =>
     api.post(`/students/${id}/assess/override`, data),
   match: (id: string) => api.post(`/students/${id}/match`),
+  overrideMatch: (id: string, data: Record<string, unknown>) =>
+    api.patch(`/students/${id}/match/override`, data),
   approveMatch: (id: string, data: Record<string, unknown>) =>
     api.patch(`/students/${id}/match/approve`, data),
   review: (id: string, data: Record<string, unknown>) =>

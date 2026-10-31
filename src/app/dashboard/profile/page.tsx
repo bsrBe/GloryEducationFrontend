@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { studentsAPI } from '@/lib/api';
+import { destinationOptions, normalizeDestination } from '@/lib/destinations';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Input, Select, Button, LoadingSpinner, ErrorState } from '@/components/ui';
 import { Save } from 'lucide-react';
@@ -11,6 +12,9 @@ interface ProfileForm {
   firstName: string;
   lastName: string;
   phone: string;
+  country: string;
+  dateOfBirth: string;
+  gender: string;
   educationLevel: string;
   school: string;
   gpa: string;
@@ -20,7 +24,7 @@ interface ProfileForm {
   preferredUniversity: string;
   englishTest: string;
   englishScore: string;
-  budget: string;
+  // budget: string; // [Budget removed]
 }
 
 export default function ProfilePage() {
@@ -41,16 +45,19 @@ export default function ProfilePage() {
           firstName: d.firstName || user?.firstName || '',
           lastName: d.lastName || user?.lastName || '',
           phone: d.phone || user?.phone || '',
+          country: d.country || '',
+          dateOfBirth: d.dateOfBirth || '',
+          gender: d.gender || '',
           educationLevel: d.educationLevel || '',
           school: d.school || d.institution || '',
           gpa: d.gpa?.toString() || '',
           graduationYear: d.graduationYear?.toString() || '',
           intendedProgram: d.intendedProgram || d.programInterest || '',
-          preferredCountry: d.preferredCountry || d.countryPreference || '',
+          preferredCountry: normalizeDestination(d.preferredCountry || d.countryPreference || ''),
           preferredUniversity: d.preferredUniversity || '',
           englishTest: d.englishTest || d.englishProficiency || '',
           englishScore: d.englishScore?.toString() || '',
-          budget: d.budget?.toString() || '',
+          // budget: d.budget?.toString() || '', // [Budget removed]
         });
         setLoading(false);
       })
@@ -69,6 +76,9 @@ export default function ProfilePage() {
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
+        country: data.country || undefined,
+        dateOfBirth: data.dateOfBirth || undefined,
+        gender: data.gender || undefined,
         educationLevel: data.educationLevel || undefined,
         school: data.school || undefined,
         gpa: data.gpa ? parseFloat(data.gpa) : undefined,
@@ -78,7 +88,7 @@ export default function ProfilePage() {
         preferredUniversity: data.preferredUniversity || undefined,
         englishTest: data.englishTest || undefined,
         englishScore: data.englishScore ? parseFloat(data.englishScore) : undefined,
-        budget: data.budget ? parseFloat(data.budget) : undefined,
+        // budget: data.budget ? parseFloat(data.budget) : undefined, // [Budget removed]
       };
 
       // Remove undefined values
@@ -105,7 +115,7 @@ export default function ProfilePage() {
       <div>
         <h1 className="text-2xl font-bold text-carbon">My Profile</h1>
         <p className="text-dim-grey text-sm mt-1">
-          Complete your academic profile for admissions assessment and matching
+          Complete your academic profile for university matching
         </p>
       </div>
 
@@ -129,6 +139,17 @@ export default function ProfilePage() {
             <Input label="First Name" {...register('firstName', { required: true })} error={errors.firstName?.message} />
             <Input label="Last Name" {...register('lastName', { required: true })} error={errors.lastName?.message} />
             <Input label="Phone" placeholder="+251..." {...register('phone', { required: true })} error={errors.phone?.message} />
+            <Input label="Country you live in" placeholder="e.g. Kenya" {...register('country')} />
+            <Input label="Date of Birth" type="date" {...register('dateOfBirth')} />
+            <Select
+              label="Gender"
+              options={[
+                { value: '', label: 'Select...' },
+                { value: 'male', label: 'Male' },
+                { value: 'female', label: 'Female' },
+              ]}
+              {...register('gender')}
+            />
           </div>
         </Card>
 
@@ -155,13 +176,8 @@ export default function ProfilePage() {
               label="Preferred Destination"
               options={[
                 { value: '', label: 'Select...' },
-                { value: 'USA', label: 'USA' },
-                { value: 'Canada', label: 'Canada' },
-                { value: 'UK', label: 'UK' },
-                { value: 'Germany', label: 'Germany' },
-                { value: 'Australia', label: 'Australia' },
-                { value: 'Ireland', label: 'Ireland' },
-                { value: 'Italy', label: 'Italy' },
+                ...destinationOptions,
+                { value: 'other', label: 'Other' },
               ]}
               {...register('preferredCountry')}
             />
@@ -179,7 +195,8 @@ export default function ProfilePage() {
                 { value: 'IELTS', label: 'IELTS' },
                 { value: 'TOEFL', label: 'TOEFL' },
                 { value: 'Duolingo', label: 'Duolingo' },
-                { value: 'Medium of Instruction', label: 'English Medium of Instruction' },
+                { value: 'Medium of Instruction', label: 'English Medium of Instruction (MOI)' },
+                { value: 'No test yet', label: 'No test yet' },
               ]}
               {...register('englishTest')}
             />
@@ -187,11 +204,12 @@ export default function ProfilePage() {
           </div>
         </Card>
 
-        {/* Financial */}
+        {/* [Budget removed] Financial
         <Card className="mb-6">
           <h3 className="font-semibold text-carbon mb-4">Financial Budget</h3>
           <Input label="Annual Tuition Budget ($ USD)" type="number" placeholder="e.g. 25000" {...register('budget')} />
         </Card>
+        */}
 
         <div className="flex justify-end">
           <Button type="submit" loading={saving}>

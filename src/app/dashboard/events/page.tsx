@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { eventsAPI } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Button, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
-import { Calendar, Clock, CheckCircle, MapPin, Video, Lock } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, MapPin, Video /* , Lock [Payment disabled] */ } from 'lucide-react';
 
 interface EventSession {
   name: string;
@@ -134,8 +134,8 @@ export default function EventsPage() {
               </Badge>
             </div>
 
-            {/* Main Plenary Hall — In-Platform Jitsi Video */}
-            <div className="bg-gradient-to-r from-ocean/10 to-pale-sky/20 border border-ocean/20 rounded-xl p-4 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            {/* Main Plenary Hall — In-Platform Video */}
+            <div className="bg-ocean-subtle border border-ocean/20 rounded-xl p-4 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-carbon">📺 Main Plenary Hall</span>
@@ -182,9 +182,11 @@ export default function EventsPage() {
                     </div>
 
                     <div className="mt-3 pt-2.5 border-t border-charcoal/10 flex flex-wrap items-center justify-between gap-2">
+                      {/* [Payment disabled]
                       <span className="text-[11px] text-dim-grey font-medium flex items-center gap-1">
                         <Lock size={12} className="text-gold" /> 500 ETB Pass Protected
                       </span>
+                      */}
                       <Link href={`/dashboard/events/${evt._id}/room?sessionIndex=${i}`}>
                         <Button size="sm" variant="outline-ocean" className="text-xs font-bold flex items-center gap-1.5 py-2 px-3">
                           <Video size={13} /> Enter Breakout Track

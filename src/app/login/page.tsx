@@ -65,8 +65,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-porcelain flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
       {/* Glow Orbs */}
-      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-96 h-96 bg-ocean/10 blur-3xl -z-10 rounded-full pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-72 h-72 bg-gold/10 blur-3xl -z-10 rounded-full pointer-events-none" />
 
       <div className="w-full max-w-md">
         {/* Brand Header */}
