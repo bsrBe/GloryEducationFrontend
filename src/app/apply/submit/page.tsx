@@ -43,6 +43,7 @@ export default function ApplySubmitPage() {
       if (profile.firstName) cleanProfile.firstName = profile.firstName;
       if (profile.lastName) cleanProfile.lastName = profile.lastName;
       if (profile.phone) cleanProfile.phone = profile.phone;
+      if (profile.country) cleanProfile.country = profile.country;
       if (profile.educationLevel) cleanProfile.educationLevel = profile.educationLevel;
       if (profile.institution || profile.school) cleanProfile.school = profile.institution || profile.school;
       if (profile.gpa) cleanProfile.gpa = parseFloat(profile.gpa);

@@ -18,6 +18,7 @@ interface StudentListItem {
   lastName: string;
   email: string;
   phone: string;
+  country?: string;
   educationLevel?: string;
   school?: string;
   gpa?: number;
@@ -396,6 +397,10 @@ export default function AdminStudentsPage() {
               <Card>
                 <h3 className="font-semibold text-carbon text-sm mb-3">Academic Background</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div>
+                    <span className="text-dim-grey">Lives in</span>
+                    <p className="font-semibold text-carbon mt-0.5">{selectedStudent.country || '—'}</p>
+                  </div>
                   <div>
                     <span className="text-dim-grey">Education Level</span>
                     <p className="font-semibold text-carbon mt-0.5">{selectedStudent.educationLevel || '—'}</p>

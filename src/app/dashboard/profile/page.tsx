@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { studentsAPI } from '@/lib/api';
+import { destinationOptions, normalizeDestination } from '@/lib/destinations';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Input, Select, Button, LoadingSpinner, ErrorState } from '@/components/ui';
 import { Save } from 'lucide-react';
@@ -11,6 +12,7 @@ interface ProfileForm {
   firstName: string;
   lastName: string;
   phone: string;
+  country: string;
   educationLevel: string;
   school: string;
   gpa: string;
@@ -41,12 +43,13 @@ export default function ProfilePage() {
           firstName: d.firstName || user?.firstName || '',
           lastName: d.lastName || user?.lastName || '',
           phone: d.phone || user?.phone || '',
+          country: d.country || '',
           educationLevel: d.educationLevel || '',
           school: d.school || d.institution || '',
           gpa: d.gpa?.toString() || '',
           graduationYear: d.graduationYear?.toString() || '',
           intendedProgram: d.intendedProgram || d.programInterest || '',
-          preferredCountry: d.preferredCountry || d.countryPreference || '',
+          preferredCountry: normalizeDestination(d.preferredCountry || d.countryPreference || ''),
           preferredUniversity: d.preferredUniversity || '',
           englishTest: d.englishTest || d.englishProficiency || '',
           englishScore: d.englishScore?.toString() || '',
@@ -69,6 +72,7 @@ export default function ProfilePage() {
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
+        country: data.country || undefined,
         educationLevel: data.educationLevel || undefined,
         school: data.school || undefined,
         gpa: data.gpa ? parseFloat(data.gpa) : undefined,
@@ -129,6 +133,7 @@ export default function ProfilePage() {
             <Input label="First Name" {...register('firstName', { required: true })} error={errors.firstName?.message} />
             <Input label="Last Name" {...register('lastName', { required: true })} error={errors.lastName?.message} />
             <Input label="Phone" placeholder="+251..." {...register('phone', { required: true })} error={errors.phone?.message} />
+            <Input label="Country you live in" placeholder="e.g. Kenya" {...register('country')} />
           </div>
         </Card>
 
@@ -155,13 +160,8 @@ export default function ProfilePage() {
               label="Preferred Destination"
               options={[
                 { value: '', label: 'Select...' },
-                { value: 'USA', label: 'USA' },
-                { value: 'Canada', label: 'Canada' },
-                { value: 'UK', label: 'UK' },
-                { value: 'Germany', label: 'Germany' },
-                { value: 'Australia', label: 'Australia' },
-                { value: 'Ireland', label: 'Ireland' },
-                { value: 'Italy', label: 'Italy' },
+                ...destinationOptions,
+                { value: 'other', label: 'Other' },
               ]}
               {...register('preferredCountry')}
             />
@@ -179,7 +179,8 @@ export default function ProfilePage() {
                 { value: 'IELTS', label: 'IELTS' },
                 { value: 'TOEFL', label: 'TOEFL' },
                 { value: 'Duolingo', label: 'Duolingo' },
-                { value: 'Medium of Instruction', label: 'English Medium of Instruction' },
+                { value: 'Medium of Instruction', label: 'English Medium of Instruction (MOI)' },
+                { value: 'No test yet', label: 'No test yet' },
               ]}
               {...register('englishTest')}
             />

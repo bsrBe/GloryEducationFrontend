@@ -1,5 +1,6 @@
 'use client';
 
+import { universityDestinationOptions } from '@/lib/destinations';
 import { useEffect, useState, useCallback } from 'react';
 import { universitiesAPI } from '@/lib/api';
 import { Card, Button, Input, Select, Badge, LoadingSpinner, EmptyState } from '@/components/ui';
@@ -210,14 +211,8 @@ export default function UniversitiesPage() {
                   label="Destination Country *"
                   value={destination}
                   options={[
-                    { value: 'USA', label: 'USA' },
-                    { value: 'Canada', label: 'Canada' },
-                    { value: 'UK', label: 'UK' },
-                    { value: 'Germany', label: 'Germany' },
-                    { value: 'Australia', label: 'Australia' },
-                    { value: 'Ireland', label: 'Ireland' },
+                    ...universityDestinationOptions,
                     { value: 'Italy', label: 'Italy' },
-                    { value: 'Spain', label: 'Spain' },
                   ]}
                   onChange={(e) => setDestination(e.target.value)}
                 />

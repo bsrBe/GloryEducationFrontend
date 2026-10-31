@@ -35,3 +35,21 @@ export const destinations: Destination[] = [
   { value: 'canada', name: 'Canada', flag: 'ca', region: 'americas-australia', description: 'Universities and colleges, many with work placement options.', universities: [] },
   { value: 'australia', name: 'Australia', flag: 'au', region: 'americas-australia', description: 'English-taught universities with large international student communities.', universities: [] },
 ];
+
+/** Options for "preferred destination" fields. Keep "other" for students with no listed choice. */
+export const destinationOptions = destinations.map((d) => ({ value: d.value, label: d.name }));
+
+/**
+ * Older records store values like "USA" or "UK". Returns the matching option
+ * value so those still show as selected, or the original if nothing matches.
+ */
+export function normalizeDestination(value: string): string {
+  const lower = value.toLowerCase();
+  return destinations.find((d) => d.value === lower || d.name.toLowerCase() === lower)?.value ?? value;
+}
+
+/** University records store display values ("USA", "Malta"). Matching compares them case-insensitively to `value`. */
+export const universityDestinationOptions = destinations.map((d) => {
+  const label = d.value.length <= 3 ? d.value.toUpperCase() : d.value[0].toUpperCase() + d.value.slice(1);
+  return { value: label, label };
+});
