@@ -150,8 +150,10 @@ export default function PortalPage() {
                   <span>{program}</span>
                   <span>•</span>
                   <span>{country}</span>
+                  {/* [Scoring hidden]
                   <span>•</span>
                   <span>Score: {s.assessment?.totalScore ?? 'Pending'}/100</span>
+                  */}
                   {docUrl && (
                     <>
                       <span>•</span>

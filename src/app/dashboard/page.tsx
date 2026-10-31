@@ -9,7 +9,7 @@ import {
   User,
   // CreditCard, // [Payment disabled]
   FileText,
-  BarChart3,
+  // BarChart3, // [Scoring hidden]
   Target,
   // ClipboardCheck, // [G/Y/R disabled]
   Calendar,
@@ -67,7 +67,7 @@ export default function StudentDashboard() {
   const profileComplete = data?.profileComplete ?? 0;
   // [Payment disabled] const isPaymentVerified = (data?.paymentStatus || '').toLowerCase() === 'verified';
   const hasDocuments = data?.documentStatus && data.documentStatus !== 'Not Uploaded';
-  const hasAssessment = data?.assessmentStatus === 'Completed' || (data?.assessmentScore != null && data.assessmentScore > 0);
+  // [Scoring hidden] const hasAssessment = data?.assessmentStatus === 'Completed' || (data?.assessmentScore != null && data.assessmentScore > 0);
   const hasMatch = !!data?.primaryMatch;
   // [G/Y/R disabled] const hasResult = !!data?.resultPublished || !!data?.result?.status;
 
@@ -76,7 +76,7 @@ export default function StudentDashboard() {
     // [Payment disabled] { label: '500 ETB Pass', done: isPaymentVerified },
     { label: 'Academic Profile', done: profileComplete === 100 },
     { label: 'Upload Documents', done: !!hasDocuments },
-    { label: 'Score Assessment', done: !!hasAssessment },
+    // [Scoring hidden] { label: 'Score Assessment', done: !!hasAssessment },
     { label: 'University Match', done: !!hasMatch },
   ];
 
@@ -134,8 +134,8 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      {/* 4 Status Cards ([G/Y/R disabled] and [Payment disabled]: was 6, lg:grid-cols-6) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
+      {/* 3 Status Cards ([G/Y/R disabled], [Payment disabled] and [Scoring hidden]: was 6, lg:grid-cols-6) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         <StatusCard
           icon={<User size={18} />}
           title="Profile Form"
@@ -165,6 +165,7 @@ export default function StudentDashboard() {
           color="ocean"
           href="/dashboard/documents"
         />
+        {/* [Scoring hidden] Staff use the score; students do not see it
         <StatusCard
           icon={<BarChart3 size={18} />}
           title="100-Pt Score"
@@ -174,6 +175,7 @@ export default function StudentDashboard() {
           color="gold"
           href="/dashboard"
         />
+        */}
         <StatusCard
           icon={<Target size={18} />}
           title="Target Match"
@@ -213,7 +215,7 @@ export default function StudentDashboard() {
           <div className="progress-bar-fill" style={{ width: `${progressPct}%` }} />
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
           {steps.map((step, idx) => (
             <div
               key={step.label}

@@ -115,7 +115,7 @@ export default function ProfilePage() {
       <div>
         <h1 className="text-2xl font-bold text-carbon">My Profile</h1>
         <p className="text-dim-grey text-sm mt-1">
-          Complete your academic profile for admissions assessment and matching
+          Complete your academic profile for university matching
         </p>
       </div>
 

@@ -135,12 +135,14 @@ export default function AssignedPage() {
                     </div>
                   </div>
 
+                  {/* [Scoring hidden]
                   {s.assessment?.totalScore != null && (
                     <div className="mt-2">
                       <span className="text-xs text-dim-grey">Score: </span>
                       <span className="text-sm font-bold text-ocean">{s.assessment.totalScore}/100</span>
                     </div>
                   )}
+                  */}
 
                   {comments && (
                     <div className="mt-2 bg-porcelain rounded-lg px-3 py-2">
