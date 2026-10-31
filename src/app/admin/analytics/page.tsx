@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { studentsAPI } from '@/lib/api';
+import { usePolling } from '@/lib/usePolling';
 import { Card, StatCard, Button, LoadingSpinner, ErrorState, Badge } from '@/components/ui';
 import {
   Users,
-  CreditCard,
+  // CreditCard, // [Payment disabled]
   ClipboardCheck,
   Target,
   Download,
@@ -48,6 +49,19 @@ export default function AnalyticsPage() {
       });
   }, []);
 
+  // Live refresh so new registrations are reflected in the counts; background
+  // failures keep the last good data on screen instead of showing an error.
+  const refreshAnalytics = useCallback(() => {
+    studentsAPI
+      .analytics()
+      .then((res) => {
+        setData(res.data);
+        setError(null);
+      })
+      .catch(() => {});
+  }, []);
+  usePolling(refreshAnalytics);
+
   const handleExport = async () => {
     try {
       const res = await studentsAPI.exportCSV();
@@ -67,8 +81,9 @@ export default function AnalyticsPage() {
   if (!data) return null;
 
   const total = data.totalStudents || 0;
-  const paid = data.paidStudents ?? data.paymentStats?.verified ?? 0;
-  const paidPct = total ? Math.round((paid / total) * 100) : 0;
+  // [Payment disabled]
+  // const paid = data.paidStudents ?? data.paymentStats?.verified ?? 0;
+  // const paidPct = total ? Math.round((paid / total) * 100) : 0;
   const assessed = data.assessedStudents || 0;
   const matched = data.matchedStudents || 0;
 
@@ -108,8 +123,8 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* 4 Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 3 Stat Cards ([Payment disabled] was 4, lg:grid-cols-4) */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           icon={<Users size={22} />}
           label="Registered Applicants"
@@ -117,6 +132,7 @@ export default function AnalyticsPage() {
           subtext="Total student accounts"
           color="ocean"
         />
+        {/* [Payment disabled] 500 ETB Verified card
         <StatCard
           icon={<CreditCard size={22} />}
           label="500 ETB Verified"
@@ -124,6 +140,7 @@ export default function AnalyticsPage() {
           subtext={`${paid} of ${total} verified`}
           color="green"
         />
+        */}
         <StatCard
           icon={<ClipboardCheck size={22} />}
           label="Scored & Assessed"

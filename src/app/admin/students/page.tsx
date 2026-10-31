@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { studentsAPI } from '@/lib/api';
-// [G/Y/R disabled] Input, Select were only used by the Publish Result panel
-import { Card, Button, /* Input, Select, */ Badge, LoadingSpinner, EmptyState } from '@/components/ui';
+import { usePolling } from '@/lib/usePolling';
+// [G/Y/R disabled] Input, Select were only used by the Publish Result panel; [Payment disabled] Badge by the payment UI
+import { Card, Button, /* Input, Select, Badge, */ LoadingSpinner, EmptyState } from '@/components/ui';
 import {
   GraduationCap, Search, CheckCircle, XCircle, FileText,
   Sparkles, X, ExternalLink, RefreshCw
@@ -119,6 +120,9 @@ export default function AdminStudentsPage() {
     };
   }, [search]);
 
+  // Live refresh so newly registered students appear without a manual reload
+  usePolling(loadStudents);
+
   const selectStudent = async (s: StudentListItem) => {
     setSelectedStudent(s);
     setFeedback(null);
@@ -140,21 +144,22 @@ export default function AdminStudentsPage() {
     }
   };
 
-  const handleVerifyPayment = async (paymentIdx: number, status: 'Verified' | 'Failed') => {
-    if (!selectedStudent) return;
-    setActionLoading(true);
-    try {
-      await studentsAPI.verifyPayment(selectedStudent._id, paymentIdx, { status });
-      setFeedback({ type: 'success', message: `Payment marked as ${status}` });
-      const res = await studentsAPI.get(selectedStudent._id);
-      setSelectedStudent(res.data);
-      loadStudents();
-    } catch {
-      setFeedback({ type: 'error', message: 'Failed to update payment status' });
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  // [Payment disabled]
+  // const handleVerifyPayment = async (paymentIdx: number, status: 'Verified' | 'Failed') => {
+  //   if (!selectedStudent) return;
+  //   setActionLoading(true);
+  //   try {
+  //     await studentsAPI.verifyPayment(selectedStudent._id, paymentIdx, { status });
+  //     setFeedback({ type: 'success', message: `Payment marked as ${status}` });
+  //     const res = await studentsAPI.get(selectedStudent._id);
+  //     setSelectedStudent(res.data);
+  //     loadStudents();
+  //   } catch {
+  //     setFeedback({ type: 'error', message: 'Failed to update payment status' });
+  //   } finally {
+  //     setActionLoading(false);
+  //   }
+  // };
 
   const handleSaveAssessment = async () => {
     if (!selectedStudent) return;
@@ -298,7 +303,7 @@ export default function AdminStudentsPage() {
             </p>
             <div className="space-y-2 max-h-[75vh] overflow-y-auto pr-1">
               {students.map((s) => {
-                const isPaid = s.payments?.some((p) => (p.status || '').toLowerCase() === 'verified');
+                // [Payment disabled] const isPaid = s.payments?.some((p) => (p.status || '').toLowerCase() === 'verified');
                 const isSelected = selectedStudent?._id === s._id;
 
                 return (
@@ -315,11 +320,13 @@ export default function AdminStudentsPage() {
                         {s.studentId}
                       </span>
                       <div className="flex items-center gap-1.5">
+                        {/* [Payment disabled] Paid/Unpaid badge
                         {isPaid ? (
                           <Badge variant="green" className="text-[10px]">Paid</Badge>
                         ) : (
                           <Badge variant="yellow" className="text-[10px]">Unpaid</Badge>
                         )}
+                        */}
                         {/* [G/Y/R disabled] published result badge
                         {s.result?.isPublished && (
                           <Badge
@@ -433,7 +440,7 @@ export default function AdminStudentsPage() {
                 )}
               </Card>
 
-              {/* 2. Payment Verification */}
+              {/* [Payment disabled] 2. Payment Verification
               <Card>
                 <h3 className="font-semibold text-carbon text-sm mb-3 flex items-center justify-between">
                   <span>Payment Receipts</span>
@@ -473,6 +480,7 @@ export default function AdminStudentsPage() {
                   </div>
                 )}
               </Card>
+              */}
 
               {/* 3. 100-Point Scoring Engine */}
               <Card>

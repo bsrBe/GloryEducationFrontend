@@ -11,24 +11,24 @@ export default function ApplyReviewPage() {
   const router = useRouter();
   const { user, loadFromStorage } = useAuthStore();
   const [profile, setProfile] = useState<Record<string, string>>({});
-  const [payment, setPayment] = useState<Record<string, string>>({});
+  // [Payment disabled] const [payment, setPayment] = useState<Record<string, string>>({});
   const [docs, setDocs] = useState<{ id: string; fileName: string; fileType: string; fileSize: number }[]>([]);
 
   useEffect(() => {
     loadFromStorage();
     getDraft().then((d) => {
       setProfile((d?.profile || {}) as Record<string, string>);
-      setPayment((d?.payment || {}) as Record<string, string>);
+      // [Payment disabled] setPayment((d?.payment || {}) as Record<string, string>);
     });
     getDocuments().then((d) =>
       setDocs(d.map(({ id, fileName, fileType, fileSize }) => ({ id, fileName, fileType, fileSize })))
     );
   }, [loadFromStorage]);
 
-  // Redirect to payment if not logged in
+  // Redirect to submit step if not logged in
   useEffect(() => {
     if (!user) {
-      router.push('/apply/payment');
+      router.push('/apply/submit');
     }
   }, [user, router]);
 
@@ -110,7 +110,7 @@ export default function ApplyReviewPage() {
         )}
       </Card>
 
-      {/* Payment */}
+      {/* [Payment disabled] Payment card
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-carbon">Payment</h3>
@@ -135,10 +135,11 @@ export default function ApplyReviewPage() {
           <p className="text-sm text-dim-grey">No payment info</p>
         )}
       </Card>
+      */}
 
       {/* Navigation */}
       <div className="flex items-center justify-between">
-        <Button variant="secondary" onClick={() => router.push('/apply/payment')}>
+        <Button variant="secondary" onClick={() => router.push('/apply/submit')}>
           <ArrowLeft size={16} /> Back
         </Button>
         <Button variant="accent" onClick={() => router.push('/dashboard')}>

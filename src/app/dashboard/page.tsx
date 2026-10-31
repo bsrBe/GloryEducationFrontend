@@ -7,7 +7,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { Card, Badge, LoadingSpinner, ErrorState, Button } from '@/components/ui';
 import {
   User,
-  CreditCard,
+  // CreditCard, // [Payment disabled]
   FileText,
   BarChart3,
   Target,
@@ -65,7 +65,7 @@ export default function StudentDashboard() {
   if (error) return <ErrorState message={error} />;
 
   const profileComplete = data?.profileComplete ?? 0;
-  const isPaymentVerified = (data?.paymentStatus || '').toLowerCase() === 'verified';
+  // [Payment disabled] const isPaymentVerified = (data?.paymentStatus || '').toLowerCase() === 'verified';
   const hasDocuments = data?.documentStatus && data.documentStatus !== 'Not Uploaded';
   const hasAssessment = data?.assessmentStatus === 'Completed' || (data?.assessmentScore != null && data.assessmentScore > 0);
   const hasMatch = !!data?.primaryMatch;
@@ -73,7 +73,7 @@ export default function StudentDashboard() {
 
   const steps = [
     { label: 'Register & Account', done: true },
-    { label: '500 ETB Pass', done: isPaymentVerified },
+    // [Payment disabled] { label: '500 ETB Pass', done: isPaymentVerified },
     { label: 'Academic Profile', done: profileComplete === 100 },
     { label: 'Upload Documents', done: !!hasDocuments },
     { label: 'Score Assessment', done: !!hasAssessment },
@@ -136,8 +136,8 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      {/* 5 Status Cards ([G/Y/R disabled] was 6 with Fair Decision, lg:grid-cols-6) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+      {/* 4 Status Cards ([G/Y/R disabled] and [Payment disabled]: was 6, lg:grid-cols-6) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
         <StatusCard
           icon={<User size={18} />}
           title="Profile Form"
@@ -147,6 +147,7 @@ export default function StudentDashboard() {
           color="ocean"
           href="/dashboard/profile"
         />
+        {/* [Payment disabled] 500 ETB Pass card
         <StatusCard
           icon={<CreditCard size={18} />}
           title="500 ETB Pass"
@@ -156,6 +157,7 @@ export default function StudentDashboard() {
           color="gold"
           href="/dashboard/payments"
         />
+        */}
         <StatusCard
           icon={<FileText size={18} />}
           title="Documents"
@@ -213,7 +215,7 @@ export default function StudentDashboard() {
           <div className="progress-bar-fill" style={{ width: `${progressPct}%` }} />
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs">
           {steps.map((step, idx) => (
             <div
               key={step.label}

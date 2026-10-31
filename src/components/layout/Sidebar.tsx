@@ -8,7 +8,7 @@ import { Logo } from '@/components/ui';
 import {
   LayoutDashboard,
   User,
-  CreditCard,
+  // CreditCard, // [Payment disabled]
   FileText,
   Target,
   ClipboardCheck,
@@ -33,7 +33,7 @@ const navItems: NavItem[] = [
   // Student
   { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard size={18} />, roles: ['student'] },
   { label: 'My Profile', href: '/dashboard/profile', icon: <User size={18} />, roles: ['student'] },
-  { label: 'Payments', href: '/dashboard/payments', icon: <CreditCard size={18} />, roles: ['student'] },
+  // [Payment disabled] { label: 'Payments', href: '/dashboard/payments', icon: <CreditCard size={18} />, roles: ['student'] },
   { label: 'Documents', href: '/dashboard/documents', icon: <FileText size={18} />, roles: ['student'] },
   // [G/Y/R disabled] { label: 'Results', href: '/dashboard/results', icon: <ClipboardCheck size={18} />, roles: ['student'] },
   { label: 'Events & Fairs', href: '/dashboard/events', icon: <Calendar size={18} />, roles: ['student'] },

@@ -73,7 +73,9 @@ export default function ApplyProfilePage() {
     };
   }, [watch]);
 
-  const onSubmit = () => {
+  const onSubmit = async (data: ProfileForm) => {
+    // Leaving the page cancels the debounced auto-save, so save the latest values first
+    await saveDraft({ profile: data as unknown as Record<string, unknown>, payment: {}, currentStep: 1 });
     router.push('/apply/documents');
   };
 

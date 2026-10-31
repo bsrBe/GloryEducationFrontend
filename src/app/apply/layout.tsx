@@ -9,7 +9,8 @@ import { Logo } from '@/components/ui';
 const steps = [
   { label: 'Profile', href: '/apply/profile', step: 1 },
   { label: 'Documents', href: '/apply/documents', step: 2 },
-  { label: 'Payment', href: '/apply/payment', step: 3 },
+  // [Payment disabled] { label: 'Payment', href: '/apply/payment', step: 3 },
+  { label: 'Submit', href: '/apply/submit', step: 3 },
   { label: 'Review', href: '/apply/review', step: 4 },
 ];
 

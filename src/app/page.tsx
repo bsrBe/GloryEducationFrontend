@@ -10,7 +10,7 @@ import {
   ArrowRight,
   Sparkles,
   Globe2,
-  ShieldCheck,
+  // ShieldCheck, // [Payment disabled]
   Zap,
   Users,
   Compass,
@@ -40,7 +40,8 @@ export default function LandingPage() {
               </Link>
               <Link href="/apply/profile">
                 <Button variant="accent" size="sm" className="shadow-md font-bold">
-                  Register — 500 ETB
+                  {/* [Payment disabled] was: Register — 500 ETB */}
+                  Register
                 </Button>
               </Link>
             </div>
@@ -64,9 +65,11 @@ export default function LandingPage() {
             <span className="text-xs font-bold text-carbon">
               Admissions Fair 2026 Registration Open
             </span>
+            {/* [Payment disabled] 500 ETB Pass label
             <span className="text-xs text-ocean font-bold flex items-center gap-0.5">
               500 ETB Pass <ArrowRight size={12} />
             </span>
+            */}
           </div>
 
           {/* Hero Headline */}
@@ -107,9 +110,11 @@ export default function LandingPage() {
             <span className="inline-flex items-center gap-2 bg-white/80 border border-charcoal/15 px-3.5 py-1.5 rounded-xl shadow-xs">
               <Check size={16} className="text-ocean stroke-[3]" /> University Matching
             </span>
+            {/* [Payment disabled] Telebirr & Bank Accepted badge
             <span className="inline-flex items-center gap-2 bg-white/80 border border-charcoal/15 px-3.5 py-1.5 rounded-xl shadow-xs">
               <Check size={16} className="text-ocean stroke-[3]" /> Telebirr & Bank Accepted
             </span>
+            */}
             <span className="inline-flex items-center gap-2 bg-white/80 border border-charcoal/15 px-3.5 py-1.5 rounded-xl shadow-xs">
               <Check size={16} className="text-ocean stroke-[3]" /> Live Breakout Tracks
             </span>
@@ -255,7 +260,7 @@ export default function LandingPage() {
               Your Journey to Global Admissions
             </h2>
             <p className="text-sm sm:text-base text-dim-grey mt-2">
-              From online registration to direct representative meetings in 6 simple steps.
+              From online registration to direct representative meetings in 5 simple steps.
             </p>
           </div>
 
@@ -269,31 +274,32 @@ export default function LandingPage() {
               },
               {
                 step: '02',
-                title: '500 ETB Pass Payment',
-                desc: 'Pay securely via Telebirr or direct Commercial Bank of Ethiopia transfer with receipt verification.',
-                icon: <ShieldCheck size={20} className="text-gold-dark" />,
-              },
-              {
-                step: '03',
                 title: 'Profile & Credentials',
                 desc: 'Enter your GPA, high school/university transcripts, English test status, and target majors.',
-                icon: <FileCheck2 size={20} className="text-ocean" />,
+                icon: <FileCheck2 size={20} className="text-gold-dark" />,
+              },
+              // [Payment disabled] Pass Payment step
+              // {
+              //   step: '03',
+              //   title: 'Pass Payment',
+              //   desc: 'Pay securely via Telebirr or direct Commercial Bank of Ethiopia transfer with receipt verification.',
+              //   icon: <ShieldCheck size={20} className="text-ocean" />,
+              // },
+              {
+                step: '03',
+                title: 'Expert Assessment',
+                desc: 'Glory evaluators review your file using the 100-point admissions scoring matrix.',
+                icon: <Zap size={20} className="text-ocean" />,
               },
               {
                 step: '04',
-                title: 'Expert Assessment',
-                desc: 'Glory evaluators review your file using the 100-point admissions scoring matrix.',
-                icon: <Zap size={20} className="text-gold-dark" />,
-              },
-              {
-                step: '05',
                 title: 'Get Matched',
                 // [G/Y/R disabled] was: 'Receive official Green, Yellow, or Red match status along with institutional recommendations.'
                 desc: 'Receive your primary and secondary university matches along with institutional recommendations.',
-                icon: <Compass size={20} className="text-ocean" />,
+                icon: <Compass size={20} className="text-gold-dark" />,
               },
               {
-                step: '06',
+                step: '05',
                 title: 'Attend Live Fair',
                 desc: 'Join dedicated virtual Google Meet breakout rooms and meet university admissions officers.',
                 icon: <Globe2 size={20} className="text-green" />,
@@ -330,12 +336,14 @@ export default function LandingPage() {
             Ready to Discover Your University Matches?
           </h2>
           <p className="text-pale-sky text-sm sm:text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-            Register today for 500 ETB. Secure your evaluation spot, upload your documents, and attend the Fair.
+            {/* [Payment disabled] was: Register today for 500 ETB. */}
+            Register today. Secure your evaluation spot, upload your documents, and attend the Fair.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/apply/profile" className="w-full sm:w-auto">
               <Button variant="accent" size="lg" className="w-full sm:w-auto shadow-glow-gold text-base font-bold">
-                Register Now — 500 ETB <ArrowRight size={18} />
+                {/* [Payment disabled] was: Register Now — 500 ETB */}
+                Register Now <ArrowRight size={18} />
               </Button>
             </Link>
             <Link href="/login" className="w-full sm:w-auto">
