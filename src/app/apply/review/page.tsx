@@ -64,19 +64,19 @@ export default function ApplyReviewPage() {
           </div>
           <div>
             <p className="text-dim-grey">Education</p>
-            <p className="font-medium text-carbon capitalize">{profile.educationLevel?.replace('_', ' ') || '—'}</p>
+            <p className="font-medium text-carbon capitalize">{profile.educationLevel?.replace('_', ' ') || 'Not provided'}</p>
           </div>
           <div>
             <p className="text-dim-grey">GPA</p>
-            <p className="font-medium text-carbon">{profile.gpa || '—'}</p>
+            <p className="font-medium text-carbon">{profile.gpa || 'Not provided'}</p>
           </div>
           <div>
             <p className="text-dim-grey">Program</p>
-            <p className="font-medium text-carbon">{profile.programInterest || '—'}</p>
+            <p className="font-medium text-carbon">{profile.programInterest || 'Not provided'}</p>
           </div>
           <div>
             <p className="text-dim-grey">Country</p>
-            <p className="font-medium text-carbon capitalize">{profile.countryPreference || '—'}</p>
+            <p className="font-medium text-carbon capitalize">{profile.countryPreference || 'Not provided'}</p>
           </div>
           <div>
             <p className="text-dim-grey">English</p>
@@ -84,7 +84,7 @@ export default function ApplyReviewPage() {
           </div>
           <div>
             <p className="text-dim-grey">Budget</p>
-            <p className="font-medium text-carbon capitalize">{profile.financialBudget?.replace('_', ' ') || '—'}</p>
+            <p className="font-medium text-carbon capitalize">{profile.financialBudget?.replace('_', ' ') || 'Not provided'}</p>
           </div>
         </div>
       </Card>

@@ -106,7 +106,7 @@ export default function DocumentsPage() {
       <div>
         <h1 className="text-2xl font-bold text-carbon">Documents</h1>
         <p className="text-dim-grey text-sm mt-1">
-          Upload your academic documents (combined PDF recommended — max 10MB)
+          Upload your academic documents (combined PDF recommended, max 10MB)
         </p>
       </div>
 

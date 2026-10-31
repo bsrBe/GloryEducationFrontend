@@ -36,10 +36,10 @@ const navItems: NavItem[] = [
   // [Payment disabled] { label: 'Payments', href: '/dashboard/payments', icon: <CreditCard size={18} />, roles: ['student'] },
   { label: 'Documents', href: '/dashboard/documents', icon: <FileText size={18} />, roles: ['student'] },
   // [G/Y/R disabled] { label: 'Results', href: '/dashboard/results', icon: <ClipboardCheck size={18} />, roles: ['student'] },
-  { label: 'Events & Fairs', href: '/dashboard/events', icon: <Calendar size={18} />, roles: ['student'] },
+  { label: 'Webinars', href: '/dashboard/events', icon: <Calendar size={18} />, roles: ['student'] },
   { label: 'Messages', href: '/dashboard/messages', icon: <MessageSquare size={18} />, roles: ['student'] },
 
-  // Glory Staff & Admin
+  // Staff & Admin
   { label: 'Analytics', href: '/admin/analytics', icon: <BarChart3 size={18} />, roles: ['admin', 'glory_staff'] },
   { label: 'Students Queue', href: '/admin/students', icon: <GraduationCap size={18} />, roles: ['admin', 'glory_staff'] },
   { label: 'Universities', href: '/admin/universities', icon: <Target size={18} />, roles: ['admin', 'glory_staff'] },
@@ -73,7 +73,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
           <Logo
             href="/dashboard"
             size="sm"
-            subtitle="Admissions Fair"
+            subtitle="Education"
             inverted
             priority
           />

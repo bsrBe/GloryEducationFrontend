@@ -68,7 +68,7 @@ export default function AnalyticsPage() {
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const a = document.createElement('a');
       a.href = url;
-      a.download = `glory-students-export-${new Date().toISOString().split('T')[0]}.csv`;
+      a.download = `veridan-students-export-${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch {
@@ -107,7 +107,6 @@ export default function AnalyticsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="blue" dot>Live Telemetry</Badge>
-            <span className="text-xs text-dim-grey">Fair Date: Sept 15, 2026</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-carbon tracking-tight">
             Admissions Analytics & CRM

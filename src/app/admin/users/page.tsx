@@ -101,7 +101,7 @@ export default function UsersPage() {
       case 'admin':
         return <Badge variant="red">Admin</Badge>;
       case 'glory_staff':
-        return <Badge variant="blue">Glory Staff</Badge>;
+        return <Badge variant="blue">Veridan Staff</Badge>;
       case 'university_rep':
         return <Badge variant="yellow">University Rep</Badge>;
       default:
@@ -145,7 +145,7 @@ export default function UsersPage() {
                 options={[
                   { value: '', label: 'Select...' },
                   { value: 'admin', label: 'Admin' },
-                  { value: 'glory_staff', label: 'Glory Staff' },
+                  { value: 'glory_staff', label: 'Veridan Staff' },
                   { value: 'university_rep', label: 'University Rep' },
                 ]}
                 {...register('role', { required: true })}

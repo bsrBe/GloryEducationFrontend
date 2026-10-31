@@ -115,7 +115,7 @@ export default function ApplyDocumentsPage() {
             <>
               <Upload size={28} className="mx-auto text-dim-grey mb-2" />
               <p className="font-medium text-carbon text-sm">Click to upload</p>
-              <p className="text-xs text-dim-grey mt-1">PDF, JPEG, or PNG — max 10MB</p>
+              <p className="text-xs text-dim-grey mt-1">PDF, JPEG, or PNG, max 10MB</p>
             </>
           )}
         </div>

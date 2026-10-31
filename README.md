@@ -1,4 +1,4 @@
-# Glory Educational Consultancy — International Admissions Fair Frontend 🎓
+# Veridan Education frontend
 
 Production-ready web application built with **Next.js 16 (App Router)**, **React 19**, **Tailwind CSS v4**, **TypeScript**, **Zustand**, and **IndexedDB** for offline multi-step drafts.
 
@@ -103,9 +103,7 @@ CMD ["npm", "start"]
 ### 🧑‍🎓 Student Dashboard (`/dashboard`)
 - `/dashboard` — Overview & Progress Tracker
 - `/dashboard/profile` — Update Profile Details
-- `/dashboard/payments` — 500 ETB Pass verification history
 - `/dashboard/documents` — Cloud-stored academic credentials
-- `/dashboard/results` — Official Green / Yellow / Red admissions assessment
 - `/dashboard/events` — Assigned sessions, Google Meet links & QR check-in
 - `/dashboard/messages` — Direct inbox communication with staff
 
@@ -113,12 +111,12 @@ CMD ["npm", "start"]
 - `/admin/analytics` — KPI cards, conversion funnel & CSV export
 - `/admin/students` — 100-Point scoring engine, university matching & CRM pipeline
 - `/admin/universities` — Institution directory & degree program configuration
-- `/admin/events` — Fair scheduling & destination breakout tracks
+- `/admin/events` — Webinar scheduling & destination breakout tracks
 - `/admin/users` — Staff & Representative user management
 
 ### 🏛️ University Representative Portal (`/rep`)
 - `/rep/assigned` — Matched student roster
-- `/rep/portal` — Student academic evaluation & decision console (Green / Yellow / Red)
+- `/rep/portal` — View-only list of matched students
 
 ---
 

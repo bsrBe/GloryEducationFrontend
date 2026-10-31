@@ -102,7 +102,7 @@ export default function StudentDashboard() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-xs font-semibold text-gold mb-3">
               <Sparkles size={13} />
-              <span>International Admissions Fair 2026</span>
+              <span>Veridan Education webinars</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               Welcome back, {user?.firstName || data?.name?.split(' ')[0]}! 👋
@@ -127,7 +127,7 @@ export default function StudentDashboard() {
             </Link>
             <Link href="/dashboard/events">
               <Button variant="secondary" size="sm" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
-                Fair Sessions
+                Webinar sessions
               </Button>
             </Link>
           </div>
@@ -246,17 +246,17 @@ export default function StudentDashboard() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <Badge variant="blue" dot>Live Virtual Fair</Badge>
+                <Badge variant="blue" dot>Live webinar</Badge>
                 <Badge variant="yellow">Breakout Sessions</Badge>
               </div>
               <h3 className="text-base sm:text-lg font-bold text-carbon">
-                Glory International Admissions Fair 2026
+                Your next Veridan webinar
               </h3>
               <p className="text-xs sm:text-sm text-dim-grey mt-1">
-                September 15, 2026 • 2:00 PM - 5:00 PM (EAT)
+                Dates and room links appear on your webinars page.
               </p>
               <p className="text-xs text-dim-grey mt-2">
-                Join dedicated virtual tracks with university representatives from the US, UK, Canada, and Europe.
+                Join dedicated virtual tracks with university representatives.
               </p>
             </div>
           </div>

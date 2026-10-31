@@ -145,7 +145,7 @@ export default function ApplySubmitPage() {
       <div>
         <h1 className="text-2xl font-bold text-carbon">Submit Your Application</h1>
         <p className="text-dim-grey text-sm mt-1">
-          Your profile and documents are ready to send to the Glory team.
+          Your profile and documents are ready to send to the Veridan team.
         </p>
         {!user && (
           <div className="mt-2 bg-gold-light border border-gold/30 rounded-lg px-4 py-2 text-sm text-yellow-text">

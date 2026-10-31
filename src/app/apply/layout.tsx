@@ -91,7 +91,7 @@ export default function ApplyLayout({ children }: { children: React.ReactNode })
 
       {/* Footer */}
       <footer className="bg-ocean-dark py-4 text-center">
-        <p className="text-pale-sky text-xs">Glory Educational Consultancy © 2026</p>
+        <p className="text-pale-sky text-xs">Veridan Education © 2026</p>
       </footer>
     </div>
   );

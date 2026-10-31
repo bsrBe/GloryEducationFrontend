@@ -13,7 +13,7 @@ export default function AdminEmailPage() {
 
   const templates = [
     { value: 'application_reminder', label: '📢 Application Deadline Reminder' },
-    { value: 'event_reminder', label: '📅 Fair Event Schedule & Breakout Links' },
+    { value: 'event_reminder', label: '📅 Webinar Schedule & Breakout Links' },
     { value: 'match_ready', label: '🏛️ University Match Recommendations Ready' },
     // [Payment disabled] { value: 'payment_reminder', label: '💳 500 ETB Registration Fee Reminder' },
   ];
@@ -111,7 +111,7 @@ export default function AdminEmailPage() {
 
           <div className="bg-porcelain p-4 rounded-xl border border-charcoal/10 text-xs text-dim-grey space-y-1">
             <p className="font-semibold text-carbon">ℹ️ Campaign Safety Policy:</p>
-            <p>• Emails are queued and delivered via Glory Brevo Transactional Service.</p>
+            <p>• Emails are queued and delivered via Brevo.</p>
             <p>• Each recipient receives a customized message with their personal Student ID and name.</p>
           </div>
 
