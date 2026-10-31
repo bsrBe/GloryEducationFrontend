@@ -120,7 +120,8 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Quick Demo Fill Buttons */}
+          {/* Quick Demo Fill Buttons: seed credentials, so never shipped to production */}
+          {process.env.NODE_ENV === 'development' && (
           <div className="mt-6 pt-5 border-t border-charcoal/15">
             <div className="flex items-center gap-1.5 justify-center text-xs font-bold text-dim-grey mb-3">
               <KeyRound size={13} className="text-gold-dark" />
@@ -161,6 +162,7 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
+          )}
 
           <p className="text-center text-xs text-dim-grey mt-6">
             Don&apos;t have an account?{' '}
