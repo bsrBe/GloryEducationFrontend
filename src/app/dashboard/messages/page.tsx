@@ -59,7 +59,7 @@ export default function MessagesPage() {
             _id: m._id,
             subject: m.subject || '(No Subject)',
             content: m.content || m.body || '',
-            senderName: m.senderName || (typeof m.sender === 'object' ? `${m.sender?.firstName || ''} ${m.sender?.lastName || ''}`.trim() : 'Glory Staff'),
+            senderName: m.senderName || (typeof m.sender === 'object' ? `${m.sender?.firstName || ''} ${m.sender?.lastName || ''}`.trim() : 'Veridan Staff'),
             senderModel: m.senderModel || 'User',
             recipientName: m.recipientName || '',
             read: m.read !== undefined ? m.read : m.isRead || false,

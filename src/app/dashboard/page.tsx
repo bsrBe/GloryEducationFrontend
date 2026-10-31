@@ -282,7 +282,7 @@ export default function StudentDashboard() {
             </div>
             <h4 className="font-bold text-sm text-carbon mb-1">Need Consultation?</h4>
             <p className="text-xs text-dim-grey leading-relaxed">
-              Message your assigned advisor directly through our internal messaging inbox for help with documents or scoring.
+              Message your assigned advisor directly through our internal messaging inbox for help with documents or applications.
             </p>
           </div>
           <Link href="/dashboard/messages" className="mt-5">
