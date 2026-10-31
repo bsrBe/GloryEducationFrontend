@@ -17,6 +17,10 @@ export const metadata: Metadata = {
   description:
     'Veridan Education connects African students with universities abroad through live webinars. Registration is open to every student.',
   icons: {
+    icon: [
+      { url: '/brand/favicon.svg', type: 'image/svg+xml' },
+      { url: '/brand/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
     apple: [{ url: '/brand/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },
 };

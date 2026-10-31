@@ -26,10 +26,10 @@ Red Hat Display for headings, Red Hat Text for everything else. Sentence case. N
 
 ## Logo
 
-- `public/brand/veridan-mark.png`: the V, used through `src/components/ui/Logo.tsx`
-- `public/brand/veridan-logo.png`: the full lockup
+- `public/brand/veridan-mark.svg`: the V, used through `src/components/ui/Logo.tsx`. Clean vector with a transparent background, drawn to match the supplied logo.
+- `public/brand/veridan-logo.png`: the full lockup, raster only. The supplied `Logo.svg` is an auto-trace with wrong colors and rough edges, so don't use it.
 
-Both have white backgrounds, so on dark surfaces they sit on a white plate. Replace them with a vector version when one is available.
+The navy mark disappears on dark surfaces, so there it sits on a white plate.
 
 ## Dark mode
 

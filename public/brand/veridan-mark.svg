@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 555 360" role="img" aria-label="Veridan Education">
+  <defs>
+    <linearGradient id="v-fold" x1="170" y1="150" x2="300" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#002c60"/>
+      <stop offset="0.55" stop-color="#003672"/>
+    </linearGradient>
+    <linearGradient id="v-wing" x1="290" y1="150" x2="350" y2="250" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#003168"/>
+      <stop offset="1" stop-color="#00285a"/>
+    </linearGradient>
+    <linearGradient id="v-gold" x1="310" y1="120" x2="520" y2="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ad7f2a"/>
+      <stop offset="0.6" stop-color="#dea843"/>
+      <stop offset="1" stop-color="#e8b14a"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#v-fold)" d="M8 63H131Q142 63 149 72L308 263Q313 270 308 277L248 345Q236 358 224 347Q221 344 218 340Z"/>
+  <path fill="#002c60" d="M8 63H131Q142 63 149 72L170 97L172 165L247 346Q236 358 224 347Q221 344 218 340Z"/>
+  <path fill="url(#v-wing)" d="M263 184Q260 180 263 176L281 155Q288 147 298 145L457 103L331 255Q326 261 320 255Z"/>
+  <path fill="url(#v-gold)" d="M306 121L358 60Q364 53 373 51L546 10L492 69Q484 78 473 81Z"/>
+</svg>

@@ -19,7 +19,7 @@ const sizeMap = {
   xl: { icon: 80, text: 'text-2xl sm:text-3xl', sub: 'text-sm' },
 };
 
-// The mark is a PNG with a white background, so on dark surfaces it sits on a white plate.
+// The mark is navy and gold, so on dark surfaces it sits on a white plate.
 const MARK_RATIO = 555 / 360;
 
 export function Logo({
@@ -44,11 +44,12 @@ export function Logo({
         style={{ height: pixelSize, width: Math.round(pixelSize * MARK_RATIO) }}
       >
         <Image
-          src="/brand/veridan-mark.png"
+          src="/brand/veridan-mark.svg"
           alt="Veridan Education"
           width={555}
           height={360}
           priority={priority}
+          unoptimized
           className="w-full h-full object-contain"
         />
       </div>
