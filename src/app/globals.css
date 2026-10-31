@@ -19,6 +19,11 @@
   --brand-gold-light: #fbf1db;
   --brand-gold-subtle: #fdf8ec;
 
+  /* Fixed navy band: stays navy in dark mode, so its text color is fixed too */
+  --brand-navy: #002b5f;
+  --brand-on-navy: #ffffff;
+  --brand-on-navy-muted: #cbd7e6;
+
   /* Surfaces and text */
   --brand-ink: #0e1b33;
   --brand-heading: #002b5f;
@@ -105,6 +110,10 @@
   --color-gold-dark: var(--brand-gold-dark);
   --color-gold-light: var(--brand-gold-light);
   --color-gold-subtle: var(--brand-gold-subtle);
+
+  --color-navy: var(--brand-navy);
+  --color-on-navy: var(--brand-on-navy);
+  --color-on-navy-muted: var(--brand-on-navy-muted);
 
   --color-carbon: var(--brand-ink);
   --color-black: var(--brand-heading);
@@ -196,19 +205,10 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes globeFloatSpin {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
 .animate-float { animation: float 4s ease-in-out infinite; }
 .animate-float-slow { animation: float 6s ease-in-out infinite; }
 .animate-pulse-glow { animation: pulseGlow 2.5s ease-in-out infinite; }
 .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.animate-globe {
-  display: inline-block;
-  animation: globeFloatSpin 5s ease-in-out infinite;
-}
 
 /* ============================================
    COMPONENTS
@@ -354,6 +354,54 @@ body {
     background: var(--brand-ocean);
     border-radius: 9999px;
     transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+/* ============================================
+   LANDING HERO
+   Desktop: photo cut on the diagonal of the logo's V, with a gold blade.
+   Below lg: straight photo with a short gold bar, so it never crops awkwardly.
+   ============================================ */
+
+.hero-photo-frame {
+  position: relative;
+}
+
+.hero-photo-frame::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 24px;
+  width: 96px;
+  height: 6px;
+  background: var(--brand-gold);
+}
+
+.hero-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 72% 30%;
+}
+
+@media (min-width: 1024px) {
+  .hero-photo-frame {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 52%;
+  }
+
+  .hero-photo-frame::before {
+    inset: 0;
+    width: auto;
+    height: auto;
+    clip-path: polygon(24% 0, calc(24% + 12px) 0, 12px 100%, 0 100%);
+  }
+
+  .hero-photo {
+    object-position: 92% 30%;
+    clip-path: polygon(calc(24% + 12px) 0, 100% 0, 100% 100%, 12px 100%);
   }
 }
 

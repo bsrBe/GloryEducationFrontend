@@ -22,9 +22,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={id}
           className={clsx(
-            'w-full bg-white border border-charcoal rounded-lg px-4 py-3 text-sm text-carbon outline-none transition-colors duration-200',
+            'w-full bg-surface border border-charcoal rounded-lg px-4 py-3 text-sm text-carbon outline-none transition-colors duration-200',
             'placeholder:text-dim-grey',
-            'focus:border-ocean focus:shadow-[0_0_0_3px_rgba(62,143,210,0.1)]',
+            'focus:border-ocean focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--focus-ring)_25%,transparent)]',
             error && 'border-red',
             className
           )}
