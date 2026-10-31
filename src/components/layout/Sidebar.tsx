@@ -63,7 +63,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
   return (
     <aside
       className={clsx(
-        'h-screen bg-gradient-to-b from-[#1e1e1d] via-carbon to-[#111110] text-white flex flex-col transition-all duration-300 fixed left-0 top-0 z-40 border-r border-charcoal/30 shadow-xl',
+        'h-screen bg-ocean-dark text-white flex flex-col transition-all duration-300 fixed left-0 top-0 z-40 border-r border-charcoal/30 shadow-xl',
         collapsed ? 'w-16' : 'w-64'
       )}
     >
@@ -90,7 +90,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
         )}
         <button
           onClick={onToggle}
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-dim-grey hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+          className="w-7 h-7 rounded-lg flex items-center justify-center text-pale-sky hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           <ChevronLeft
@@ -113,22 +113,22 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
               className={clsx(
                 'flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-200 group relative',
                 isActive
-                  ? 'bg-gradient-to-r from-ocean to-ocean-dark text-white font-semibold shadow-glow-ocean'
-                  : 'text-dim-grey hover:text-white hover:bg-white/5 hover:translate-x-0.5'
+                  ? 'bg-white/15 text-white font-semibold'
+                  : 'text-pale-sky hover:text-white hover:bg-white/5'
               )}
               title={collapsed ? item.label : undefined}
             >
               <span
                 className={clsx(
                   'flex-shrink-0 transition-colors',
-                  isActive ? 'text-white' : 'text-dim-grey group-hover:text-ocean'
+                  isActive ? 'text-white' : 'text-pale-sky group-hover:text-gold'
                 )}
               >
                 {item.icon}
               </span>
               {!collapsed && <span className="truncate">{item.label}</span>}
               {isActive && !collapsed && (
-                <span className="w-1.5 h-1.5 rounded-full bg-gold ml-auto shrink-0 shadow-[0_0_8px_#f9bf31]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-gold ml-auto shrink-0" />
               )}
             </Link>
           );
@@ -139,7 +139,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
       <div className="border-t border-charcoal/30 p-3 bg-black/25">
         {!collapsed && user && (
           <div className="flex items-center gap-3 px-2 py-2 mb-2 rounded-xl bg-white/5 border border-white/5">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-ocean to-ocean-dark flex items-center justify-center text-white text-xs font-bold ring-2 ring-gold/40 shrink-0">
+            <div className="w-8 h-8 rounded-full bg-ocean flex items-center justify-center text-white text-xs font-bold ring-2 ring-gold/40 shrink-0">
               {user.firstName?.[0]}
               {user.lastName?.[0]}
             </div>
@@ -155,7 +155,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
         )}
         <button
           onClick={logout}
-          className="flex items-center gap-3 px-3.5 py-2 w-full rounded-xl text-xs font-medium text-dim-grey hover:text-red hover:bg-red/10 transition-all duration-200 cursor-pointer"
+          className="flex items-center gap-3 px-3.5 py-2 w-full rounded-xl text-xs font-medium text-pale-sky hover:text-white hover:bg-white/10 transition-all duration-200 cursor-pointer"
           title="Logout"
         >
           <LogOut size={16} />

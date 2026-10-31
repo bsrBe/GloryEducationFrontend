@@ -1,39 +1,29 @@
 import type { Metadata } from 'next';
-import { Inter, Poppins } from 'next/font/google';
+import { Red_Hat_Display, Red_Hat_Text } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({
-  variable: '--font-inter',
+const redHatText = Red_Hat_Text({
+  variable: '--font-red-hat-text',
   subsets: ['latin'],
 });
 
-const poppins = Poppins({
-  variable: '--font-poppins',
+const redHatDisplay = Red_Hat_Display({
+  variable: '--font-red-hat-display',
   subsets: ['latin'],
-  weight: ['600', '700'],
 });
 
 export const metadata: Metadata = {
-  title: 'Glory International Admissions Fair',
-  description: 'Find out where your academic profile can realistically take you',
+  title: 'Veridan Education | Meet universities abroad, live online',
+  description:
+    'Veridan Education connects African students with universities abroad through live webinars. Registration is open to every student.',
   icons: {
-    icon: [
-      { url: '/IMG_1746.png', sizes: '32x32', type: 'image/png' },
-      { url: '/IMG_1746.png', sizes: '48x48', type: 'image/png' },
-      { url: '/IMG_1746.png', sizes: '96x96', type: 'image/png' },
-      { url: '/IMG_1746.png', sizes: '192x192', type: 'image/png' },
-      { url: '/IMG_1746.png', sizes: '512x512', type: 'image/png' },
-    ],
-    apple: [
-      { url: '/IMG_1746.png', sizes: '180x180', type: 'image/png' },
-    ],
-    shortcut: '/IMG_1746.png',
+    apple: [{ url: '/brand/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${redHatText.variable} ${redHatDisplay.variable}`} suppressHydrationWarning>
       <body className="min-h-screen bg-porcelain text-carbon antialiased">
         {children}
       </body>

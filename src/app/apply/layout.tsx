@@ -90,8 +90,8 @@ export default function ApplyLayout({ children }: { children: React.ReactNode })
       </main>
 
       {/* Footer */}
-      <footer className="bg-carbon py-4 text-center">
-        <p className="text-dim-grey text-xs">Glory Educational Consultancy © 2026</p>
+      <footer className="bg-ocean-dark py-4 text-center">
+        <p className="text-pale-sky text-xs">Glory Educational Consultancy © 2026</p>
       </footer>
     </div>
   );

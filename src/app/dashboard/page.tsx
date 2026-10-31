@@ -96,9 +96,7 @@ export default function StudentDashboard() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Welcome Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-carbon via-[#242422] to-carbon text-white p-6 sm:p-8 border border-charcoal/30 shadow-lg">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-ocean/15 blur-3xl rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 right-1/3 w-64 h-64 bg-gold/10 blur-3xl rounded-full pointer-events-none" />
+      <div className="relative overflow-hidden rounded-3xl bg-ocean-dark text-white p-6 sm:p-8 border border-charcoal/30 shadow-lg">
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -109,7 +107,7 @@ export default function StudentDashboard() {
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               Welcome back, {user?.firstName || data?.name?.split(' ')[0]}! 👋
             </h1>
-            <p className="text-xs sm:text-sm text-dim-grey/90 mt-1 flex flex-wrap items-center gap-2 sm:gap-4">
+            <p className="text-xs sm:text-sm text-pale-sky mt-1 flex flex-wrap items-center gap-2 sm:gap-4">
               <span>
                 Student ID:{' '}
                 <span className="font-mono font-bold text-gold bg-gold/10 px-2 py-0.5 rounded-md border border-gold/20">
@@ -275,7 +273,7 @@ export default function StudentDashboard() {
           </div>
         </Card>
 
-        <Card className="p-6 flex flex-col justify-between bg-gradient-to-br from-white to-pale-sky/20">
+        <Card className="p-6 flex flex-col justify-between">
           <div>
             <div className="w-10 h-10 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold-dark mb-4">
               <AlertCircle size={20} />

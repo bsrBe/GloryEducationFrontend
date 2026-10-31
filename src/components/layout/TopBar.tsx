@@ -43,7 +43,7 @@ export function TopBar({ onMenuToggle }: { onMenuToggle?: () => void }) {
         <div className="h-6 w-px bg-charcoal/20 hidden sm:block" />
 
         <div className="flex items-center gap-3 pl-1">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-ocean to-ocean-dark flex items-center justify-center text-white text-xs font-bold shadow-sm ring-2 ring-ocean/20">
+          <div className="w-9 h-9 rounded-xl bg-ocean flex items-center justify-center text-white text-xs font-bold shadow-sm ring-2 ring-ocean/20">
             {user?.firstName?.[0]}
             {user?.lastName?.[0]}
           </div>
