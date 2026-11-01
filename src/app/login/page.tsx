@@ -194,6 +194,11 @@ export default function LoginPage() {
               Register now
             </Link>
           </p>
+          <p className="text-center text-xs text-dim-grey mt-3">
+            By continuing you agree to our{' '}
+            <Link href="/terms" className="text-ocean underline">Terms of Service</Link> and{' '}
+            <Link href="/privacy" className="text-ocean underline">Privacy Policy</Link>.
+          </p>
         </Card>
       </div>
     </div>

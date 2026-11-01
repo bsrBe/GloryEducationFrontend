@@ -215,6 +215,8 @@ export default function LandingPage() {
             <a href="#destinations" className="hover:text-on-navy">Destinations</a>
             <a href="#register" className="hover:text-on-navy">Register</a>
             <Link href="/login" className="hover:text-on-navy">Student portal</Link>
+            <Link href="/privacy" className="hover:text-on-navy">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-on-navy">Terms of Service</Link>
           </nav>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-8 flex flex-col sm:flex-row justify-between gap-2 text-sm text-on-navy-muted">

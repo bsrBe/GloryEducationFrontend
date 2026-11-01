@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { getDraft, syncToBackend, clearDraft, clearDocuments } from '@/lib/draftStorage';
 import { useAuthStore } from '@/stores/authStore';
 import { studentsAPI } from '@/lib/api';
@@ -240,6 +241,14 @@ export default function ApplySubmitPage() {
                 <><LogIn size={16} /> Login & Submit</>
               )}
             </Button>
+
+            {authMode === 'register' && (
+              <p className="text-center text-xs text-dim-grey">
+                By creating an account you agree to our{' '}
+                <Link href="/terms" target="_blank" className="text-ocean underline">Terms of Service</Link> and{' '}
+                <Link href="/privacy" target="_blank" className="text-ocean underline">Privacy Policy</Link>.
+              </p>
+            )}
 
             <p className="text-center text-sm text-dim-grey">
               {authMode === 'register' ? (
