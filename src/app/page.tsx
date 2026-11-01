@@ -74,9 +74,9 @@ export default function LandingPage() {
                 Register in advance. Every student can join.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row lg:flex-col xl:flex-row sm:items-center lg:items-stretch xl:items-center gap-4">
-                <a href="#register" className="btn-accent px-7 py-3.5 text-base font-semibold">
-                  Register for the next webinar
-                </a>
+                <Link href="/apply/profile" className="btn-accent px-7 py-3.5 text-base font-semibold">
+                  Start your application
+                </Link>
                 <a href="#how-it-works" className="btn-secondary px-7 py-3.5 text-base">
                   See how it works
                 </a>
