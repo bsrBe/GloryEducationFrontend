@@ -406,6 +406,21 @@ body {
   }
 }
 
+/* Application step band: a short gold blade, cut from the logo's wing */
+@media (min-width: 1024px) {
+  .apply-band::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 160px;
+    background: var(--brand-gold);
+    clip-path: polygon(70% 0, 76% 0, 34% 100%, 28% 100%);
+    pointer-events: none;
+  }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--brand-paper); }

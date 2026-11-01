@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { getDraft, syncToBackend, clearDraft, clearDocuments } from '@/lib/draftStorage';
 import { useAuthStore } from '@/stores/authStore';
 import { studentsAPI } from '@/lib/api';
-import { Card, Button, GoogleButton } from '@/components/ui';
+import { Button, GoogleButton } from '@/components/ui';
+import { ApplyHeading, ApplySection } from '@/components/apply/ApplyParts';
 import { ArrowRight, ArrowLeft, LogIn, UserPlus, CheckCircle } from 'lucide-react';
 
 // Final wizard step: creates the account (or logs in) and sends the saved draft to the backend.
@@ -156,13 +157,13 @@ export default function ApplySubmitPage() {
         <div className="w-16 h-16 bg-green-bg rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle size={32} className="text-green" />
         </div>
-        <h1 className="text-2xl font-bold text-carbon mb-2">Application Submitted! 🎉</h1>
+        <h1 className="font-display font-bold text-3xl text-black tracking-tight mb-2">Application Submitted!</h1>
         <p className="text-dim-grey mb-6">
           Your registration is complete. We&apos;ll review your profile.
           {needsEmailConfirmation && ' Please check your email and click the link to confirm your address.'}
         </p>
         <div className="space-y-3">
-          <Button onClick={() => router.push('/dashboard')}>Go to Dashboard</Button>
+          <Button variant="accent" onClick={() => router.push('/dashboard')}>Go to Dashboard</Button>
           <Button variant="ghost" onClick={() => router.push('/')}>Back to Home</Button>
         </div>
       </div>
@@ -170,27 +171,18 @@ export default function ApplySubmitPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-carbon">Submit Your Application</h1>
-        <p className="text-dim-grey text-sm mt-1">
-          Your profile and documents are ready to send to the Veridan team.
-        </p>
-        {!user && (
-          <div className="mt-2 bg-gold-light border border-gold/30 rounded-lg px-4 py-2 text-sm text-yellow-text">
-            ⚠️ You&apos;ll need to create an account or login to submit. Your progress is saved.
-          </div>
-        )}
-      </div>
+    <div className="space-y-8">
+      <ApplyHeading title="Submit Your Application">
+        <p>Your profile and documents are ready to send to the Veridan team.</p>
+      </ApplyHeading>
 
-      <Card className="border-ocean/20 bg-ocean-light/20">
-        <div className="flex items-start gap-3">
-          <CheckCircle size={20} className="text-ocean mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-dim-grey">
-            Click &quot;Submit&quot; to finish. You can still update your details later from your dashboard.
-          </p>
-        </div>
-      </Card>
+      <ApplySection title="Ready to send" hint="You can still update your details later from your dashboard.">
+        <p className="text-carbon leading-relaxed">
+          {user
+            ? 'Click submit to send your application.'
+            : "You'll create an account or sign in to finish. Your progress is saved on this device."}
+        </p>
+      </ApplySection>
 
       {/* Error */}
       {error && (
@@ -213,11 +205,11 @@ export default function ApplySubmitPage() {
       {showAuth && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowAuth(false)} />
-          <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
-            <h2 className="text-xl font-bold text-carbon text-center">
+          <div className="relative bg-surface rounded-[14px] shadow-xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <h2 className="font-display font-bold text-2xl text-black">
               {authMode === 'register' ? 'Create Account to Submit' : 'Login to Submit'}
             </h2>
-            <p className="text-xs text-dim-grey text-center -mt-2">
+            <p className="text-sm text-dim-grey -mt-2">
               Your profile and documents are saved. Just need an account to finish.
             </p>
 
@@ -234,14 +226,14 @@ export default function ApplySubmitPage() {
                   placeholder="First Name"
                   value={authFirstName}
                   onChange={(e) => setAuthFirstName(e.target.value)}
-                  className="w-full bg-white border border-charcoal rounded-lg px-4 py-3 text-sm"
+                  className="glory-input"
                 />
                 <input
                   type="text"
                   placeholder="Last Name"
                   value={authLastName}
                   onChange={(e) => setAuthLastName(e.target.value)}
-                  className="w-full bg-white border border-charcoal rounded-lg px-4 py-3 text-sm"
+                  className="glory-input"
                 />
               </div>
             )}
@@ -251,17 +243,17 @@ export default function ApplySubmitPage() {
               placeholder="Email"
               value={authEmail}
               onChange={(e) => setAuthEmail(e.target.value)}
-              className="w-full bg-white border border-charcoal rounded-lg px-4 py-3 text-sm"
+              className="glory-input"
             />
             <input
               type="password"
               placeholder="Password (min 6 chars)"
               value={authPassword}
               onChange={(e) => setAuthPassword(e.target.value)}
-              className="w-full bg-white border border-charcoal rounded-lg px-4 py-3 text-sm"
+              className="glory-input"
             />
 
-            <Button onClick={handleAuth} loading={authLoading} className="w-full">
+            <Button onClick={handleAuth} loading={authLoading} variant="accent" className="w-full">
               {authMode === 'register' ? (
                 <><UserPlus size={16} /> Create Account & Submit</>
               ) : (

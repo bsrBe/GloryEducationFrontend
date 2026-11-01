@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { authAPI } from '@/lib/api';
-import { Button, Input, Card, Logo } from '@/components/ui';
+import { Button, Input } from '@/components/ui';
+import { AuthShell } from '@/components/auth/AuthShell';
 import { Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface ResetPasswordForm {
@@ -69,18 +70,9 @@ function ResetPasswordForm() {
   };
 
   return (
-    <Card className="shadow-lg border-charcoal/15">
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-carbon">
-          Create New Password
-        </h1>
-        <p className="text-xs text-dim-grey mt-1">
-          Enter your new password below to complete the reset process
-        </p>
-      </div>
-
+    <>
       {message && (
-        <div className={`px-4 py-3 rounded-xl text-xs font-semibold mb-4 flex items-center gap-2 ${
+        <div className={`px-4 py-3 rounded-[10px] text-xs font-semibold mb-4 flex items-center gap-2 ${
           message.type === 'success' 
             ? 'bg-green-bg border border-green/30 text-green-text' 
             : 'bg-red-bg border border-red/30 text-red-text'
@@ -169,32 +161,16 @@ function ResetPasswordForm() {
           Sign in now
         </Link>
       </p>
-    </Card>
+    </>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen bg-porcelain flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
-      {/* Glow Orbs */}
-
-      <div className="w-full max-w-md">
-        {/* Brand Header */}
-        <div className="text-center mb-6">
-          <Logo href="/" size="lg" subtitle="Admissions Portal" priority />
-        </div>
-
-        <Suspense fallback={
-          <Card className="shadow-lg border-charcoal/15">
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean mx-auto"></div>
-              <p className="text-dim-grey mt-2">Loading...</p>
-            </div>
-          </Card>
-        }>
-          <ResetPasswordForm />
-        </Suspense>
-      </div>
-    </div>
+    <AuthShell title="Create a new password" intro="Enter your new password below to finish resetting it.">
+      <Suspense fallback={<p className="text-dim-grey">Loading...</p>}>
+        <ResetPasswordForm />
+      </Suspense>
+    </AuthShell>
   );
 }

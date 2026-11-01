@@ -20,7 +20,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           id={id}
           className={clsx(
-            'w-full bg-surface border border-charcoal rounded-lg px-4 py-3 pr-10 text-sm text-carbon outline-none appearance-none transition-colors duration-200',
+            'w-full bg-surface border border-[color:var(--btn-secondary-border)] rounded-[10px] px-4 py-3 pr-10 text-sm text-carbon outline-none appearance-none transition-colors duration-200',
             'select-chevron',
             'focus:border-ocean focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--focus-ring)_25%,transparent)]',
             error && 'border-red',

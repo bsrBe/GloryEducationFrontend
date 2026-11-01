@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveDocument, getDocuments, deleteDocument, saveDraft, getDraft } from '@/lib/draftStorage';
-import { Card, Button, Badge } from '@/components/ui';
+import { Button, Badge } from '@/components/ui';
+import { ApplyHeading, ApplySection } from '@/components/apply/ApplyParts';
 import { Upload, FileText, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
 
 export default function ApplyDocumentsPage() {
@@ -86,24 +87,22 @@ export default function ApplyDocumentsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-carbon">Upload Documents</h1>
-        <p className="text-dim-grey text-sm mt-1">
-          Upload your academic documents. Files are stored locally until you submit.
-        </p>
-      </div>
+    <div className="space-y-8">
+      <ApplyHeading title="Upload your documents">
+        <p>Add your transcripts and certificates. They stay on this device until you submit.</p>
+      </ApplyHeading>
 
       {error && (
-        <div className="bg-red-bg text-red-text px-4 py-3 rounded-xl text-sm border border-red/30">
-          ⚠️ {error}
+        <div className="bg-red-bg text-red-text px-4 py-3 rounded-[10px] text-sm border border-red/30">
+          {error}
         </div>
       )}
 
       {/* Upload Area */}
-      <Card>
-        <div
-          className="border-2 border-dashed border-charcoal/30 rounded-xl p-8 text-center hover:border-ocean transition-colors cursor-pointer"
+      <ApplySection title="Add a document" hint="PDF, JPEG or PNG, up to 10MB each.">
+        <button
+          type="button"
+          className="w-full bg-surface border-2 border-dashed border-[color:var(--btn-secondary-border)] rounded-[10px] p-8 text-center hover:border-ocean cursor-pointer"
           onClick={() => fileInputRef.current?.click()}
         >
           {uploading ? (
@@ -113,12 +112,11 @@ export default function ApplyDocumentsPage() {
             </div>
           ) : (
             <>
-              <Upload size={28} className="mx-auto text-dim-grey mb-2" />
-              <p className="font-medium text-carbon text-sm">Click to upload</p>
-              <p className="text-xs text-dim-grey mt-1">PDF, JPEG, or PNG, max 10MB</p>
+              <Upload size={28} className="mx-auto text-ocean mb-2" />
+              <p className="font-medium text-carbon">Choose a file to upload</p>
             </>
           )}
-        </div>
+        </button>
         <input
           ref={fileInputRef}
           type="file"
@@ -126,22 +124,19 @@ export default function ApplyDocumentsPage() {
           className="hidden"
           onChange={handleUpload}
         />
-      </Card>
+      </ApplySection>
 
       {/* Document List */}
-      <Card>
-        <h3 className="font-semibold text-carbon mb-3">
-          Your Documents ({documents.length})
-        </h3>
+      <ApplySection title={`Your documents (${documents.length})`}>
         {documents.length === 0 ? (
           <div className="text-center py-6 text-dim-grey">
             <FileText size={24} className="mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No documents uploaded yet</p>
+            <p className="text-sm">No documents added yet</p>
           </div>
         ) : (
           <div className="space-y-2">
             {documents.map((doc) => (
-              <div key={doc.id} className="flex items-center justify-between p-3 bg-porcelain rounded-lg">
+              <div key={doc.id} className="flex items-center justify-between p-3 bg-surface border border-line rounded-[10px]">
                 <div className="flex items-center gap-3">
                   <FileText size={18} className="text-ocean flex-shrink-0" />
                   <div className="min-w-0">
@@ -153,6 +148,7 @@ export default function ApplyDocumentsPage() {
                   <Badge variant="blue">Saved locally</Badge>
                   <button
                     onClick={() => handleDelete(doc.id)}
+                    aria-label={`Remove ${doc.fileName}`}
                     className="p-1.5 text-dim-grey hover:text-red transition-colors"
                   >
                     <Trash2 size={14} />
@@ -162,14 +158,14 @@ export default function ApplyDocumentsPage() {
             ))}
           </div>
         )}
-      </Card>
+      </ApplySection>
 
       {/* Navigation */}
       <div className="flex justify-between">
         <Button variant="secondary" onClick={() => router.push('/apply/profile')}>
           <ArrowLeft size={16} /> Back
         </Button>
-        <Button onClick={handleNext}>
+        <Button onClick={handleNext} variant="accent">
           Continue to Submit <ArrowRight size={16} />
         </Button>
       </div>
