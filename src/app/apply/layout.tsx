@@ -101,6 +101,10 @@ export default function ApplyLayout({ children }: { children: React.ReactNode })
       {/* Footer */}
       <footer className="bg-ocean-dark py-4 text-center">
         <p className="text-pale-sky text-xs">Veridan Education © 2026</p>
+        <p className="text-pale-sky text-xs mt-1 space-x-4">
+          <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
+          <Link href="/terms" className="hover:text-white">Terms of Service</Link>
+        </p>
       </footer>
     </div>
   );
