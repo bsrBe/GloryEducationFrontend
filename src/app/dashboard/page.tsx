@@ -118,11 +118,11 @@ export default function StudentDashboard() {
           <div className="text-sm text-carbon">
             <p className="font-semibold">Please confirm your email</p>
             <p className="text-dim-grey mt-0.5">
-              {resendMessage || `We sent a link to ${user?.email || data?.email}. Check your spam folder if you can't see it.`}
+              {resendMessage || `Use the link in the email we sent to ${user?.email || data?.email}. Can't find it? Check your spam folder or ask for a new one.`}
             </p>
           </div>
           <Button size="sm" variant="secondary" onClick={handleResend} loading={resending} className="shrink-0">
-            Resend email
+            Send a new link
           </Button>
         </div>
       )}
