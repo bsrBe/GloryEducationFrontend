@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { saveDraft, getDraft } from '@/lib/draftStorage';
 import { destinationOptions } from '@/lib/destinations';
-import { Button, Input, Select, Card } from '@/components/ui';
+import { Button, Input, Select } from '@/components/ui';
+import { ApplyHeading, ApplySection } from '@/components/apply/ApplyParts';
 import { ArrowRight } from 'lucide-react';
 
 interface ProfileForm {
@@ -83,67 +84,59 @@ export default function ApplyProfilePage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-carbon">Your Profile</h1>
-        <p className="text-dim-grey text-sm mt-1">
-          Tell us about your academic background. Your progress is saved automatically.
-        </p>
-        {saved && (
-          <p className="text-xs text-green mt-2">✅ Draft saved</p>
-        )}
-      </div>
+    <div className="space-y-8">
+      <ApplyHeading title="Your profile">
+        <p>Tell us about your academic background. Your progress is saved automatically.</p>
+        <p aria-live="polite" className="text-sm text-green-text mt-1 min-h-5">{saved && 'Draft saved'}</p>
+      </ApplyHeading>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
         {/* Personal Info */}
-        <Card className="mb-5">
-          <h3 className="font-semibold text-carbon mb-4">Personal Information</h3>
+        <ApplySection title="Personal information" hint="So we can contact you about webinars and your application.">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input label="First Name *" placeholder="Almaz" error={errors.firstName?.message}
+            <Input label="First name *" placeholder="Almaz" error={errors.firstName?.message}
               {...register('firstName', { required: 'Required' })} />
-            <Input label="Last Name *" placeholder="Tadesse" error={errors.lastName?.message}
+            <Input label="Last name *" placeholder="Tadesse" error={errors.lastName?.message}
               {...register('lastName', { required: 'Required' })} />
             <Input label="Email *" type="email" placeholder="you@email.com" error={errors.email?.message}
               {...register('email', { required: 'Required', pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' } })} />
             <Input label="Phone *" placeholder="+251911111111" error={errors.phone?.message}
               {...register('phone', { required: 'Required' })} />
             <Input label="Country you live in" placeholder="e.g. Kenya" {...register('country')} />
-            <Input label="Date of Birth" type="date" {...register('dateOfBirth')} />
+            <Input label="Date of birth" type="date" {...register('dateOfBirth')} />
             <Select label="Gender" options={[
               { value: '', label: 'Select...' },
               { value: 'male', label: 'Male' },
               { value: 'female', label: 'Female' },
             ]} {...register('gender')} />
           </div>
-        </Card>
+        </ApplySection>
 
         {/* Academic Info */}
-        <Card className="mb-5">
-          <h3 className="font-semibold text-carbon mb-4">Academic Information</h3>
+        <ApplySection title="Academic information" hint="Helps us find universities that suit you.">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Select label="Education Level" options={[
+            <Select label="Education level" options={[
               { value: '', label: 'Select...' },
               { value: 'High School', label: 'High School' },
               { value: 'Diploma', label: 'Diploma' },
               { value: "Bachelor's Degree", label: "Bachelor's Degree" },
               { value: "Master's Degree", label: "Master's Degree" },
             ]} {...register('educationLevel')} />
-            <Input label="Institution" placeholder="e.g. Addis Ababa University" {...register('institution')} />
+            <Input label="Institution" placeholder="Your school or university" {...register('institution')} />
             <Input label="GPA" type="number" step="0.01" min="0" max="4" placeholder="e.g. 3.5" {...register('gpa')} />
-            <Input label="Program of Interest" placeholder="e.g. Computer Science" {...register('programInterest')} />
-            <Select label="Country Preference" options={[
+            <Input label="Program of interest" placeholder="e.g. Computer Science" {...register('programInterest')} />
+            <Select label="Preferred destination" options={[
               { value: '', label: 'Select...' },
               ...destinationOptions,
               { value: 'other', label: 'Other' },
             ]} {...register('countryPreference')} />
           </div>
-        </Card>
+        </ApplySection>
 
         {/* English */}
-        <Card className="mb-5">
-          <h3 className="font-semibold text-carbon mb-4">English Proficiency</h3>
+        <ApplySection title="English" hint="Add a test score, or choose Medium of Instruction if your studies were in English.">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Select label="Test Type" options={[
+            <Select label="Test type" options={[
               { value: '', label: 'Select...' },
               { value: 'IELTS', label: 'IELTS' },
               { value: 'TOEFL', label: 'TOEFL' },
@@ -153,7 +146,7 @@ export default function ApplyProfilePage() {
             ]} {...register('englishProficiency')} />
             <Input label="Score" type="number" step="0.5" placeholder="e.g. 7.0" {...register('englishScore')} />
           </div>
-        </Card>
+        </ApplySection>
 
         {/* [Budget removed]
         <Card className="mb-5">
@@ -170,7 +163,7 @@ export default function ApplyProfilePage() {
         */}
 
         <div className="flex justify-end">
-          <Button type="submit">
+          <Button type="submit" variant="accent">
             Continue to Documents <ArrowRight size={16} />
           </Button>
         </div>

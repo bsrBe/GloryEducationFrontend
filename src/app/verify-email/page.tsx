@@ -4,7 +4,8 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { authAPI } from '@/lib/api';
-import { Card, Logo, LoadingSpinner } from '@/components/ui';
+import { LoadingSpinner } from '@/components/ui';
+import { AuthShell } from '@/components/auth/AuthShell';
 
 function VerifyEmail() {
   const token = useSearchParams().get('token');
@@ -29,30 +30,23 @@ function VerifyEmail() {
 
   return (
     <>
-      <h1 className="text-xl font-semibold text-carbon">
+      <h2 className="font-display font-semibold text-xl text-black">
         {state === 'done' ? 'Your email is confirmed' : 'We could not confirm your email'}
-      </h1>
-      <p className="text-dim-grey text-sm mt-2 mb-6">
+      </h2>
+      <p className="text-dim-grey mt-2 mb-6">
         {state === 'done' ? 'Thank you. You can continue with your application.' : message}
       </p>
-      <Link href="/dashboard" className="btn-primary">Go to your dashboard</Link>
+      <Link href="/dashboard" className="btn-accent">Go to your dashboard</Link>
     </>
   );
 }
 
 export default function VerifyEmailPage() {
   return (
-    <div className="min-h-screen bg-porcelain flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md text-center">
-        <div className="mb-6">
-          <Logo href="/" size="lg" subtitle="Education" />
-        </div>
-        <Card>
-          <Suspense fallback={<LoadingSpinner text="Confirming your email..." />}>
-            <VerifyEmail />
-          </Suspense>
-        </Card>
-      </div>
-    </div>
+    <AuthShell title="Confirm your email">
+      <Suspense fallback={<LoadingSpinner text="Confirming your email..." />}>
+        <VerifyEmail />
+      </Suspense>
+    </AuthShell>
   );
 }

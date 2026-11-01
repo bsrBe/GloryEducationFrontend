@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getDraft, getDocuments } from '@/lib/draftStorage';
 import { useAuthStore } from '@/stores/authStore';
-import { Card, Button, Badge } from '@/components/ui';
+import { Button, Badge } from '@/components/ui';
 import { ArrowLeft, ArrowRight, FileText, CheckCircle } from 'lucide-react';
 
 export default function ApplyReviewPage() {
@@ -35,9 +35,9 @@ export default function ApplyReviewPage() {
   if (!user) return null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-carbon">Review Your Application</h1>
+        <h1 className="font-display font-bold text-3xl sm:text-4xl text-black tracking-tight">Review your application</h1>
         <p className="text-dim-grey text-sm mt-1">
           Everything looks good? Click &quot;Submit&quot; to complete your registration.
         </p>
@@ -48,9 +48,9 @@ export default function ApplyReviewPage() {
       </div>
 
       {/* Profile Summary */}
-      <Card>
+      <section className="border-t-2 border-gold pt-5">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-carbon">Profile</h3>
+          <h2 className="font-display font-semibold text-xl text-black">Profile</h2>
           <Button variant="ghost" size="sm" onClick={() => router.push('/apply/profile')}>Edit</Button>
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm">
@@ -89,12 +89,12 @@ export default function ApplyReviewPage() {
           </div>
           */}
         </div>
-      </Card>
+      </section>
 
       {/* Documents */}
-      <Card>
+      <section className="border-t-2 border-gold pt-5">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-carbon">Documents ({docs.length})</h3>
+          <h2 className="font-display font-semibold text-xl text-black">Documents ({docs.length})</h2>
           <Button variant="ghost" size="sm" onClick={() => router.push('/apply/documents')}>Edit</Button>
         </div>
         {docs.length === 0 ? (
@@ -110,12 +110,12 @@ export default function ApplyReviewPage() {
             ))}
           </div>
         )}
-      </Card>
+      </section>
 
       {/* [Payment disabled] Payment card
-      <Card>
+      <section className="border-t-2 border-gold pt-5">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-carbon">Payment</h3>
+          <h2 className="font-display font-semibold text-xl text-black">Payment</h2>
           <Button variant="ghost" size="sm" onClick={() => router.push('/apply/payment')}>Edit</Button>
         </div>
         {payment.method ? (
@@ -136,7 +136,7 @@ export default function ApplyReviewPage() {
         ) : (
           <p className="text-sm text-dim-grey">No payment info</p>
         )}
-      </Card>
+      </section>
       */}
 
       {/* Navigation */}

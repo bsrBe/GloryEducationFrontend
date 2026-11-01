@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { useAuthStore } from '@/stores/authStore';
 import { authAPI } from '@/lib/api';
-import { Button, Input, Card, Logo, GoogleButton } from '@/components/ui';
+import { Button, Input, GoogleButton } from '@/components/ui';
+import { AuthShell } from '@/components/auth/AuthShell';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 interface LoginForm {
@@ -72,30 +73,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-porcelain flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
-      {/* Glow Orbs */}
-
-      <div className="w-full max-w-md">
-        {/* Brand Header */}
-        <div className="text-center mb-6">
-          <Logo href="/" size="lg" subtitle="Admissions Portal" priority />
-        </div>
-
-        <Card className="shadow-lg border-charcoal/15">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-carbon">
-              {showForgotPassword ? 'Reset Your Password' : 'Sign In to Your Portal'}
-            </h1>
-            <p className="text-xs text-dim-grey mt-1">
-              {showForgotPassword 
-                ? 'Enter your email address to receive a password reset link'
-                : 'Enter your registered email & password to access your account'
-              }
-            </p>
-          </div>
-
+    <AuthShell
+      title={showForgotPassword ? 'Reset your password' : 'Sign in to your portal'}
+      intro={showForgotPassword
+        ? 'Enter your email address and we will send you a reset link.'
+        : 'Enter your email and password to access your account.'}
+    >
           {error && !showForgotPassword && (
-            <div className="bg-red-bg border border-red/30 text-red-text px-4 py-3 rounded-xl text-xs font-semibold mb-4 flex items-center justify-between animate-fade-in">
+            <div className="bg-red-bg border border-red/30 text-red-text px-4 py-3 rounded-[10px] text-xs font-semibold mb-4 flex items-center justify-between animate-fade-in">
               <span>{error}</span>
               <button
                 onClick={clearError}
@@ -107,7 +92,7 @@ export default function LoginPage() {
           )}
 
           {forgotPasswordMessage && showForgotPassword && (
-            <div className="bg-ocean-light/20 border border-ocean/30 text-ocean px-4 py-3 rounded-xl text-xs font-semibold mb-4">
+            <div className="bg-ocean-light/20 border border-ocean/30 text-ocean px-4 py-3 rounded-[10px] text-xs font-semibold mb-4">
               {forgotPasswordMessage}
             </div>
           )}
@@ -115,7 +100,7 @@ export default function LoginPage() {
           {showForgotPassword ? (
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <Input
-                label="Email Address"
+                label="Email address"
                 type="email"
                 placeholder="example@email.com"
                 value={forgotPasswordEmail}
@@ -150,7 +135,7 @@ export default function LoginPage() {
               <GoogleButton onCredential={onGoogle} />
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <Input
-                label="Email Address"
+                label="Email address"
                 type="email"
                 placeholder="example@email.com"
                 error={errors.email?.message}
@@ -192,27 +177,25 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              <Button type="submit" loading={isLoading} className="w-full shadow-glow-ocean font-bold">
-                Sign In to Account
+              <Button type="submit" loading={isLoading} variant="accent" className="w-full">
+                Sign in
               </Button>
             </form>
             </div>
           )}
 
 
-          <p className="text-center text-xs text-dim-grey mt-6">
+          <p className="text-sm text-dim-grey mt-6">
             Don&apos;t have an account?{' '}
             <Link href="/apply/profile" className="text-ocean font-bold hover:underline">
               Register now
             </Link>
           </p>
-          <p className="text-center text-xs text-dim-grey mt-3">
+          <p className="text-xs text-dim-grey mt-3">
             By continuing you agree to our{' '}
             <Link href="/terms" className="text-ocean underline">Terms of Service</Link> and{' '}
             <Link href="/privacy" className="text-ocean underline">Privacy Policy</Link>.
           </p>
-        </Card>
-      </div>
-    </div>
+    </AuthShell>
   );
 }
