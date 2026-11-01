@@ -22,8 +22,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // A 401 from login means wrong credentials, not an expired session: let the caller show the error
-    const isLoginRequest = error.config?.url === '/auth/login';
+    // A 401 from signing in means bad credentials, not an expired session: let the caller show the error
+    const isLoginRequest = ['/auth/login', '/auth/google'].includes(error.config?.url);
     if (error.response?.status === 401 && !isLoginRequest && typeof window !== 'undefined') {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -43,6 +43,7 @@ export default api;
 export const authAPI = {
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data),
+  google: (data: { credential: string }) => api.post('/auth/google', data),
   registerStudent: (data: Record<string, unknown>) =>
     api.post('/auth/register', data),
   getProfile: () => api.get('/auth/profile'),

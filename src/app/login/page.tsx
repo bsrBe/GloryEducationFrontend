@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { useAuthStore } from '@/stores/authStore';
 import { authAPI } from '@/lib/api';
-import { Button, Input, Card, Logo } from '@/components/ui';
+import { Button, Input, Card, Logo, GoogleButton } from '@/components/ui';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 interface LoginForm {
@@ -15,7 +15,7 @@ interface LoginForm {
 }
 
 export default function LoginPage() {
-  const { login, isLoading, error, clearError } = useAuthStore();
+  const { login, loginWithGoogle, isLoading, error, clearError } = useAuthStore();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -28,6 +28,15 @@ export default function LoginPage() {
     setValue,
     formState: { errors },
   } = useForm<LoginForm>();
+
+  const onGoogle = async (credential: string) => {
+    try {
+      await loginWithGoogle(credential);
+      router.push('/dashboard');
+    } catch {
+      // Error handled by store
+    }
+  };
 
   const onSubmit = async (data: LoginForm) => {
     try {
@@ -137,6 +146,8 @@ export default function LoginPage() {
               </div>
             </form>
           ) : (
+            <div>
+              <GoogleButton onCredential={onGoogle} />
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <Input
                 label="Email Address"
@@ -185,12 +196,13 @@ export default function LoginPage() {
                 Sign In to Account
               </Button>
             </form>
+            </div>
           )}
 
 
           <p className="text-center text-xs text-dim-grey mt-6">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-ocean font-bold hover:underline">
+            <Link href="/apply/profile" className="text-ocean font-bold hover:underline">
               Register now
             </Link>
           </p>

@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation';
 import { getDraft, syncToBackend, clearDraft, clearDocuments } from '@/lib/draftStorage';
 import { useAuthStore } from '@/stores/authStore';
 import { studentsAPI } from '@/lib/api';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, GoogleButton } from '@/components/ui';
 import { ArrowRight, ArrowLeft, LogIn, UserPlus, CheckCircle } from 'lucide-react';
 
 // Final wizard step: creates the account (or logs in) and sends the saved draft to the backend.
 export default function ApplySubmitPage() {
   const router = useRouter();
-  const { user, login, register: registerUser, loadFromStorage } = useAuthStore();
+  const { user, login, loginWithGoogle, register: registerUser, loadFromStorage } = useAuthStore();
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register');
   const [authEmail, setAuthEmail] = useState('');
@@ -26,6 +26,13 @@ export default function ApplySubmitPage() {
 
   useEffect(() => {
     loadFromStorage();
+    // Students already typed these in the profile step
+    getDraft().then((draft) => {
+      const profile = (draft?.profile || {}) as Record<string, string>;
+      setAuthFirstName(profile.firstName || '');
+      setAuthLastName(profile.lastName || '');
+      setAuthEmail(profile.email || '');
+    });
   }, [loadFromStorage]);
 
   const syncAll = useCallback(async () => {
@@ -82,6 +89,21 @@ export default function ApplySubmitPage() {
       return;
     }
     syncAll();
+  };
+
+  const handleGoogle = async (credential: string) => {
+    setAuthError('');
+    try {
+      await loginWithGoogle(credential);
+    } catch (err: unknown) {
+      setAuthError(
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        'Google sign-in failed'
+      );
+      return;
+    }
+    setShowAuth(false);
+    await syncAll();
   };
 
   const handleAuth = async () => {
@@ -198,6 +220,8 @@ export default function ApplySubmitPage() {
             {authError && (
               <div className="bg-red-bg text-red-text px-3 py-2 rounded-lg text-sm">{authError}</div>
             )}
+
+            <GoogleButton onCredential={handleGoogle} />
 
             {authMode === 'register' && (
               <div className="grid grid-cols-2 gap-3">
