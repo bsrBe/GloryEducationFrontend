@@ -6,13 +6,13 @@ import Link from 'next/link';
 import { getDraft, syncToBackend, clearDraft, clearDocuments } from '@/lib/draftStorage';
 import { useAuthStore } from '@/stores/authStore';
 import { studentsAPI } from '@/lib/api';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, GoogleButton } from '@/components/ui';
 import { ArrowRight, ArrowLeft, LogIn, UserPlus, CheckCircle } from 'lucide-react';
 
 // Final wizard step: creates the account (or logs in) and sends the saved draft to the backend.
 export default function ApplySubmitPage() {
   const router = useRouter();
-  const { user, login, register: registerUser, loadFromStorage } = useAuthStore();
+  const { user, login, loginWithGoogle, register: registerUser, loadFromStorage } = useAuthStore();
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register');
   const [authEmail, setAuthEmail] = useState('');
@@ -23,10 +23,18 @@ export default function ApplySubmitPage() {
   const [authLoading, setAuthLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadFromStorage();
+    // Students already typed these in the profile step
+    getDraft().then((draft) => {
+      const profile = (draft?.profile || {}) as Record<string, string>;
+      setAuthFirstName(profile.firstName || '');
+      setAuthLastName(profile.lastName || '');
+      setAuthEmail(profile.email || '');
+    });
   }, [loadFromStorage]);
 
   const syncAll = useCallback(async () => {
@@ -85,6 +93,21 @@ export default function ApplySubmitPage() {
     syncAll();
   };
 
+  const handleGoogle = async (credential: string) => {
+    setAuthError('');
+    try {
+      await loginWithGoogle(credential);
+    } catch (err: unknown) {
+      setAuthError(
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        'Google sign-in failed'
+      );
+      return;
+    }
+    setShowAuth(false);
+    await syncAll();
+  };
+
   const handleAuth = async () => {
     setAuthError('');
     setAuthLoading(true);
@@ -108,6 +131,7 @@ export default function ApplySubmitPage() {
           phone: profile.phone,
           educationLevel: profile.educationLevel || '',
         });
+        setNeedsEmailConfirmation(true);
       } else {
         await login(authEmail, authPassword);
       }
@@ -135,6 +159,7 @@ export default function ApplySubmitPage() {
         <h1 className="text-2xl font-bold text-carbon mb-2">Application Submitted! 🎉</h1>
         <p className="text-dim-grey mb-6">
           Your registration is complete. We&apos;ll review your profile.
+          {needsEmailConfirmation && ' Please check your email and click the link to confirm your address.'}
         </p>
         <div className="space-y-3">
           <Button onClick={() => router.push('/dashboard')}>Go to Dashboard</Button>
@@ -199,6 +224,8 @@ export default function ApplySubmitPage() {
             {authError && (
               <div className="bg-red-bg text-red-text px-3 py-2 rounded-lg text-sm">{authError}</div>
             )}
+
+            <GoogleButton onCredential={handleGoogle} />
 
             {authMode === 'register' && (
               <div className="grid grid-cols-2 gap-3">

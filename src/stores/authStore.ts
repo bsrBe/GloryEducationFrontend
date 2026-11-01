@@ -20,6 +20,7 @@ interface AuthState {
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (data: Record<string, unknown>) => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
   logout: () => void;
   loadFromStorage: () => void;
   clearError: () => void;
@@ -56,6 +57,33 @@ export const useAuthStore = create<AuthState>((set) => ({
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
         'Login failed';
+      set({ error: message, isLoading: false });
+      throw err;
+    }
+  },
+
+  loginWithGoogle: async (credential: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await authAPI.google({ credential });
+      const rawToken = res.data.access_token;
+      const rawUser = res.data.user;
+      const user: User = {
+        _id: rawUser._id || rawUser.id,
+        email: rawUser.email,
+        firstName: rawUser.firstName,
+        lastName: rawUser.lastName,
+        role: 'student',
+        studentId: rawUser.studentId,
+      };
+
+      localStorage.setItem('token', rawToken);
+      localStorage.setItem('user', JSON.stringify(user));
+      set({ user, token: rawToken, isLoading: false });
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        'Google sign-in failed';
       set({ error: message, isLoading: false });
       throw err;
     }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { studentsAPI } from '@/lib/api';
+import { authAPI, studentsAPI } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Badge, LoadingSpinner, ErrorState, Button } from '@/components/ui';
 import {
@@ -25,6 +25,7 @@ interface DashboardData {
   name?: string;
   email?: string;
   profileComplete?: number;
+  emailVerified?: boolean;
   paymentStatus?: string;
   documentStatus?: string;
   assessmentStatus?: string;
@@ -47,6 +48,23 @@ export default function StudentDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
+
+  const handleResend = async () => {
+    setResending(true);
+    try {
+      const res = await authAPI.resendVerification();
+      setResendMessage(res.data.message);
+    } catch (err: unknown) {
+      setResendMessage(
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        'Could not send the email. Please try again.'
+      );
+    } finally {
+      setResending(false);
+    }
+  };
 
   useEffect(() => {
     studentsAPI
@@ -95,6 +113,20 @@ export default function StudentDashboard() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      {data?.emailVerified === false && (
+        <div className="bg-gold-light border border-gold/40 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="text-sm text-carbon">
+            <p className="font-semibold">Please confirm your email</p>
+            <p className="text-dim-grey mt-0.5">
+              {resendMessage || `Use the link in the email we sent to ${user?.email || data?.email}. Can't find it? Check your spam folder or ask for a new one.`}
+            </p>
+          </div>
+          <Button size="sm" variant="secondary" onClick={handleResend} loading={resending} className="shrink-0">
+            Send a new link
+          </Button>
+        </div>
+      )}
+
       {/* Welcome Hero Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-ocean-dark text-white p-6 sm:p-8 border border-charcoal/30 shadow-lg">
 
