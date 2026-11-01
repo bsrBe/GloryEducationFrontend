@@ -22,6 +22,7 @@ export default function ApplySubmitPage() {
   const [authLoading, setAuthLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -129,6 +130,7 @@ export default function ApplySubmitPage() {
           phone: profile.phone,
           educationLevel: profile.educationLevel || '',
         });
+        setNeedsEmailConfirmation(true);
       } else {
         await login(authEmail, authPassword);
       }
@@ -156,6 +158,7 @@ export default function ApplySubmitPage() {
         <h1 className="text-2xl font-bold text-carbon mb-2">Application Submitted! 🎉</h1>
         <p className="text-dim-grey mb-6">
           Your registration is complete. We&apos;ll review your profile.
+          {needsEmailConfirmation && ' Please check your email and click the link to confirm your address.'}
         </p>
         <div className="space-y-3">
           <Button onClick={() => router.push('/dashboard')}>Go to Dashboard</Button>

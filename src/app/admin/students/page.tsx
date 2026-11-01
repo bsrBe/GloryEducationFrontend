@@ -31,6 +31,7 @@ interface StudentListItem {
   englishTest?: string;
   englishScore?: number;
   profileComplete?: number;
+  emailVerified?: boolean;
   payments?: Array<{
     method: string;
     transactionRef: string;
@@ -412,6 +413,7 @@ export default function AdminStudentsPage() {
                   </div>
                   <p className="text-xs text-dim-grey mt-1">
                     {selectedStudent.email} • {selectedStudent.phone} • Profile: {selectedStudent.profileComplete ?? 0}%
+                    {selectedStudent.emailVerified !== true && ' • Email not confirmed'}
                   </p>
                 </div>
                 <button onClick={() => setSelectedStudent(null)} className="text-dim-grey hover:text-carbon p-1">
