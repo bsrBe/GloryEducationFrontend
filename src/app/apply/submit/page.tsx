@@ -71,7 +71,15 @@ export default function ApplySubmitPage() {
       }
 
       // Upload documents from IndexedDB
-      await syncToBackend(currentUser._id);
+      const { failed, firstError } = await syncToBackend(currentUser._id);
+
+      // Keep the local files so nothing is lost and the student can retry
+      if (failed > 0) {
+        setError(
+          `Your profile was saved, but ${failed} document${failed > 1 ? 's' : ''} could not be uploaded: ${firstError?.replace(/\.$/, '')}. Go back to the documents step to change your files, then submit again.`
+        );
+        return;
+      }
 
       await clearDraft();
       await clearDocuments();

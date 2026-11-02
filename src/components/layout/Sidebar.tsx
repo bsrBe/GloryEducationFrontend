@@ -43,6 +43,7 @@ const navItems: NavItem[] = [
   // Staff & Admin
   { label: 'Analytics', href: '/admin/analytics', icon: <BarChart3 size={18} />, roles: ['admin', 'glory_staff'] },
   { label: 'Students Queue', href: '/admin/students', icon: <GraduationCap size={18} />, roles: ['admin', 'glory_staff'] },
+  { label: 'Messages', href: '/admin/messages', icon: <MessageSquare size={18} />, roles: ['admin', 'glory_staff'] },
   { label: 'Universities', href: '/admin/universities', icon: <Target size={18} />, roles: ['admin', 'glory_staff'] },
   { label: 'Events & Rooms', href: '/admin/events', icon: <Calendar size={18} />, roles: ['admin', 'glory_staff'] },
   { label: 'Bulk Email', href: '/admin/email', icon: <Sparkles size={18} />, roles: ['admin', 'glory_staff'] },

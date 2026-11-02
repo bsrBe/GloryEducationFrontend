@@ -152,6 +152,9 @@ export const messagesAPI = {
   inbox: () => api.get('/messages/inbox'),
   unread: () => api.get('/messages/unread'),
   get: (id: string) => api.get(`/messages/${id}`),
+  thread: () => api.get('/messages/thread'),
+  conversations: () => api.get('/messages/conversations'),
+  conversation: (studentId: string) => api.get(`/messages/conversations/${studentId}`),
 };
 
 // --- Audit Logs (admin/staff) ---

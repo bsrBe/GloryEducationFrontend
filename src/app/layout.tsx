@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Red_Hat_Display, Red_Hat_Text } from 'next/font/google';
+import { Toaster } from 'sonner';
 import './globals.css';
 
 const redHatText = Red_Hat_Text({
@@ -30,6 +31,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${redHatText.variable} ${redHatDisplay.variable}`} suppressHydrationWarning>
       <body className="min-h-screen bg-porcelain text-carbon antialiased">
         {children}
+        <Toaster
+          position="top-right"
+          theme="system"
+          richColors
+          closeButton
+          duration={5000}
+          style={
+            {
+              '--success-bg': 'var(--status-green-bg)',
+              '--success-border': 'var(--status-green)',
+              '--success-text': 'var(--status-green-text)',
+              '--error-bg': 'var(--status-red-bg)',
+              '--error-border': 'var(--status-red)',
+              '--error-text': 'var(--status-red-text)',
+            } as React.CSSProperties
+          }
+        />
       </body>
     </html>
   );

@@ -5,13 +5,15 @@ import { useRouter } from 'next/navigation';
 import { saveDocument, getDocuments, deleteDocument, saveDraft, getDraft } from '@/lib/draftStorage';
 import { Button, Badge } from '@/components/ui';
 import { ApplyHeading, ApplySection } from '@/components/apply/ApplyParts';
+import { validateDocumentFile, DOCUMENT_LIMIT_MESSAGE, MAX_DOCUMENTS } from '@/lib/documentRules';
 import { Upload, FileText, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function ApplyDocumentsPage() {
   const router = useRouter();
   const [documents, setDocuments] = useState<{ id: string; fileName: string; fileType: string; fileSize: number }[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const atLimit = documents.length >= MAX_DOCUMENTS;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadDocs = useCallback(async () => {
@@ -34,16 +36,11 @@ export default function ApplyDocumentsPage() {
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setError(null);
 
-    // Validate
-    const allowed = ['application/pdf', 'image/jpeg', 'image/png'];
-    if (!allowed.includes(file.type)) {
-      setError('Only PDF, JPEG, and PNG files are allowed');
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setError('File must be under 10MB');
+    const validationError = validateDocumentFile(file);
+    if (validationError) {
+      toast.error(validationError);
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
@@ -56,8 +53,9 @@ export default function ApplyDocumentsPage() {
         file,
       });
       await loadDocs();
+      toast.success(`${file.name} added`);
     } catch {
-      setError('Failed to save file');
+      toast.error('Failed to save file');
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -92,17 +90,14 @@ export default function ApplyDocumentsPage() {
         <p>Add your transcripts and certificates. They stay on this device until you submit.</p>
       </ApplyHeading>
 
-      {error && (
-        <div className="bg-red-bg text-red-text px-4 py-3 rounded-[10px] text-sm border border-red/30">
-          {error}
-        </div>
-      )}
-
       {/* Upload Area */}
-      <ApplySection title="Add a document" hint="PDF, JPEG or PNG, up to 10MB each.">
+      <ApplySection title="Add a document" hint={`Up to ${MAX_DOCUMENTS} documents. PDF, JPEG or PNG, up to 10 MB each.`}>
         <button
           type="button"
-          className="w-full bg-surface border-2 border-dashed border-[color:var(--btn-secondary-border)] rounded-[10px] p-8 text-center hover:border-ocean cursor-pointer"
+          disabled={atLimit || uploading}
+          className={`w-full bg-surface border-2 border-dashed border-[color:var(--btn-secondary-border)] rounded-[10px] p-8 text-center ${
+            atLimit ? 'opacity-60 cursor-not-allowed' : 'hover:border-ocean cursor-pointer'
+          }`}
           onClick={() => fileInputRef.current?.click()}
         >
           {uploading ? (
@@ -110,6 +105,8 @@ export default function ApplyDocumentsPage() {
               <div className="animate-spin h-6 w-6 border-2 border-ocean border-t-transparent rounded-full mx-auto mb-2" />
               <p className="text-sm text-dim-grey">Saving to device...</p>
             </div>
+          ) : atLimit ? (
+            <p className="font-medium text-carbon">{DOCUMENT_LIMIT_MESSAGE} Remove one to add another.</p>
           ) : (
             <>
               <Upload size={28} className="mx-auto text-ocean mb-2" />
@@ -127,7 +124,7 @@ export default function ApplyDocumentsPage() {
       </ApplySection>
 
       {/* Document List */}
-      <ApplySection title={`Your documents (${documents.length})`}>
+      <ApplySection title={`Your documents (${documents.length} of ${MAX_DOCUMENTS})`}>
         {documents.length === 0 ? (
           <div className="text-center py-6 text-dim-grey">
             <FileText size={24} className="mx-auto mb-2 opacity-50" />

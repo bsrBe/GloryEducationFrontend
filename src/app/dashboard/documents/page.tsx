@@ -4,7 +4,9 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { studentsAPI } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Badge, LoadingSpinner, ErrorState } from '@/components/ui';
+import { countActiveDocuments, validateDocumentFile, DOCUMENT_LIMIT_MESSAGE, MAX_DOCUMENTS } from '@/lib/documentRules';
 import { Upload, FileText, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Document {
   fileName?: string;
@@ -68,14 +70,22 @@ export default function DocumentsPage() {
     const file = e.target.files?.[0];
     if (!file || !user?._id) return;
 
+    const validationError = validateDocumentFile(file);
+    if (validationError) {
+      toast.error(validationError);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
       await studentsAPI.uploadDocument(user._id, formData);
+      toast.success(`${file.name} uploaded`);
       loadDocuments();
     } catch (err: unknown) {
-      setError(
+      toast.error(
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Upload failed'
       );
     } finally {
@@ -101,20 +111,28 @@ export default function DocumentsPage() {
   if (loading) return <LoadingSpinner text="Loading documents..." />;
   if (error && !documents.length) return <ErrorState message={error} />;
 
+  const activeCount = countActiveDocuments(documents);
+  const atLimit = activeCount >= MAX_DOCUMENTS;
+
   return (
     <div className="max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-carbon">Documents</h1>
         <p className="text-dim-grey text-sm mt-1">
-          Upload your academic documents (combined PDF recommended, max 10MB)
+          Upload up to {MAX_DOCUMENTS} academic documents (a combined PDF is recommended)
         </p>
       </div>
 
       {/* Upload Area */}
       <Card>
         <div
-          className="border-2 border-dashed border-charcoal/30 rounded-xl p-8 text-center hover:border-ocean transition-colors cursor-pointer"
-          onClick={() => fileInputRef.current?.click()}
+          className={`border-2 border-dashed border-charcoal/30 rounded-xl p-8 text-center transition-colors ${
+            atLimit ? 'opacity-60 cursor-not-allowed' : 'hover:border-ocean cursor-pointer'
+          }`}
+          aria-disabled={atLimit || uploading}
+          onClick={() => {
+            if (!atLimit && !uploading) fileInputRef.current?.click();
+          }}
         >
           <Upload size={32} className="mx-auto text-dim-grey mb-3" />
           {uploading ? (
@@ -122,10 +140,12 @@ export default function DocumentsPage() {
               <div className="animate-spin h-6 w-6 border-2 border-ocean border-t-transparent rounded-full mx-auto mb-2" />
               <p className="text-sm text-dim-grey">Uploading to secure storage...</p>
             </div>
+          ) : atLimit ? (
+            <p className="font-medium text-carbon">{DOCUMENT_LIMIT_MESSAGE}</p>
           ) : (
             <>
-              <p className="font-medium text-carbon">Click to upload or drag and drop</p>
-              <p className="text-sm text-dim-grey mt-1">PDF, JPEG, or PNG (max 10MB)</p>
+              <p className="font-medium text-carbon">Click to upload</p>
+              <p className="text-sm text-dim-grey mt-1">PDF, JPEG, or PNG (max 10 MB)</p>
             </>
           )}
         </div>
@@ -140,7 +160,7 @@ export default function DocumentsPage() {
 
       {/* Document List */}
       <Card>
-        <h3 className="font-semibold text-carbon mb-4">Uploaded Documents</h3>
+        <h3 className="font-semibold text-carbon mb-4">Uploaded Documents ({activeCount} of {MAX_DOCUMENTS})</h3>
         {documents.length === 0 ? (
           <div className="text-center py-8 text-dim-grey">
             <FileText size={32} className="mx-auto mb-2 opacity-50" />

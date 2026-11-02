@@ -140,10 +140,13 @@ export async function clearDocuments(): Promise<void> {
 
 import { studentsAPI } from '@/lib/api';
 
-export async function syncToBackend(studentId: string): Promise<{ synced: number; failed: number }> {
+export async function syncToBackend(
+  studentId: string,
+): Promise<{ synced: number; failed: number; firstError?: string }> {
   const docs = await getDocuments();
   let synced = 0;
   let failed = 0;
+  let firstError: string | undefined;
 
   for (const doc of docs) {
     if (doc.uploaded) continue;
@@ -154,10 +157,12 @@ export async function syncToBackend(studentId: string): Promise<{ synced: number
       const remoteUrl = res.data?.document?.cloudinaryUrl || res.data?.url || '';
       await markDocumentUploaded(doc.id, remoteUrl);
       synced++;
-    } catch {
+    } catch (err: unknown) {
       failed++;
+      firstError ??=
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Upload failed';
     }
   }
 
-  return { synced, failed };
+  return { synced, failed, firstError };
 }

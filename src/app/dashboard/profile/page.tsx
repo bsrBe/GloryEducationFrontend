@@ -7,6 +7,7 @@ import { destinationOptions, normalizeDestination } from '@/lib/destinations';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Input, Select, Button, LoadingSpinner, ErrorState } from '@/components/ui';
 import { Save } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ProfileForm {
   firstName: string;
@@ -32,7 +33,6 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileForm>();
 
@@ -70,7 +70,6 @@ export default function ProfilePage() {
   const onSubmit = async (data: ProfileForm) => {
     if (!user?._id) return;
     setSaving(true);
-    setSuccess(false);
     try {
       const payload: Record<string, unknown> = {
         firstName: data.firstName,
@@ -95,10 +94,9 @@ export default function ProfilePage() {
       Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k]);
 
       await studentsAPI.updateProfile(user._id, payload);
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
+      toast.success('Profile saved');
     } catch (err: unknown) {
-      setError(
+      toast.error(
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
         'Failed to save profile'
       );
@@ -118,12 +116,6 @@ export default function ProfilePage() {
           Complete your academic profile for university matching
         </p>
       </div>
-
-      {success && (
-        <div className="bg-green-bg border border-green/30 text-green-text px-4 py-3 rounded-lg text-sm">
-          ✅ Profile saved successfully!
-        </div>
-      )}
 
       {error && (
         <div className="bg-red-bg border border-red/30 text-red-text px-4 py-3 rounded-lg text-sm">
