@@ -314,12 +314,12 @@ export default function StudentDashboard() {
             </div>
             <h4 className="font-bold text-sm text-carbon mb-1">Need Consultation?</h4>
             <p className="text-xs text-dim-grey leading-relaxed">
-              Message your assigned advisor directly through our internal messaging inbox for help with documents or applications.
+              Message the Veridan team directly for help with your documents or application.
             </p>
           </div>
           <Link href="/dashboard/messages" className="mt-5">
             <Button variant="outline-ocean" size="sm" className="w-full text-xs font-bold">
-              Open Advisor Messages
+              Message the Team
             </Button>
           </Link>
         </Card>
