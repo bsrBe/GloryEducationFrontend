@@ -484,7 +484,7 @@ export default function AdminStudentsPage() {
                             rel="noreferrer"
                             className="text-ocean font-semibold hover:underline flex items-center gap-1"
                           >
-                            Open PDF <ExternalLink size={12} />
+                            Open file <ExternalLink size={12} />
                           </a>
                         </div>
                       ))}
